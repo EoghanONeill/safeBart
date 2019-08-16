@@ -11,8 +11,6 @@ Quadrianto, N., & Ghahramani, Z. (2014). A very simple safe-Bayesian random fore
 
 ## Installation
 
-You can install the released version of safeBart from [CRAN](https://CRAN.R-project.org) with:
-
 ``` r
 library(devtools)
 install_github("EoghanONeill/safeBart")
@@ -20,7 +18,6 @@ install_github("EoghanONeill/safeBart")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(safeBart)
