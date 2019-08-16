@@ -1,12 +1,12 @@
 Package: safeBart
-Title: What the Package Does (One Line, Title Case)
+Title: safeBART is an implementation of Bayesian Additive Regression Trees using importance sampling. This combines aspects of BART-BMA (Hernandez et al. 2018) and safe-Bayesian Random Forests (Quadrianto and Ghahramani 2015).
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Eoghan",
            family = "O'Neill",
            role = c("aut", "cre"),
            email = "oneill.eoghan.1@gmail.com")
-Description: What the package does (one paragraph).
+Description: safeBART is an implementation of Bayesian Additive Regression Trees using importance sampling. This combines aspects of BART-BMA (Hernandez et al. 2018) and safe-Bayesian Random Forests (Quadrianto and Ghahramani 2015).
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -14,6 +14,12 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 LinkingTo: 
     Rcpp,
-    RcppArmadillo
+    RcppArmadillo,
+    dqrng,
+    BH,
+    sitmo
 Imports: 
-    Rcpp
+    Rcpp,
+    dqrng
+URL: https://github.com/EoghanONeill/safeBart
+BugReports: https://github.com/EoghanONeill/safeBart/issues
