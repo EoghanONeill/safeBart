@@ -56,7 +56,7 @@ ncores <- 7
 
 examplepreds1 <- safeBart_parallel(seed1,
   y, xcov,xcovtest,
-  lambda=0.45,
+  lambda=lambda,
   num_models=Num_models,
   num_trees=num_trees1,
   beta_par=beta_par,
