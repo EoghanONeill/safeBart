@@ -9,8 +9,8 @@ using namespace Rcpp;
 //'
 //' @description Quadrianto and Ghahramani (2015) reccomend the use of the probability intergral transform to transform the continuous input features. The code is edited from https://github.com/dmbates/ecdfExample
 //' @param originaldata Training data matrix
-//' @export
 // [[Rcpp::depends(RcppArmadillo)]]
+//' @export
 // [[Rcpp::export]]
 NumericMatrix cpptrans_cdf(NumericMatrix originaldata){
   NumericMatrix transformedData(originaldata.nrow(), originaldata.ncol());
@@ -4578,7 +4578,7 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
 
 
   //THIS CAN BE PARALLELIZED IF THERE ARE MANY VARIABLES
-  arma::mat x_control_a(D1.n_rows,D1.n_cols);
+  arma::mat x_control_a_temp(D1.n_rows,D1.n_cols);
   for(unsigned int k=0; k<D1.n_cols;k++){
     arma::vec samp= D1.col(k);
     arma::vec sv=arma::sort(samp);
@@ -4592,8 +4592,12 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
       while (sv(j) < ssampi && j < sv.size()) ++j;
       ans(ind) = j;     // j is the 1-based index of the lower bound
     }
-    x_control_a.col(k)=(ans+1)/nobs;
+    x_control_a_temp.col(k)=(ans+1)/nobs;
   }
+
+  arma::mat x_control_a=x_control_a_temp;			// create arma mat copy of x_control_a_temp.
+
+  arma::mat x_moderate_a=x_control_a_temp;			// create arma mat copy of x_control_a_temp.
 
   arma::mat pihat_a(pihat_1.n_rows,pihat_1.n_cols);
 
@@ -4628,7 +4632,7 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
 
   // Name the matrix without the estimated propensity scores x_moderate.[CAN REMOVE THE DUPLICATION AND ADD x_control, x_moderate, and include_pi as input parameters later]
   //NumericMatrix x_moderate = data;	// x_moderate matrix is the covariate data without the propensity scores
-  arma::mat x_moderate_a=D1;			// create arma mat copy of x_moderate.
+  //arma::mat x_moderate_a=D1;			// create arma mat copy of x_moderate.
   if((include_pi2==1)| (include_pi2==2) ){
     if(pihat_train.nrow()>0 ){
       x_moderate_a.insert_cols(0,pihat_a);		// add propensity scores as new leftmost columns of x_control_a
@@ -4646,10 +4650,13 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
   //arma::mat x_control_test_a=T1;				// create a copy of test_data arma mat called x_control_test_a
 
   arma::mat x_control_test_a(T1.n_rows,T1.n_cols);
+  arma::mat x_moderate_test_a(T1.n_rows,T1.n_cols);
   arma::mat pihat_a_test(pihat_1_test.n_rows,pihat_1_test.n_cols);
 
   if(is_test_data==1){
     //THIS CAN BE PARALLELIZED IF THERE ARE MANY VARIABLES
+    arma::mat x_control_a_test_temp(T1.n_rows,T1.n_cols);
+
     for(unsigned int k=0; k<T1.n_cols;k++){
       arma::vec samp= T1.col(k);
       arma::vec sv=arma::sort(samp);
@@ -4663,8 +4670,12 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
         while (sv(j) < ssampi && j < sv.size()) ++j;
         ans(ind) = j;     // j is the 1-based index of the lower bound
       }
-      x_control_test_a.col(k)=(ans+1)/nobs;
+      x_control_a_test_temp.col(k)=(ans+1)/nobs;
     }
+
+    arma::mat x_control_test_a=x_control_a_test_temp;			// create arma mat copy of x_control_a_temp.
+
+    arma::mat x_moderate_test_a=x_control_a_test_temp;			// create arma mat copy of x_control_a_temp.
 
 
     //THIS CAN BE PARALLELIZED IF THERE ARE MANY VARIABLES
@@ -4700,7 +4711,7 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
 
   // Name the matrix without the estimated propensity scores x_moderate_test.[CAN REMOVE THE DUPLICATION AND ADD x_control_test, x_moderate_test, and include_pi as input parameters later]
   //NumericMatrix x_moderate_test = test_data;	// x_moderate_test matrix is the covariate test_data without the propensity scores
-  arma::mat x_moderate_test_a=T1;			// create arma mat copy of x_moderate_test.
+  //arma::mat x_moderate_test_a=T1;			// create arma mat copy of x_moderate_test.
   if((include_pi2==1)| (include_pi2==2) ){
     if(test_pihat.nrow()>0 ){
       x_moderate_test_a.insert_cols(0,pihat_a_test);		// add propensity scores as new leftmost columns of x_control_a
@@ -4726,6 +4737,10 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
   int num_split_vars_mu= x_control_a.n_cols;
 
   int num_split_vars_tau= x_moderate_a.n_cols;
+
+
+  //Rcout << "num_split_vars_mu = " << num_split_vars_mu << ".\n" ;
+  //Rcout << "num_split_vars_tau = " << num_split_vars_tau << ".\n" ;
 
   //arma::mat data_arma= as<arma::mat>(original_datamat);
   //arma::mat testdata_arma= as<arma::mat>(test_datamat);
@@ -5186,7 +5201,8 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
       tree_table1.col(4) = treenodes_bin_arma;
 
 
-      //Rcout << "Line 1061. j = " << j << ". \n";
+      //Rcout << "Line 5189. j = " << j << ". \n";
+      //Rcout << "Line 5190. tree_table1 mu = " << tree_table1 << ". \n";
 
 
 
@@ -5840,7 +5856,7 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
 
      }
 
-   }else{  //If not sampling from BAT prior
+   }else{  //If not sampling from BART prior
      if(imp_sampler==2){//If sampling from spike and tree prior
        throw std::range_error("code not yet written for spike and tree sampling");
 
@@ -6113,6 +6129,8 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
 
 
    //Rcout << "Line 1061. j = " << j << ". \n";
+   //Rcout << "Line 6117. j = " << j << ". \n";
+   //Rcout << "Line 6118. tree_table1 tau = " << tree_table1 << ". \n";
 
 
 
@@ -6892,6 +6910,9 @@ if(is_test_data==1){
 
 
 
+//Rcout << "overall_liks = " << overall_liks << ". \n";
+//Rcout << "max(overall_liks) = " << max(overall_liks) << ". \n";
+//Rcout << "overall_liks[14] = " << overall_liks[14] << ". \n";
 
 
 double sumlik_total= arma::sum(overall_liks);
