@@ -6,7 +6,8 @@
 \usage{
 sBART_onefunc_parallel(lambda, num_models, num_trees, seed, ytrain,
   original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a,
-  lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART)
+  lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART,
+  fast_approx)
 }
 \arguments{
 \item{lambda}{A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .}

@@ -3117,6 +3117,8 @@ NumericMatrix sBayesRF_onefunc_arma(double lambda, int num_trees,
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::depends(dqrng, BH, sitmo)]]
+
+
 #include <xoshiro.h>
 #include <dqrng_distribution.h>
 //#include <dqrng.h>
@@ -3157,7 +3159,8 @@ NumericVector sBART_onefunc_parallel(double lambda,
                                         int tree_prior,
                                         int imp_sampler,
                                         double alpha_BART,
-                                        double beta_BART){
+                                        double beta_BART,
+                                        int fast_approx){
 
 
   //Rcout << "imp_sampler = " << imp_sampler << ".\n";
@@ -4292,133 +4295,266 @@ NumericVector sBART_onefunc_parallel(double lambda,
 
     double b=Wmat.n_cols;
 
-    //get t(y)inv(psi)J
-    arma::mat ytW=y.t()*Wmat;
-    //get t(J)inv(psi)J
-    arma::mat WtW=Wmat.t()*Wmat;
-    //get jpsij +aI
-    arma::mat aI(b,b);
-    aI=a*aI.eye();
-    arma::mat sec_term=WtW+aI;
-    //arma::mat sec_term_inv=sec_term.i();
-    arma::mat sec_term_inv=inv_sympd(sec_term);
-    //get t(J)inv(psi)y
-    arma::mat third_term=Wmat.t()*y;
-    //get m^TV^{-1}m
-    arma::mat mvm= ytW*sec_term_inv*third_term;
-    //arma::mat rel=(b/2)*log(a)-(1/2)*log(det(sec_term))-expon*log(nu*lambdaBART - mvm +yty);
 
 
-    //double val1;
-    //double sign1;
+    if(fast_approx==1){
+      arma::mat p = Wmat.t();
+      arma::rowvec r = orig_y_arma.t();
 
-    //log_det(val1, sign1, sec_term);
-    //double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*val1-expon*log(nu*lambdaBART - mvm +yty)));
+      arma::mat cov = p * p.t() +a * arma::eye<arma::mat>(p.n_rows, p.n_rows);
 
-    double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)));
+      arma::mat parameters = arma::solve(cov, p * r.t(), arma::solve_opts::fast);
 
-    //double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*log(det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)));
+      arma::rowvec preds_temp_arma_t=arma::trans(parameters) * W_tilde.t();
+      arma::rowvec preds_insamp_arma=arma::trans(parameters) * p;
+
+      arma::vec preds_temp_arma= preds_temp_arma_t.t();
+
+      arma::vec tempresids=y-preds_insamp_arma.t();
+      double temp_sse= arma::dot(tempresids, tempresids);
+
+      //double templik0=exp(-b*0.5*log(num_obs)+log(temp_sse)*(-num_obs)*0.5);
+
+
+      //double templik0=exp(-b*0.5*log(num_obs)+log(temp_sse)*(-num_obs)*0.5);
+
+
+      //double templik0=exp(-0.5*(num_obs*log(temp_sse/num_obs)+b*log(num_obs)))  ;
+
+      double templik0=(num_obs*log(temp_sse/num_obs)+b*log(num_obs))  ;
+
+      // Rcout << "num_obs= " << num_obs << ". \n";
+      // Rcout << "b= " << b << ". \n";
+      // Rcout << "log(num_obs)= " << log(num_obs) << ". \n";
+      // Rcout << "log(temp_sse/num_obs)= " << log(temp_sse/num_obs) << ". \n";
+      //Rcout << "templik0= " << templik0 << ". \n";
+      // Rcout << "-0.5*(num_obs*log(temp_sse/num_obs)+b*log(num_obs))= " << -0.5*(num_obs*log(temp_sse/num_obs)+b*log(num_obs)) << ". \n";
+
+
+      //double templik = pow(templik0,beta_par);
+      double templik = beta_par*templik0;
+
+
+      if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
+        //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
+        //templik=templik*sum_prior_over_samp_prob;
+        templik=templik+log(sum_prior_over_samp_prob);
+
+      }
+      overall_liks(j)= templik;
+
+      overall_preds(j)=preds_temp_arma;
+
+    }else{
 
 
 
-    // Rcout << "templik0= " << templik0 << ". \n";
-    // Rcout << "b= " << b << ". \n";
-    // Rcout << "(b*0.5)*log(a)= " << (b*0.5)*log(a) << ". \n";
+      // ///////////////////////////////////
+      //get t(y)inv(psi)J
+      arma::mat ytW=y.t()*Wmat;
+      //get t(J)inv(psi)J
+      arma::mat WtW=Wmat.t()*Wmat;
+      //get jpsij +aI
+      arma::mat aI(b,b);
+      aI=a*aI.eye();
+      arma::mat sec_term=WtW+aI;
+      //arma::mat sec_term_inv=sec_term.i();
+      arma::mat sec_term_inv=inv_sympd(sec_term);
+      //get t(J)inv(psi)y
+      arma::mat third_term=Wmat.t()*y;
+      //get m^TV^{-1}m
+      arma::mat mvm= ytW*sec_term_inv*third_term;
+      //arma::mat rel=(b/2)*log(a)-(1/2)*log(det(sec_term))-expon*log(nu*lambdaBART - mvm +yty);
+      // /////////////////////////////////////////////
+
+
+      //
+      // Rcout << "-b*0.5*log(num_obs)= " << -b*0.5*log(num_obs) << ". \n";
+      // Rcout << "log(temp_sse)*(-num_obs)*0.5= " << log(temp_sse)*(-num_obs)*0.5 << ". \n";
+      //
+
+      //double templik0=pow(num_obs, -b*0.5)*pow(temp_sse,-num_obs*0.5);
+
+  //
+  //     arma::vec temppred1=Wmat*sec_term_inv*third_term;
+  //     arma::vec temperrors= y-temppred1;
+  //     arma::vec tempcoeffs= sec_term_inv*third_term;
+  //
+  //     double new_penalty= as_scalar(b*temppred1.t()*temppred1/(tempcoeffs.t()*tempcoeffs*(double(num_obs)-b)));
+  //
+  //     Rcout << " new_penalty =" << new_penalty << ".\n";
+
+
+      //double val1;
+      //double sign1;
+
+      //log_det(val1, sign1, sec_term);
+      //double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*val1-expon*log(nu*lambdaBART - mvm +yty)));
+
+
+  ////////////////////
+      //double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)));
+  //////////////
+  double templik0=arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-expon*log(nu*lambdaBART - mvm +yty));
+
+
+
+      //double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*log(det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)));
+
+
+
+
+
+  //
+  //
+  //     arma::mat aI2(b,b);
+  //     aI2=new_penalty*aI2.eye();
+  //     arma::mat sec_term2=WtW+aI2;
+  //     //arma::mat sec_term_inv=sec_term.i();
+  //     arma::mat sec_term_inv2=inv_sympd(sec_term2);
+  //     //get t(J)inv(psi)y
+  //     //arma::mat third_term=Wmat.t()*y;
+  //     //get m^TV^{-1}m
+  //     arma::mat mvm2= ytW*sec_term_inv2*third_term;
+  //
+  //
+  //     double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term2))-expon*log(nu*lambdaBART - mvm2 +yty)));
+  //
+
+
+
+
+
+    // Rcout << "log(temp_sse)= " << log(temp_sse) << ". \n";
     //
-    // Rcout << "-0.5*log(det(sec_term))= " << -0.5*log(det(sec_term)) << ". \n";
-    // Rcout << "det(sec_term)= " << det(sec_term) << ". \n";
-    // Rcout << "arma::det(sec_term)= " << arma::det(sec_term) << ". \n";
-    // Rcout << "arma::log_det(sec_term)= " << arma::log_det(sec_term) << ". \n";
-    // Rcout << "real(arma::log_det(sec_term))= " << real(arma::log_det(sec_term)) << ". \n";
-    // Rcout << "log(det(sec_term))= " << log(det(sec_term)) << ". \n";
-    // Rcout << "log(arma::det(sec_term))= " << log(arma::det(sec_term)) << ". \n";
     //
-    // Rcout << "-expon*log(nu*lambdaBART - mvm +yty)= " << -expon*log(nu*lambdaBART - mvm +yty) << ". \n";
+    // Rcout << "temp_sse= " << temp_sse << ". \n";
     //
-    // Rcout << "val= " << val << ". \n";
-
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //overall_treetables[j]= wrap(tree_table1);
-
-
-    //double templik = as<double>(treepred_output[1]);
-
-    double templik = pow(templik0,beta_par);
-    if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
-      //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
-      templik=templik*sum_prior_over_samp_prob;
-
-    }
-    overall_liks(j)= templik;
-
-    // if(std::isnan(templik)){
-    // Rcout << "Line 3943, j= " << j << ". \n";
-    // Rcout << "templik= " << templik << ". \n";
-    // Rcout << "sum_tree_prior_prob= " << sum_tree_prior_prob << ". \n";
-    // Rcout << "sum_tree_samp_prob= " << sum_tree_samp_prob << ". \n";
-    // }
-
-
-    //now fill in the predictions
-
-    //If want tree tables with predictions filled in, use
-    // arma::vec term_node_par_means = sec_term_inv*third_term;
-    // //and would need to save a field of tree tables,
-    // //add add a column, or begin with one more column
-    // //then the first treetableF[0].n_rows elements of term_node_par_means
-    // //give the first
-    // int row_count1=0;
-    // for(int tree_i=0; tree_i < treetableF.n_elem; tree_i++){
-    //   tabletemp= treetableF(i);
-    //   tabletemp.col(5) = term_node_par_means(arma::span(row_count1,tabletemp.n_rows));
-    //   treetableF(i)=tabletemp;
-    //   row_count1+=tabletemp.n_rows;
-    // }
-    //This would give an alternative method for obtaining test data predictions
-    //Look up the terminal nodes and add the relevant terminal node parameters
 
 
 
+      // Rcout << "templik0= " << templik0 << ". \n";
+//
+//       Rcout << "b= " << b << ". \n";
+//       Rcout << "(b*0.5)*log(a)= " << (b*0.5)*log(a) << ". \n";
+//
+//       Rcout << "-0.5*log(det(sec_term))= " << -0.5*log(det(sec_term)) << ". \n";
+//       Rcout << "det(sec_term)= " << det(sec_term) << ". \n";
+//       Rcout << "arma::det(sec_term)= " << arma::det(sec_term) << ". \n";
+//       Rcout << "arma::log_det(sec_term)= " << arma::log_det(sec_term) << ". \n";
+//       Rcout << "real(arma::log_det(sec_term))= " << real(arma::log_det(sec_term)) << ". \n";
+//       Rcout << "log(det(sec_term))= " << log(det(sec_term)) << ". \n";
+//       Rcout << "log(arma::det(sec_term))= " << log(arma::det(sec_term)) << ". \n";
+//
+//       Rcout << "-expon*log(nu*lambdaBART - mvm +yty)= " << -expon*log(nu*lambdaBART - mvm +yty) << ". \n";
+//
+//
+//       // Rcout << "val= " << val << ". \n";
+//
+// Rcout << "arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)) .\n" << arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)) << ".\n";
+//       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //arma::vec pred_vec(testdata_arma.n_rows);
-    arma::vec preds_temp_arma= W_tilde*sec_term_inv*third_term;
-
-
-
-
-
-    //THIS SHOULD BE DIFFERENT IF THE CODE IS TO BE PARALLELIZED
-    //EACH THREAD SHOULD OUTPUT ITS OWN MATRIX AND SUM OF LIKELIHOODS
-    //THEN ADD THE MATRICES TOGETHER AND DIVIDE BY THE TOTAL SUM OF LIKELIHOODS
-    //OR JUST SAVE ALL MATRICES TO ONE LIST
-
-
-    //pred_mat_overall = pred_mat_overall + templik*pred_mat;
-    //overall_treetables(j)= pred_mat*templik;
-    overall_preds(j)=preds_temp_arma*templik;
-
-    //Rcout << "Line 3985, j= " << j << ". \n";
-    //Rcout << "preds_temp_arma= " << preds_temp_arma << ". \n";
-
-    //overall_treetables(j)= pred_mat;
-    //overall_liks(j) =templik;
-
-    //arma::mat treeprob_output = get_test_probs(weights, num_cats,
-    //                                           testdata,
-    //                                           treetable_list[i]  );
-
-    //Rcout << "Line 688. i== " << i << ". \n";
-
-    //double weighttemp = weights[i];
-    //Rcout << "Line 691. i== " << i << ". \n";
-
-    //pred_mat_overall = pred_mat_overall + weighttemp*treeprob_output;
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //overall_treetables[j]= wrap(tree_table1);
 
 
+      //double templik = as<double>(treepred_output[1]);
 
+      //double templik = pow(templik0,beta_par);
+
+      double templik = beta_par*templik0;
+
+      if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
+        //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
+        //templik=templik*sum_prior_over_samp_prob;
+        templik=templik+log(sum_prior_over_samp_prob);
+
+      }
+      overall_liks(j)= templik;
+
+      // if(std::isnan(templik)){
+      // Rcout << "Line 3943, j= " << j << ". \n";
+      // Rcout << "templik= " << templik << ". \n";
+      // Rcout << "sum_tree_prior_prob= " << sum_tree_prior_prob << ". \n";
+      // Rcout << "sum_tree_samp_prob= " << sum_tree_samp_prob << ". \n";
+      // }
+
+
+      //now fill in the predictions
+
+      //If want tree tables with predictions filled in, use
+      // arma::vec term_node_par_means = sec_term_inv*third_term;
+      // //and would need to save a field of tree tables,
+      // //add add a column, or begin with one more column
+      // //then the first treetableF[0].n_rows elements of term_node_par_means
+      // //give the first
+      // int row_count1=0;
+      // for(int tree_i=0; tree_i < treetableF.n_elem; tree_i++){
+      //   tabletemp= treetableF(i);
+      //   tabletemp.col(5) = term_node_par_means(arma::span(row_count1,tabletemp.n_rows));
+      //   treetableF(i)=tabletemp;
+      //   row_count1+=tabletemp.n_rows;
+      // }
+      //This would give an alternative method for obtaining test data predictions
+      //Look up the terminal nodes and add the relevant terminal node parameters
+
+
+
+
+      //arma::vec pred_vec(testdata_arma.n_rows);
+
+      ////////////
+      arma::vec preds_temp_arma= W_tilde*sec_term_inv*third_term;
+
+  ////////////////////
+
+
+
+
+
+      //arma::vec preds_temp_arma= W_tilde*sec_term_inv2*third_term;
+
+
+
+      //THIS SHOULD BE DIFFERENT IF THE CODE IS TO BE PARALLELIZED
+      //EACH THREAD SHOULD OUTPUT ITS OWN MATRIX AND SUM OF LIKELIHOODS
+      //THEN ADD THE MATRICES TOGETHER AND DIVIDE BY THE TOTAL SUM OF LIKELIHOODS
+      //OR JUST SAVE ALL MATRICES TO ONE LIST
+
+
+      //pred_mat_overall = pred_mat_overall + templik*pred_mat;
+      //overall_treetables(j)= pred_mat*templik;
+
+
+      //overall_preds(j)=preds_temp_arma*templik;
+
+      overall_preds(j)=preds_temp_arma;
+
+
+
+
+      //Rcout << "Line 3985, j= " << j << ". \n";
+
+
+      //Rcout << "preds_temp_arma= " << preds_temp_arma << ". \n";
+      //Rcout << "preds_temp_arma*templik= " << preds_temp_arma*templik << ". \n";
+
+      //overall_treetables(j)= pred_mat;
+      //overall_liks(j) =templik;
+
+      //arma::mat treeprob_output = get_test_probs(weights, num_cats,
+      //                                           testdata,
+      //                                           treetable_list[i]  );
+
+      //Rcout << "Line 688. i== " << i << ". \n";
+
+      //double weighttemp = weights[i];
+      //Rcout << "Line 691. i== " << i << ". \n";
+
+      //pred_mat_overall = pred_mat_overall + weighttemp*treeprob_output;
+
+
+    }//end of else statement
   }//end of loop over all trees
 
 }//end of pragma omp code
@@ -4434,15 +4570,82 @@ NumericVector sBART_onefunc_parallel(double lambda,
 //}
 
 
-#pragma omp parallel
-{
-  arma::vec result_private=arma::zeros<arma::vec>(arma_test_data.n_rows);
-#pragma omp for nowait //fill result_private in parallel
-  for(unsigned int i=0; i<overall_preds.size(); i++) result_private += overall_preds(i);
-#pragma omp critical
-  pred_vec_overall += result_private;
-}
+if(fast_approx==1){
+  arma::vec BICi=-0.5*overall_liks;
+  double max_BIC=max(BICi);
 
+  // weighted_BIC is actually the posterior model probability
+  arma::vec weighted_BIC(overall_liks.size());
+
+
+  double tempterm=(max_BIC+log(sum(exp(BICi-max_BIC))));
+
+  for(unsigned int k=0;k<overall_liks.size();k++){
+
+    //NumericVector BICi=-0.5*BIC_weights;
+    //double max_BIC=max(BICi);
+    double weight=exp(BICi[k]-tempterm);
+    weighted_BIC[k]=weight;
+    //int num_its_to_sample = round(weight*(num_iter));
+
+  }
+
+  //Rcout << "weighted_BIC= " << weighted_BIC << ". \n";
+  //Rcout << "overall_liks= " << overall_liks << ". \n";
+
+  #pragma omp parallel num_threads(ncores)
+  {
+    arma::vec result_private=arma::zeros<arma::vec>(arma_test_data.n_rows);
+  #pragma omp for nowait //fill result_private in parallel
+    for(unsigned int i=0; i<overall_preds.size(); i++){
+      //double weight=exp(BICi[i]-(max_BIC+log(sum(exp(BICi-max_BIC)))));
+      result_private += overall_preds(i)*weighted_BIC(i);
+    }
+  #pragma omp critical
+    pred_vec_overall += result_private;
+  }
+
+
+  }else{ //if fast_approx==0
+
+    //arma::vec BICi=-0.5*overall_liks;
+    double max_loglik=max(overall_liks);
+
+    // weighted_BIC is actually the posterior model probability
+    arma::vec weighted_lik(overall_liks.size());
+
+
+    double tempterm=(max_loglik+log(sum(exp(overall_liks-max_loglik))));
+
+    for(unsigned int k=0;k<overall_liks.size();k++){
+
+      //NumericVector BICi=-0.5*BIC_weights;
+      //double max_BIC=max(BICi);
+      double weight=exp(overall_liks[k]-tempterm);
+      weighted_lik[k]=weight;
+      //int num_its_to_sample = round(weight*(num_iter));
+
+    }
+
+    //Rcout << "weighted_lik= " << weighted_lik << ". \n";
+    //Rcout << "overall_liks= " << overall_liks << ". \n";
+
+    #pragma omp parallel num_threads(ncores)
+    {
+      arma::vec result_private=arma::zeros<arma::vec>(arma_test_data.n_rows);
+    #pragma omp for nowait //fill result_private in parallel
+      for(unsigned int i=0; i<overall_preds.size(); i++) result_private += overall_preds(i)*weighted_lik(i);
+    #pragma omp critical
+      pred_vec_overall += result_private;
+    }
+
+
+    //double sumlik_total= arma::sum(overall_liks);
+    //Rcout << "sumlik_total = " << sumlik_total << ". \n";
+
+    //pred_vec_overall=pred_vec_overall*(1/sumlik_total);
+
+  }
 
 
 //Rcout << "Line 4030. \n";
@@ -4452,12 +4655,14 @@ NumericVector sBART_onefunc_parallel(double lambda,
 
 
 
-double sumlik_total= arma::sum(overall_liks);
+
+//double sumlik_total= arma::sum(overall_liks);
 //Rcout << "sumlik_total = " << sumlik_total << ". \n";
 
-pred_vec_overall=pred_vec_overall*(1/sumlik_total);
+//pred_vec_overall=pred_vec_overall*(1/sumlik_total);
 //Rcout << "Line 1141 . \n";
 //Rcout << "Line 1146 . \n";
+
 
 //Rcout << "Line 4042. \n";
 NumericVector orig_preds=get_original(min(ytrain),max(ytrain),-0.5,0.5,wrap(pred_vec_overall)) ;
@@ -4520,7 +4725,8 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
                                      double beta_BCF_mu,
                                      double alpha_BCF_tau,
                                      double beta_BCF_tau,
-                                     int include_pi2){
+                                     int include_pi2,
+                                     int fast_approx){
 
 
   //Check that various input vectors and matrices have consistent dimensions
@@ -6498,6 +6704,9 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
    //Rcout << "Line 6472.\n";
 
    Wmat_tau=join_rows(Wmat_tau,Jmat);
+
+
+
    //or
    //Wmat.insert_cols(Wmat.n_cols,Jmat);
    //or
@@ -6745,130 +6954,301 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
 
       //Rcout << "z_ar.n_elem = " << z_ar.n_elem << ".\n";
 
+
+      //Rcout <<"Wmat_tau BEFORE diag? = " << Wmat_tau <<".\n";
+
       arma::mat DiagZ_Wmat_tau= Wmat_tau.each_col()%z_ar;
       //Rcout << "Line 14693.\n";
 
 
       arma::mat Wmat = join_rows(Wmat_mu,DiagZ_Wmat_tau);
 
+
+      //Rcout <<"Wmat_mu = " << Wmat_mu <<".\n";
+      //Rcout <<"Wmat_tau AFTER diag? = " << Wmat_tau <<".\n";
+      //Rcout <<"DiagZ_Wmat_tau = " << DiagZ_Wmat_tau <<".\n";
+      //Rcout <<"Wmat = " << Wmat <<".\n";
+
+
       double b=Wmat.n_cols;									// b is number of columns of W_bcf matrix (omega in the paper)
 
-      //get t(orig_y_arma)inv(psi)J_bcf
-      arma::mat ytW=orig_y_arma.t()*Wmat;								// orig_y_arma transpose W_bcf
-      //get t(J_bcf)inv(psi)J_bcf
-      arma::mat WtW=Wmat.t()*Wmat;							// W_bcf transpose W_bcf
-      //get jpsij +aI
-      arma::mat aI(b,b);									// create b by b matrix called aI. NOT INIIALIZED.
-      aI=aI.eye();										// a times b by b identity matrix. The .eye() turns aI into an identity matrix.
-      arma::vec a_vec_mu = a_mu*arma::ones<arma::vec>(b_mu);
-      arma::vec a_vec_tau = a_tau*arma::ones<arma::vec>(b_tau);
-      arma::vec a_vec(b);
-      a_vec.head(b_mu) = a_vec_mu;
-      a_vec.tail(b_tau) = a_vec_tau;
-      aI.diag() = a_vec;
 
-      arma::mat sec_term=WtW+aI;							//
-      //arma::mat sec_term_inv=sec_term.i();					// matrix inverse expression in middle of eq 5 in the paper. The .i() obtains the matrix inverse.
-      arma::mat sec_term_inv=inv_sympd(sec_term);					// matrix inverse expression in middle of eq 5 in the paper. The .i() obtains the matrix inverse.
+      if(fast_approx==1){
+        arma::mat p = Wmat.t();
+        arma::rowvec r = orig_y_arma.t();
 
-      //get t(J_bcf)inv(psi)orig_y_arma
-      arma::mat third_term=Wmat.t()*orig_y_arma;						// W_bcf transpose orig_y_arma
-      //get m^TV^{-1}m
-      arma::mat mvm= ytW*sec_term_inv*third_term;		// matrix expression in middle of equation 5
-      //arma::mat rel=(b_mu*0.5)*log(a_mu)+(b_tau*0.5)*log(a_tau)-(1*0.5)*log(det(sec_term))-expon*log(nu*lambda - mvm +yty);		// log of all of equation 5 (i.e. the log of the marginal likelihood of the sum of tree model)
+        //create diagonal mat of penalty terms
+        arma::mat aI(b,b);									// create b by b matrix called aI. NOT INIIALIZED.
+        aI=aI.eye();										// a times b by b identity matrix. The .eye() turns aI into an identity matrix.
+        arma::vec a_vec_mu = a_mu*arma::ones<arma::vec>(b_mu);
+        arma::vec a_vec_tau = a_tau*arma::ones<arma::vec>(b_tau);
+        arma::vec a_vec(b);
+        a_vec.head(b_mu) = a_vec_mu;
+        a_vec.tail(b_tau) = a_vec_tau;
+        aI.diag() = a_vec;
+        //finish creating diagonal mat
 
-      //Rcout << "Line 14724.\n";
+        arma::mat cov = p * p.t() + aI;
 
+        arma::mat parameters = arma::solve(cov, p * r.t(), arma::solve_opts::fast);
 
-
-      //arma::vec preds_temp_arma= Vmat*sec_term_inv*Wmat.t()*orig_y_arma;
-      //arma::vec preds_temp_arma= Vmat*inv_sympd(sec_term)*Wmat.t()*orig_y_arma;
-      //arma::vec preds_temp_arma= Vmat*inv_sympd(sec_term)*third_term;
-
-
-      //double templik0=exp(arma::as_scalar((b_mu*0.5)*log(a_mu)+(b_tau*0.5)*log(a_tau)-(0.5)*log(det(sec_term))-expon*log(nu*lambdaBCF - mvm +yty)) );
-
-      double templik0=exp(arma::as_scalar((b_mu*0.5)*log(a_mu)+(b_tau*0.5)*log(a_tau)-(0.5)*real(arma::log_det(sec_term))-expon*log(nu*lambdaBCF - mvm +yty)) );
-
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      double templik = pow(templik0,beta_par);
-      if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
-        //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
-        templik=templik*sum_prior_over_samp_prob;
-
-      }
-      overall_liks(j)= templik;
-
-
-
-    if(is_test_data==1){
-      //arma::mat zeromat(arma::size(Wmat_mu),arma::fill::zeros);
-      //arma::mat zeromat(num_obs ,b_mu ,arma::fill::zeros);
-      arma::mat zeromat=arma::zeros<arma::mat>(num_test_obs,b_mu);
-      arma::mat Vmat = join_rows(zeromat,W_tilde_tau);
-
-      arma::vec preds_temp_arma= Vmat*sec_term_inv*third_term;
-
-      overall_preds(j)=preds_temp_arma*templik;
-
-
-      //arma::mat covar_t=as_scalar((1/double(nu+num_obs))*(nu*lambda+yty-mvm))*(Vmat*sec_term_inv*(Vmat.t()));
-
-      //arma::mat catevartemp=averagingvec.t()*covar_t*averagingvec;
-      //arma::mat cattvartemp=catt_averagingvec.t()*covar_t*catt_averagingvec;
-      //arma::mat catntvartemp=catnt_averagingvec.t()*covar_t*catnt_averagingvec;
-
-      // preds_all_models_arma.col(i)=preds_temp_arma;
-      // t_vars_arma.col(i)=covar_t.diag();
-      // cate_means_arma(i)=as_scalar(averagingvec.t()*preds_temp_arma);
-      // cate_means_weighted_arma(i)=cate_means_arma(i)*post_weights_arma(i);
-      // cate_vars_arma(i)=as_scalar(catevartemp);
-      // catt_means_arma(i)=as_scalar(catt_averagingvec.t()*preds_temp_arma);
-      // catt_means_weighted_arma(i)=catt_means_arma(i)*post_weights_arma(i);
-      // catt_vars_arma(i)=as_scalar(cattvartemp);
-      // catnt_means_arma(i)=as_scalar(catnt_averagingvec.t()*preds_temp_arma);
-      // catnt_means_weighted_arma(i)=catnt_means_arma(i)*post_weights_arma(i);
-      // catnt_vars_arma(i)=as_scalar(catntvartemp);
-      //
-
-    }else{
-
-      //arma::mat zeromat(arma::size(Wmat_mu),arma::fill::zeros);
-      //arma::mat zeromat(num_obs ,b_mu ,arma::fill::zeros);
-      arma::mat zeromat=arma::zeros<arma::mat>(num_obs ,b_mu);
-      arma::mat Vmat = join_rows(zeromat,Wmat_tau);
-
-      arma::vec preds_temp_arma= Vmat*sec_term_inv*third_term;
-
-      overall_preds(j)=preds_temp_arma*templik;
-
-
-      //arma::mat covar_t=as_scalar((1/double(nu+num_obs))*(nu*lambda+yty-mvm))*(Vmat*sec_term_inv*(Vmat.t()));
-
-      //arma::mat catevartemp=averagingvec.t()*covar_t*averagingvec;
-      //arma::mat cattvartemp=catt_averagingvec.t()*covar_t*catt_averagingvec;
-      //arma::mat catntvartemp=catnt_averagingvec.t()*covar_t*catnt_averagingvec;
-
-
-      // preds_all_models_arma.col(i)=preds_temp_arma;
-      // t_vars_arma.col(i)=covar_t.diag();
-      // cate_means_arma(i)=as_scalar(averagingvec.t()*preds_temp_arma);
-      // cate_means_weighted_arma(i)=cate_means_arma(i)*post_weights_arma(i);
-      // cate_vars_arma(i)=as_scalar(catevartemp);
-      // catt_means_arma(i)=as_scalar(catt_averagingvec.t()*preds_temp_arma);
-      // catt_means_weighted_arma(i)=catt_means_arma(i)*post_weights_arma(i);
-      // catt_vars_arma(i)=as_scalar(cattvartemp);
-      // catnt_means_arma(i)=as_scalar(catnt_averagingvec.t()*preds_temp_arma);
-      // catnt_means_weighted_arma(i)=catnt_means_arma(i)*post_weights_arma(i);
-      // catnt_vars_arma(i)=as_scalar(catntvartemp);
-      //
-
-    }//end of else statement (not test data)
+        arma::rowvec preds_insamp_arma=arma::trans(parameters) * p;
 
 
 
 
+
+        arma::vec tempresids=y-preds_insamp_arma.t();
+        double temp_sse= arma::dot(tempresids, tempresids);
+
+        //double templik0=exp(-b*0.5*log(num_obs)+log(temp_sse)*(-num_obs)*0.5);
+
+
+        //double templik0=exp(-b*0.5*log(num_obs)+log(temp_sse)*(-num_obs)*0.5);
+
+
+        //double templik0=exp(-0.5*(num_obs*log(temp_sse/num_obs)+b*log(num_obs)))  ;
+
+        double templik0=(num_obs*log(temp_sse/num_obs)+b*log(num_obs))  ;
+
+        // Rcout << "num_obs= " << num_obs << ". \n";
+        // Rcout << "b= " << b << ". \n";
+        // Rcout << "log(num_obs)= " << log(num_obs) << ". \n";
+        // Rcout << "log(temp_sse/num_obs)= " << log(temp_sse/num_obs) << ". \n";
+        //Rcout << "templik0= " << templik0 << ". \n";
+        // Rcout << "-0.5*(num_obs*log(temp_sse/num_obs)+b*log(num_obs))= " << -0.5*(num_obs*log(temp_sse/num_obs)+b*log(num_obs)) << ". \n";
+
+
+        //double templik = pow(templik0,beta_par);
+        double templik = beta_par*templik0;
+
+
+        if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
+          //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
+          templik=templik*sum_prior_over_samp_prob;
+
+        }
+        overall_liks(j)= templik;
+
+
+        //Now get and save predictions
+        if(is_test_data==1){ //save out of sample predictions if is_test_data==1
+          //arma::mat zeromat(arma::size(Wmat_mu),arma::fill::zeros);
+          //arma::mat zeromat(num_obs ,b_mu ,arma::fill::zeros);
+          arma::mat zeromat=arma::zeros<arma::mat>(num_test_obs,b_mu);
+          arma::mat Vmat = join_rows(zeromat,W_tilde_tau);
+
+          //arma::vec preds_temp_arma= Vmat*sec_term_inv*third_term;
+
+          arma::rowvec preds_temp_arma_t=arma::trans(parameters) * Vmat.t();
+          arma::vec preds_temp_arma= preds_temp_arma_t.t();
+
+          // overall_preds(j)=preds_temp_arma*templik;
+          overall_preds(j)=preds_temp_arma;
+
+
+          //arma::mat covar_t=as_scalar((1/double(nu+num_obs))*(nu*lambda+yty-mvm))*(Vmat*sec_term_inv*(Vmat.t()));
+
+          //arma::mat catevartemp=averagingvec.t()*covar_t*averagingvec;
+          //arma::mat cattvartemp=catt_averagingvec.t()*covar_t*catt_averagingvec;
+          //arma::mat catntvartemp=catnt_averagingvec.t()*covar_t*catnt_averagingvec;
+
+          // preds_all_models_arma.col(i)=preds_temp_arma;
+          // t_vars_arma.col(i)=covar_t.diag();
+          // cate_means_arma(i)=as_scalar(averagingvec.t()*preds_temp_arma);
+          // cate_means_weighted_arma(i)=cate_means_arma(i)*post_weights_arma(i);
+          // cate_vars_arma(i)=as_scalar(catevartemp);
+          // catt_means_arma(i)=as_scalar(catt_averagingvec.t()*preds_temp_arma);
+          // catt_means_weighted_arma(i)=catt_means_arma(i)*post_weights_arma(i);
+          // catt_vars_arma(i)=as_scalar(cattvartemp);
+          // catnt_means_arma(i)=as_scalar(catnt_averagingvec.t()*preds_temp_arma);
+          // catnt_means_weighted_arma(i)=catnt_means_arma(i)*post_weights_arma(i);
+          // catnt_vars_arma(i)=as_scalar(catntvartemp);
+          //
+
+        }else{
+
+          //arma::mat zeromat(arma::size(Wmat_mu),arma::fill::zeros);
+          //arma::mat zeromat(num_obs ,b_mu ,arma::fill::zeros);
+          arma::mat zeromat=arma::zeros<arma::mat>(num_obs ,b_mu);
+          arma::mat Vmat = join_rows(zeromat,Wmat_tau);
+
+          //Rcout <<"Vmat = " << Vmat <<".\n";
+
+          //arma::vec preds_temp_arma= Vmat*sec_term_inv*third_term;
+
+          arma::rowvec preds_temp_arma_t=arma::trans(parameters) * Vmat.t();
+          arma::vec preds_temp_arma= preds_temp_arma_t.t();
+          overall_preds(j)=preds_temp_arma;
+
+          //overall_preds(j)=preds_temp_arma*templik;
+
+
+          //arma::mat covar_t=as_scalar((1/double(nu+num_obs))*(nu*lambda+yty-mvm))*(Vmat*sec_term_inv*(Vmat.t()));
+
+          //arma::mat catevartemp=averagingvec.t()*covar_t*averagingvec;
+          //arma::mat cattvartemp=catt_averagingvec.t()*covar_t*catt_averagingvec;
+          //arma::mat catntvartemp=catnt_averagingvec.t()*covar_t*catnt_averagingvec;
+
+          // preds_all_models_arma.col(i)=preds_temp_arma;
+          // t_vars_arma.col(i)=covar_t.diag();
+          // cate_means_arma(i)=as_scalar(averagingvec.t()*preds_temp_arma);
+          // cate_means_weighted_arma(i)=cate_means_arma(i)*post_weights_arma(i);
+          // cate_vars_arma(i)=as_scalar(catevartemp);
+          // catt_means_arma(i)=as_scalar(catt_averagingvec.t()*preds_temp_arma);
+          // catt_means_weighted_arma(i)=catt_means_arma(i)*post_weights_arma(i);
+          // catt_vars_arma(i)=as_scalar(cattvartemp);
+          // catnt_means_arma(i)=as_scalar(catnt_averagingvec.t()*preds_temp_arma);
+          // catnt_means_weighted_arma(i)=catnt_means_arma(i)*post_weights_arma(i);
+          // catnt_vars_arma(i)=as_scalar(catntvartemp);
+          //
+
+        }//end of else statement (not test data)
+
+
+      }else{ // if fast_approx ==0
+
+
+
+
+
+        //get t(orig_y_arma)inv(psi)J_bcf
+        arma::mat ytW=orig_y_arma.t()*Wmat;								// orig_y_arma transpose W_bcf
+        //get t(J_bcf)inv(psi)J_bcf
+        arma::mat WtW=Wmat.t()*Wmat;							// W_bcf transpose W_bcf
+        //get jpsij +aI
+        arma::mat aI(b,b);									// create b by b matrix called aI. NOT INIIALIZED.
+        aI=aI.eye();										// a times b by b identity matrix. The .eye() turns aI into an identity matrix.
+        arma::vec a_vec_mu = a_mu*arma::ones<arma::vec>(b_mu);
+        arma::vec a_vec_tau = a_tau*arma::ones<arma::vec>(b_tau);
+        arma::vec a_vec(b);
+        a_vec.head(b_mu) = a_vec_mu;
+        a_vec.tail(b_tau) = a_vec_tau;
+        aI.diag() = a_vec;
+
+        arma::mat sec_term=WtW+aI;							//
+        //arma::mat sec_term_inv=sec_term.i();					// matrix inverse expression in middle of eq 5 in the paper. The .i() obtains the matrix inverse.
+        arma::mat sec_term_inv=inv_sympd(sec_term);					// matrix inverse expression in middle of eq 5 in the paper. The .i() obtains the matrix inverse.
+
+        //get t(J_bcf)inv(psi)orig_y_arma
+        arma::mat third_term=Wmat.t()*orig_y_arma;						// W_bcf transpose orig_y_arma
+        //get m^TV^{-1}m
+        arma::mat mvm= ytW*sec_term_inv*third_term;		// matrix expression in middle of equation 5
+        //arma::mat rel=(b_mu*0.5)*log(a_mu)+(b_tau*0.5)*log(a_tau)-(1*0.5)*log(det(sec_term))-expon*log(nu*lambda - mvm +yty);		// log of all of equation 5 (i.e. the log of the marginal likelihood of the sum of tree model)
+
+        //Rcout << "Line 14724.\n";
+
+
+
+        //arma::vec preds_temp_arma= Vmat*sec_term_inv*Wmat.t()*orig_y_arma;
+        //arma::vec preds_temp_arma= Vmat*inv_sympd(sec_term)*Wmat.t()*orig_y_arma;
+        //arma::vec preds_temp_arma= Vmat*inv_sympd(sec_term)*third_term;
+
+
+        //double templik0=exp(arma::as_scalar((b_mu*0.5)*log(a_mu)+(b_tau*0.5)*log(a_tau)-(0.5)*log(det(sec_term))-expon*log(nu*lambdaBCF - mvm +yty)) );
+
+        //double templik0=exp(arma::as_scalar((b_mu*0.5)*log(a_mu)+(b_tau*0.5)*log(a_tau)-(0.5)*real(arma::log_det(sec_term))-expon*log(nu*lambdaBCF - mvm +yty)) );
+
+        double templik0=arma::as_scalar((b_mu*0.5)*log(a_mu)+(b_tau*0.5)*log(a_tau)-(0.5)*real(arma::log_det(sec_term))-expon*log(nu*lambdaBCF - mvm +yty)) ;
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //double templik = pow(templik0,beta_par);
+        double templik = beta_par*templik0;
+
+        if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
+          //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
+          //templik=templik*sum_prior_over_samp_prob;
+          templik=templik+log(sum_prior_over_samp_prob);
+
+        }
+        overall_liks(j)= templik;
+
+
+        //now get and save predictions
+      if(is_test_data==1){
+        //arma::mat zeromat(arma::size(Wmat_mu),arma::fill::zeros);
+        //arma::mat zeromat(num_obs ,b_mu ,arma::fill::zeros);
+        arma::mat zeromat=arma::zeros<arma::mat>(num_test_obs,b_mu);
+        arma::mat Vmat = join_rows(zeromat,W_tilde_tau);
+
+
+        //arma::rowvec preds_temp_arma_t=arma::trans(parameters) * Vmat.t();
+        //arma::vec preds_temp_arma= preds_temp_arma_t.t();
+        //overall_preds(j)=preds_temp_arma;
+
+
+        arma::vec preds_temp_arma= Vmat*sec_term_inv*third_term;
+        overall_preds(j)=preds_temp_arma;
+
+        //overall_preds(j)=preds_temp_arma*templik;
+
+
+        //arma::mat covar_t=as_scalar((1/double(nu+num_obs))*(nu*lambda+yty-mvm))*(Vmat*sec_term_inv*(Vmat.t()));
+
+        //arma::mat catevartemp=averagingvec.t()*covar_t*averagingvec;
+        //arma::mat cattvartemp=catt_averagingvec.t()*covar_t*catt_averagingvec;
+        //arma::mat catntvartemp=catnt_averagingvec.t()*covar_t*catnt_averagingvec;
+
+        // preds_all_models_arma.col(i)=preds_temp_arma;
+        // t_vars_arma.col(i)=covar_t.diag();
+        // cate_means_arma(i)=as_scalar(averagingvec.t()*preds_temp_arma);
+        // cate_means_weighted_arma(i)=cate_means_arma(i)*post_weights_arma(i);
+        // cate_vars_arma(i)=as_scalar(catevartemp);
+        // catt_means_arma(i)=as_scalar(catt_averagingvec.t()*preds_temp_arma);
+        // catt_means_weighted_arma(i)=catt_means_arma(i)*post_weights_arma(i);
+        // catt_vars_arma(i)=as_scalar(cattvartemp);
+        // catnt_means_arma(i)=as_scalar(catnt_averagingvec.t()*preds_temp_arma);
+        // catnt_means_weighted_arma(i)=catnt_means_arma(i)*post_weights_arma(i);
+        // catnt_vars_arma(i)=as_scalar(catntvartemp);
+        //
+
+      }else{
+
+        //arma::mat zeromat(arma::size(Wmat_mu),arma::fill::zeros);
+        //arma::mat zeromat(num_obs ,b_mu ,arma::fill::zeros);
+        arma::mat zeromat=arma::zeros<arma::mat>(num_obs ,b_mu);
+        arma::mat Vmat = join_rows(zeromat,Wmat_tau);
+
+        //Rcout <<"Vmat = " << Vmat <<".\n";
+
+        //arma::rowvec preds_temp_arma_t=arma::trans(parameters) * Vmat.t();
+        //arma::vec preds_temp_arma= preds_temp_arma_t.t();
+        //overall_preds(j)=preds_temp_arma;
+
+
+
+        arma::vec preds_temp_arma= Vmat*sec_term_inv*third_term;
+        overall_preds(j)=preds_temp_arma;
+
+        //overall_preds(j)=preds_temp_arma*templik;
+
+
+        //arma::mat covar_t=as_scalar((1/double(nu+num_obs))*(nu*lambda+yty-mvm))*(Vmat*sec_term_inv*(Vmat.t()));
+
+        //arma::mat catevartemp=averagingvec.t()*covar_t*averagingvec;
+        //arma::mat cattvartemp=catt_averagingvec.t()*covar_t*catt_averagingvec;
+        //arma::mat catntvartemp=catnt_averagingvec.t()*covar_t*catnt_averagingvec;
+
+
+        // preds_all_models_arma.col(i)=preds_temp_arma;
+        // t_vars_arma.col(i)=covar_t.diag();
+        // cate_means_arma(i)=as_scalar(averagingvec.t()*preds_temp_arma);
+        // cate_means_weighted_arma(i)=cate_means_arma(i)*post_weights_arma(i);
+        // cate_vars_arma(i)=as_scalar(catevartemp);
+        // catt_means_arma(i)=as_scalar(catt_averagingvec.t()*preds_temp_arma);
+        // catt_means_weighted_arma(i)=catt_means_arma(i)*post_weights_arma(i);
+        // catt_vars_arma(i)=as_scalar(cattvartemp);
+        // catnt_means_arma(i)=as_scalar(catnt_averagingvec.t()*preds_temp_arma);
+        // catnt_means_weighted_arma(i)=catnt_means_arma(i)*post_weights_arma(i);
+        // catnt_vars_arma(i)=as_scalar(catntvartemp);
+        //
+
+      }//end of else statement (not test data)
+
+
+
+      }// end if statement fast_approx==1
   }//end of loop over all trees
 
 }//end of pragma omp code
@@ -6884,45 +7264,140 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
 //  pred_mat_overall = pred_mat_overall + overall_liks(i)*overall_treetables(i);
 //}
 
-if(is_test_data==1){
-  #pragma omp parallel
-  {
-    arma::vec result_private=arma::zeros<arma::vec>(x_control_test_a.n_rows);
-  #pragma omp for nowait //fill result_private in parallel
-    for(unsigned int i=0; i<overall_preds.size(); i++) result_private += overall_preds(i);
-  #pragma omp critical
-    pred_vec_overall += result_private;
+// if(is_test_data==1){
+//   #pragma omp parallel
+//   {
+//     arma::vec result_private=arma::zeros<arma::vec>(x_control_test_a.n_rows);
+//   #pragma omp for nowait //fill result_private in parallel
+//     for(unsigned int i=0; i<overall_preds.size(); i++) result_private += overall_preds(i);
+//   #pragma omp critical
+//     pred_vec_overall += result_private;
+//   }
+// }else{
+//   #pragma omp parallel
+//   {
+//     arma::vec result_private=arma::zeros<arma::vec>(x_control_a.n_rows);
+//   #pragma omp for nowait //fill result_private in parallel
+//     for(unsigned int i=0; i<overall_preds.size(); i++) result_private += overall_preds(i);
+//   #pragma omp critical
+//     pred_vec_overall += result_private;
+//   }
+// }
+//
+//
+// //Rcout << "Line 4030. \n";
+//
+//
+//
+//
+// //Rcout << "overall_liks = " << overall_liks << ". \n";
+// //Rcout << "max(overall_liks) = " << max(overall_liks) << ". \n";
+// //Rcout << "overall_liks[14] = " << overall_liks[14] << ". \n";
+//
+//
+// double sumlik_total= arma::sum(overall_liks);
+// //Rcout << "sumlik_total = " << sumlik_total << ". \n";
+//
+// pred_vec_overall=pred_vec_overall*(1/sumlik_total);
+//
+
+
+
+
+
+
+
+if(fast_approx==1){
+  arma::vec BICi=-0.5*overall_liks;
+  double max_BIC=max(BICi);
+
+  // weighted_BIC is actually the posterior model probability
+  arma::vec weighted_BIC(overall_liks.size());
+
+
+  double tempterm=(max_BIC+log(sum(exp(BICi-max_BIC))));
+
+  for(unsigned int k=0;k<overall_liks.size();k++){
+
+    //NumericVector BICi=-0.5*BIC_weights;
+    //double max_BIC=max(BICi);
+    double weight=exp(BICi[k]-tempterm);
+    weighted_BIC[k]=weight;
+    //int num_its_to_sample = round(weight*(num_iter));
+
   }
-}else{
-  #pragma omp parallel
-  {
-    arma::vec result_private=arma::zeros<arma::vec>(x_control_a.n_rows);
-  #pragma omp for nowait //fill result_private in parallel
-    for(unsigned int i=0; i<overall_preds.size(); i++) result_private += overall_preds(i);
-  #pragma omp critical
-    pred_vec_overall += result_private;
+
+  //Rcout << "weighted_BIC= " << weighted_BIC << ". \n";
+  //Rcout << "overall_liks= " << overall_liks << ". \n";
+
+#pragma omp parallel num_threads(ncores)
+{
+  arma::vec result_private;
+  if(is_test_data==1){
+    result_private=arma::zeros<arma::vec>(x_control_test_a.n_rows);
+  }else{
+    result_private=arma::zeros<arma::vec>(x_control_a.n_rows);
   }
+
+#pragma omp for nowait //fill result_private in parallel
+  for(unsigned int i=0; i<overall_preds.size(); i++){
+    //double weight=exp(BICi[i]-(max_BIC+log(sum(exp(BICi-max_BIC)))));
+    result_private += overall_preds(i)*weighted_BIC(i);
+  }
+#pragma omp critical
+  pred_vec_overall += result_private;
 }
 
 
-//Rcout << "Line 4030. \n";
+}else{ //if fast_approx==0
+
+  //arma::vec BICi=-0.5*overall_liks;
+  double max_loglik=max(overall_liks);
+
+  // weighted_BIC is actually the posterior model probability
+  arma::vec weighted_lik(overall_liks.size());
 
 
+  double tempterm=(max_loglik+log(sum(exp(overall_liks-max_loglik))));
+
+  for(unsigned int k=0;k<overall_liks.size();k++){
+
+    //NumericVector BICi=-0.5*BIC_weights;
+    //double max_BIC=max(BICi);
+    double weight=exp(overall_liks[k]-tempterm);
+    weighted_lik[k]=weight;
+    //int num_its_to_sample = round(weight*(num_iter));
+
+  }
+
+  //Rcout << "weighted_lik= " << weighted_lik << ". \n";
+  //Rcout << "overall_liks= " << overall_liks << ". \n";
+
+#pragma omp parallel num_threads(ncores)
+{
+  arma::vec result_private;
+  if(is_test_data==1){
+    result_private=arma::zeros<arma::vec>(x_control_test_a.n_rows);
+  }else{
+    result_private=arma::zeros<arma::vec>(x_control_a.n_rows);
+  }
+
+#pragma omp for nowait //fill result_private in parallel
+  for(unsigned int i=0; i<overall_preds.size(); i++) result_private += overall_preds(i)*weighted_lik(i);
+#pragma omp critical
+  pred_vec_overall += result_private;
+}
 
 
-//Rcout << "overall_liks = " << overall_liks << ". \n";
-//Rcout << "max(overall_liks) = " << max(overall_liks) << ". \n";
-//Rcout << "overall_liks[14] = " << overall_liks[14] << ". \n";
-
-
-double sumlik_total= arma::sum(overall_liks);
+//double sumlik_total= arma::sum(overall_liks);
 //Rcout << "sumlik_total = " << sumlik_total << ". \n";
 
-pred_vec_overall=pred_vec_overall*(1/sumlik_total);
-//Rcout << "Line 1141 . \n";
-//Rcout << "Line 1146 . \n";
+//pred_vec_overall=pred_vec_overall*(1/sumlik_total);
 
-//Rcout << "Line 4042. \n";
+}
+
+
+//Rcout << "Line 7386. \n";
 NumericVector orig_preds=get_original(min(ytrain),max(ytrain),-0.5,0.5,wrap(pred_vec_overall)) ;
 
 

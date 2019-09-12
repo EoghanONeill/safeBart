@@ -202,8 +202,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // sBART_onefunc_parallel
-NumericVector sBART_onefunc_parallel(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, double beta_par, NumericMatrix test_datamat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART);
-RcppExport SEXP _safeBart_sBART_onefunc_parallel(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP) {
+NumericVector sBART_onefunc_parallel(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, double beta_par, NumericMatrix test_datamat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART, int fast_approx);
+RcppExport SEXP _safeBart_sBART_onefunc_parallel(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP, SEXP fast_approxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -225,13 +225,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type imp_sampler(imp_samplerSEXP);
     Rcpp::traits::input_parameter< double >::type alpha_BART(alpha_BARTSEXP);
     Rcpp::traits::input_parameter< double >::type beta_BART(beta_BARTSEXP);
-    rcpp_result_gen = Rcpp::wrap(sBART_onefunc_parallel(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART));
+    Rcpp::traits::input_parameter< int >::type fast_approx(fast_approxSEXP);
+    rcpp_result_gen = Rcpp::wrap(sBART_onefunc_parallel(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, fast_approx));
     return rcpp_result_gen;
 END_RCPP
 }
 // sBCF_onefunc_parallel
-NumericVector sBCF_onefunc_parallel(double lambda_mu, double lambda_tau, int num_models, int num_trees_mu, int num_trees_tau, int seed, NumericVector ytrain, NumericMatrix original_datamat, NumericVector ztrain, NumericMatrix pihat_train, double beta_par, NumericMatrix test_datamat, NumericVector test_z, NumericMatrix test_pihat, int ncores, int outsamppreds, double nu, double a_mu, double a_tau, double lambdaBCF, int valid_trees, int tree_prior, int imp_sampler, double alpha_BCF_mu, double beta_BCF_mu, double alpha_BCF_tau, double beta_BCF_tau, int include_pi2);
-RcppExport SEXP _safeBart_sBCF_onefunc_parallel(SEXP lambda_muSEXP, SEXP lambda_tauSEXP, SEXP num_modelsSEXP, SEXP num_trees_muSEXP, SEXP num_trees_tauSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP ztrainSEXP, SEXP pihat_trainSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP test_zSEXP, SEXP test_pihatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP a_muSEXP, SEXP a_tauSEXP, SEXP lambdaBCFSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BCF_muSEXP, SEXP beta_BCF_muSEXP, SEXP alpha_BCF_tauSEXP, SEXP beta_BCF_tauSEXP, SEXP include_pi2SEXP) {
+NumericVector sBCF_onefunc_parallel(double lambda_mu, double lambda_tau, int num_models, int num_trees_mu, int num_trees_tau, int seed, NumericVector ytrain, NumericMatrix original_datamat, NumericVector ztrain, NumericMatrix pihat_train, double beta_par, NumericMatrix test_datamat, NumericVector test_z, NumericMatrix test_pihat, int ncores, int outsamppreds, double nu, double a_mu, double a_tau, double lambdaBCF, int valid_trees, int tree_prior, int imp_sampler, double alpha_BCF_mu, double beta_BCF_mu, double alpha_BCF_tau, double beta_BCF_tau, int include_pi2, int fast_approx);
+RcppExport SEXP _safeBart_sBCF_onefunc_parallel(SEXP lambda_muSEXP, SEXP lambda_tauSEXP, SEXP num_modelsSEXP, SEXP num_trees_muSEXP, SEXP num_trees_tauSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP ztrainSEXP, SEXP pihat_trainSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP test_zSEXP, SEXP test_pihatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP a_muSEXP, SEXP a_tauSEXP, SEXP lambdaBCFSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BCF_muSEXP, SEXP beta_BCF_muSEXP, SEXP alpha_BCF_tauSEXP, SEXP beta_BCF_tauSEXP, SEXP include_pi2SEXP, SEXP fast_approxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -263,7 +264,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type alpha_BCF_tau(alpha_BCF_tauSEXP);
     Rcpp::traits::input_parameter< double >::type beta_BCF_tau(beta_BCF_tauSEXP);
     Rcpp::traits::input_parameter< int >::type include_pi2(include_pi2SEXP);
-    rcpp_result_gen = Rcpp::wrap(sBCF_onefunc_parallel(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_z, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2));
+    Rcpp::traits::input_parameter< int >::type fast_approx(fast_approxSEXP);
+    rcpp_result_gen = Rcpp::wrap(sBCF_onefunc_parallel(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_z, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -282,8 +284,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_safeBart_sBayesRF", (DL_FUNC) &_safeBart_sBayesRF, 9},
     {"_safeBart_sBayesRF_onefunc", (DL_FUNC) &_safeBart_sBayesRF_onefunc, 9},
     {"_safeBart_sBayesRF_onefunc_arma", (DL_FUNC) &_safeBart_sBayesRF_onefunc_arma, 9},
-    {"_safeBart_sBART_onefunc_parallel", (DL_FUNC) &_safeBart_sBART_onefunc_parallel, 18},
-    {"_safeBart_sBCF_onefunc_parallel", (DL_FUNC) &_safeBart_sBCF_onefunc_parallel, 28},
+    {"_safeBart_sBART_onefunc_parallel", (DL_FUNC) &_safeBart_sBART_onefunc_parallel, 19},
+    {"_safeBart_sBCF_onefunc_parallel", (DL_FUNC) &_safeBart_sBCF_onefunc_parallel, 29},
     {NULL, NULL, 0}
 };
 

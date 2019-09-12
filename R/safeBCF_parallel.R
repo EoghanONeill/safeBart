@@ -96,7 +96,8 @@ safeBCF_parallel <- function(seed,
                             beta_BCF_mu=2,
                             alpha_BCF_tau=0.95,
                             beta_BCF_tau=2,
-                            include_pi= "control"){
+                            include_pi= "control",
+                            fast_approx=0){
 
 
   sigma=sd(y)/(max(y)-min(y))
@@ -155,7 +156,8 @@ safeBCF_parallel <- function(seed,
                                     beta_BCF_mu,
                                     alpha_BCF_tau,
                                     beta_BCF_tau,
-                                    include_pi2)
+                                    include_pi2,
+                                   fast_approx)
 
   sBCFoutput
 }

@@ -8,7 +8,7 @@ safeBart_parallel(seed, y, original_datamat, test_datamat, lambda = 0.45,
   num_models = 1000, num_trees = 5, beta_par = 1, ncores = 1,
   outsamppreds = 1, nu = 3, a = 3, sigquant = 0.9,
   valid_trees = 1, tree_prior = 0, imp_sampler = 0,
-  alpha_BART = 0.95, beta_BART = 2)
+  alpha_BART = 0.95, beta_BART = 2, fast_approx = 0)
 }
 \arguments{
 \item{seed}{The seed for random number generation.}
@@ -34,6 +34,8 @@ safeBart_parallel(seed, y, original_datamat, test_datamat, lambda = 0.45,
 \item{alpha_BART}{The alpha parameter for the standard BART prior.}
 
 \item{beta_BART}{The beta parameter for the standard BART prior.}
+
+\item{fast_approx}{If equal to 1, use an approximate BIC weighted average and do not invert matrices for each model (should also use SVD).}
 
 \item{num_cats}{The number of possible values for the outcome variable.}
 

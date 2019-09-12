@@ -11,7 +11,8 @@ safeBCF_parallel(seed, y, original_datamat, ztrain, pihat_train,
   beta_par = 1, ncores = 1, outsamppreds = 1, nu = 3, a_mu = 3,
   a_tau = 3, sigquant = 0.9, valid_trees = 1, tree_prior = 0,
   imp_sampler = 0, alpha_BCF_mu = 0.95, beta_BCF_mu = 2,
-  alpha_BCF_tau = 0.95, beta_BCF_tau = 2, include_pi = "control")
+  alpha_BCF_tau = 0.95, beta_BCF_tau = 2, include_pi = "control",
+  fast_approx = 0)
 }
 \arguments{
 \item{seed}{The seed for random number generation.}

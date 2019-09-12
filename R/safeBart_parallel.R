@@ -16,6 +16,7 @@
 #' @param imp_sampler Importance sampler for trees. 1 = BART prior, 2= spike-and-tree, otherwise default prior by Novi and Quandrianto
 #' @param alpha_BART The alpha parameter for the standard BART prior.
 #' @param beta_BART The beta parameter for the standard BART prior.
+#' @param fast_approx If equal to 1, use an approximate BIC weighted average and do not invert matrices for each model (should also use SVD).
 #' @return A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
 #' @useDynLib safeBart, .registration = TRUE
 #' @importFrom Rcpp evalCpp
@@ -82,7 +83,8 @@ safeBart_parallel <- function(seed,
                               tree_prior=0,
                               imp_sampler=0,
                               alpha_BART=0.95,
-                              beta_BART=2){
+                              beta_BART=2,
+                              fast_approx=0){
 
 
   sigma=sd(y)/(max(y)-min(y))
@@ -115,7 +117,8 @@ safeBart_parallel <- function(seed,
                                      tree_prior,
                                      imp_sampler,
                                      alpha_BART,
-                                     beta_BART)
+                                     beta_BART,
+                                     fast_approx)
 
   sBARToutput
 }
