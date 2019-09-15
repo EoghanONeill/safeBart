@@ -9,7 +9,7 @@ sBCF_onefunc_parallel(lambda_mu, lambda_tau, num_models, num_trees_mu,
   beta_par, test_datamat, test_z, test_pihat, ncores, outsamppreds, nu,
   a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler,
   alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2,
-  fast_approx)
+  fast_approx, PIT_propensity)
 }
 \arguments{
 \item{seed}{The seed for random number generation.}

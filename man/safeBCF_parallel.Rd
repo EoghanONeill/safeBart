@@ -12,7 +12,7 @@ safeBCF_parallel(seed, y, original_datamat, ztrain, pihat_train,
   a_tau = 3, sigquant = 0.9, valid_trees = 1, tree_prior = 0,
   imp_sampler = 0, alpha_BCF_mu = 0.95, beta_BCF_mu = 2,
   alpha_BCF_tau = 0.95, beta_BCF_tau = 2, include_pi = "control",
-  fast_approx = 0)
+  fast_approx = 0, PIT_propensity = 0)
 }
 \arguments{
 \item{seed}{The seed for random number generation.}

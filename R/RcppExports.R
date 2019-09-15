@@ -18,6 +18,10 @@ get_original <- function(low, high, sp_low, sp_high, sum_preds) {
     .Call(`_safeBart_get_original`, low, high, sp_low, sp_high, sum_preds)
 }
 
+get_original_TE <- function(low, high, sp_low, sp_high, sum_preds) {
+    .Call(`_safeBart_get_original_TE`, low, high, sp_low, sp_high, sum_preds)
+}
+
 find_term_nodes <- function(tree_table) {
     .Call(`_safeBart_find_term_nodes`, tree_table)
 }
@@ -103,8 +107,8 @@ sBayesRF_onefunc_arma <- function(lambda, num_trees, seed, num_cats, y, original
 #' @param ncores The number of cores to be used in parallelization.
 #' @return A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
 #' @export
-sBART_onefunc_parallel <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, fast_approx) {
-    .Call(`_safeBart_sBART_onefunc_parallel`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, fast_approx)
+sBART_onefunc_parallel <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx) {
+    .Call(`_safeBart_sBART_onefunc_parallel`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx)
 }
 
 #' @title Parallel Safe-Bayesian Causal Forest
@@ -122,7 +126,7 @@ sBART_onefunc_parallel <- function(lambda, num_models, num_trees, seed, ytrain, 
 #' @param ncores The number of cores to be used in parallelization.
 #' @return A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
 #' @export
-sBCF_onefunc_parallel <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_z, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx) {
-    .Call(`_safeBart_sBCF_onefunc_parallel`, lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_z, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx)
+sBCF_onefunc_parallel <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_z, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity) {
+    .Call(`_safeBart_sBCF_onefunc_parallel`, lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_z, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity)
 }
 

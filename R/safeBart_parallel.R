@@ -71,8 +71,11 @@
 #' @export
 
 safeBart_parallel <- function(seed,
-                              y, original_datamat,test_datamat,
-                              lambda=0.45,num_models=1000,num_trees=5,
+                              y,
+                              original_datamat,test_datamat,
+                              lambda=0.45,
+                              num_models=1000,
+                              num_trees=5,
                               beta_par=1,
                               ncores=1,
                               outsamppreds=1,
@@ -84,8 +87,14 @@ safeBart_parallel <- function(seed,
                               imp_sampler=0,
                               alpha_BART=0.95,
                               beta_BART=2,
+                              s_t_hyperprior=1,
+                              p_s_t=0.5,
+                              a_s_t=1,
+                              b_s_t=3,
+                              lambda_poisson=10,
                               fast_approx=0){
 
+  if(ncores>num_models ) stop("ncores > num_models")
 
   sigma=sd(y)/(max(y)-min(y))
   qchi = qchisq(1.0-sigquant,nu,1,0);
@@ -118,6 +127,11 @@ safeBart_parallel <- function(seed,
                                      imp_sampler,
                                      alpha_BART,
                                      beta_BART,
+                                     s_t_hyperprior,
+                                     p_s_t,
+                                     a_s_t,
+                                     b_s_t,
+                                     lambda_poisson,
                                      fast_approx)
 
   sBARToutput
