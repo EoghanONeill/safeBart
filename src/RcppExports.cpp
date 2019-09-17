@@ -74,6 +74,53 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// unfold
+long unfold(int p_ind, std::vector<int> output_dyck, long length);
+RcppExport SEXP _safeBart_unfold(SEXP p_indSEXP, SEXP output_dyckSEXP, SEXP lengthSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type p_ind(p_indSEXP);
+    Rcpp::traits::input_parameter< std::vector<int> >::type output_dyck(output_dyckSEXP);
+    Rcpp::traits::input_parameter< long >::type length(lengthSEXP);
+    rcpp_result_gen = Rcpp::wrap(unfold(p_ind, output_dyck, length));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fold
+void fold(std::vector<int> output_dyck, long length, long height);
+RcppExport SEXP _safeBart_fold(SEXP output_dyckSEXP, SEXP lengthSEXP, SEXP heightSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<int> >::type output_dyck(output_dyckSEXP);
+    Rcpp::traits::input_parameter< long >::type length(lengthSEXP);
+    Rcpp::traits::input_parameter< long >::type height(heightSEXP);
+    fold(output_dyck, length, height);
+    return R_NilValue;
+END_RCPP
+}
+// dyck_path
+void dyck_path(std::vector<int> output_dyck, long length);
+RcppExport SEXP _safeBart_dyck_path(SEXP output_dyckSEXP, SEXP lengthSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<int> >::type output_dyck(output_dyckSEXP);
+    Rcpp::traits::input_parameter< long >::type length(lengthSEXP);
+    dyck_path(output_dyck, length);
+    return R_NilValue;
+END_RCPP
+}
+// wrapper_dyck_path
+IntegerVector wrapper_dyck_path(long length);
+RcppExport SEXP _safeBart_wrapper_dyck_path(SEXP lengthSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< long >::type length(lengthSEXP);
+    rcpp_result_gen = Rcpp::wrap(wrapper_dyck_path(length));
+    return rcpp_result_gen;
+END_RCPP
+}
 // find_term_nodes
 NumericVector find_term_nodes(NumericMatrix tree_table);
 RcppExport SEXP _safeBart_find_term_nodes(SEXP tree_tableSEXP) {
@@ -297,6 +344,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_safeBart_scale_response", (DL_FUNC) &_safeBart_scale_response, 5},
     {"_safeBart_get_original", (DL_FUNC) &_safeBart_get_original, 5},
     {"_safeBart_get_original_TE", (DL_FUNC) &_safeBart_get_original_TE, 5},
+    {"_safeBart_unfold", (DL_FUNC) &_safeBart_unfold, 3},
+    {"_safeBart_fold", (DL_FUNC) &_safeBart_fold, 3},
+    {"_safeBart_dyck_path", (DL_FUNC) &_safeBart_dyck_path, 2},
+    {"_safeBart_wrapper_dyck_path", (DL_FUNC) &_safeBart_wrapper_dyck_path, 1},
     {"_safeBart_find_term_nodes", (DL_FUNC) &_safeBart_find_term_nodes, 1},
     {"_safeBart_get_treepreds", (DL_FUNC) &_safeBart_get_treepreds, 5},
     {"_safeBart_get_treelist", (DL_FUNC) &_safeBart_get_treelist, 6},

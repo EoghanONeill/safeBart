@@ -22,6 +22,24 @@ get_original_TE <- function(low, high, sp_low, sp_high, sum_preds) {
     .Call(`_safeBart_get_original_TE`, low, high, sp_low, sp_high, sum_preds)
 }
 
+unfold <- function(p_ind, output_dyck, length) {
+    .Call(`_safeBart_unfold`, p_ind, output_dyck, length)
+}
+
+fold <- function(output_dyck, length, height) {
+    invisible(.Call(`_safeBart_fold`, output_dyck, length, height))
+}
+
+dyck_path <- function(output_dyck, length) {
+    invisible(.Call(`_safeBart_dyck_path`, output_dyck, length))
+}
+
+#' @description Test draw of trees of given length
+#' @export
+wrapper_dyck_path <- function(length) {
+    .Call(`_safeBart_wrapper_dyck_path`, length)
+}
+
 find_term_nodes <- function(tree_table) {
     .Call(`_safeBart_find_term_nodes`, tree_table)
 }

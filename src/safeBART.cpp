@@ -81,6 +81,291 @@ NumericVector get_original_TE(double low,double high,double sp_low,double sp_hig
 
   return(original_y);
 }
+
+//######################################################################################################################//
+
+// Dyck paths are represented as sequences of signed chars with values 1 (up)
+// or -1 (down).
+
+// unfolds a path (turns a Dyck suffix followed by a down into an up followed
+// by a Dyck prefix with opposite height), returns the height difference
+// [[Rcpp::export]]
+long unfold(int p_ind, std::vector<int> output_dyck, long length) {
+  long height = 0;
+  long local_height = 0;
+  int x = 1;
+
+  for(long i = 0; i < length; i ++) {
+    int y = output_dyck[p_ind+i];
+    local_height += y;
+    if(local_height < 0) {
+      y = 1;
+      height += 2;
+      local_height = 0;
+    }
+    output_dyck[p_ind+i] = x;
+    x = y;
+  }
+
+  return height;
+}
+
+
+
+//######################################################################################################################//
+// turns a Dyck prefix into a Dyck path of length -1 (length should be odd)
+// [[Rcpp::export]]
+void fold(std::vector<int> output_dyck, long length, long height) {
+  long local_height = 0;
+  int x = -1;
+  Rcout << "Line 121. \n";
+  Rcout << "output_dyck.size() =" << output_dyck.size() << ". \n";
+  Rcout << "length - 1 =" << length - 1 << ". \n";
+
+
+  for(long i = length - 1; height > 0; i --) {
+    int y = output_dyck[i];
+    local_height -= y;
+    if(local_height < 0) {
+      y = -1;
+      height -= 2;
+      local_height = 0;
+    }
+    output_dyck[i] = x;
+    x = y;
+  }
+  Rcout << "Line 134. \n";
+
+}
+
+// // writes a random Dyck prefix, returns its final height
+// // at least length bytes should be allocated first
+// long dyck_prefix(signed char *p, long length) {
+//   long height = 0;
+//
+//   for(long i = 0; i < length; i ++) {
+//     signed char x = random_int(1) ? 1 : -1;
+//     p[i] = x;
+//     height += x;
+//
+//     if(height < 0) {
+//       long j = random_int(i);
+//       height += unfold(p + j, i + 1 - j);
+//     }
+//   }
+//
+//   return height;
+// }
+
+
+
+
+
+
+//######################################################################################################################//
+// wrleast length + 1 bytes should be allocated first
+// [[Rcpp::deites a random Dyck path (length should be even)
+// at pends(RcppArmadillo)]]
+// [[Rcpp::depends(dqrng, BH, sitmo)]]
+
+#include <xoshiro.h>
+#include <dqrng_distribution.h>
+//#include <dqrng.h>
+
+// [[Rcpp::export]]
+void dyck_path(std::vector<int> output_dyck, long length) {
+  //long height = dyck_prefix(p, length + 1);
+  Rcout << "Line 172. \n";
+
+  //std::vector<int> p(length);
+  //std::vector<char> p(length);
+  //char p;
+  //signed char p;// = new signed char[length];
+  int p_ind=0;
+
+  std::random_device device;
+  //std::mt19937 gen(device());
+
+  //possibly use seed?
+  //// std::mt19937 gen(seed);
+
+  dqrng::xoshiro256plus gen(device());              // properly seeded rng
+
+  //dqrng::xoshiro256plus gen(seed);              // properly seeded rng
+
+  std::bernoulli_distribution coin_flip_evev(0.5);
+
+
+  long height = 0;
+
+  Rcout << "Line 195. \n";
+
+  for(long i = 0; i < length+1; i ++) {
+    //signed char x = random_int(1) ? 1 : -1;
+    int x = coin_flip_evev(gen) ? 1 : -1;
+    output_dyck[i] = x;
+    height += x;
+
+    if(height < 0) {
+      // this should return a uniform random integer between 0 and x
+      //unsigned long random_int(unsigned long x);
+      std::uniform_int_distribution<> random_int(0, i);
+      long j = random_int(gen);
+      //long j = random_int(i);
+      height += unfold(p_ind + j,output_dyck, i + 1 - j);
+    }
+  }
+
+  Rcout << "Line 213. \n";
+
+
+  //fold(output_dyck, length + 1, height);
+  long local_height = 0;
+  int x = -1;
+  Rcout << "Line 121. \n";
+  Rcout << "output_dyck.size() =" << output_dyck.size() << ". \n";
+  Rcout << "length - 1 =" << length - 1 << ". \n";
+
+
+  for(long i = length; height > 0; i --) {
+    int y = output_dyck[i];
+    local_height -= y;
+    if(local_height < 0) {
+      y = -1;
+      height -= 2;
+      local_height = 0;
+    }
+    output_dyck[i] = x;
+    x = y;
+  }
+  Rcout << "Line 134. \n";
+
+
+  Rcout << "Line 217. \n";
+
+}
+
+
+
+//######################################################################################################################//
+// wrleast length + 1 bytes should be allocated first
+// [[Rcpp::deites a random Dyck path (length should be even)
+// at pends(RcppArmadillo)]]
+// [[Rcpp::depends(dqrng, BH, sitmo)]]
+
+#include <xoshiro.h>
+#include <dqrng_distribution.h>
+//#include <dqrng.h>
+
+//' @description Test draw of trees of given length
+//' @export
+// [[Rcpp::export]]
+IntegerVector wrapper_dyck_path(long length) {
+  //signed char *p;
+  //p=&output_dyck[0];
+  //int p_ind=0;
+  //Rcout << "Line 235. \n";
+  //dyck_path(output_dyck,length);
+
+
+  //long height = dyck_prefix(p, length + 1);
+  //Rcout << "Line 172. \n";
+
+  //std::vector<int> p(length);
+  //std::vector<char> p(length);
+  //char p;
+  //signed char p;// = new signed char[length];
+
+  static std::random_device device;
+  static std::mt19937 gen(device());
+
+  //possibly use seed?
+  //// std::mt19937 gen(seed);
+
+  //static dqrng::xoshiro256plus gen(device());              // properly seeded rng
+
+  //dqrng::xoshiro256plus gen(seed);              // properly seeded rng
+
+  std::bernoulli_distribution coin_flip_evev(0.5);
+
+
+  std::vector<int> output_dyck(length+1);
+  int p_ind=0;
+  long height = 0;
+
+  //Rcout << "Line 195. \n";
+
+  for(long i = 0; i < length+1; i ++) {
+    //signed char x = random_int(1) ? 1 : -1;
+    int x = coin_flip_evev(gen) ? 1 : -1;
+    output_dyck[i] = x;
+    height += x;
+
+    if(height < 0) {
+      // this should return a uniform random integer between 0 and x
+      //unsigned long random_int(unsigned long x);
+      std::uniform_int_distribution<> random_int(0, i);
+      long j = random_int(gen);
+      //long j = random_int(i);
+      //height += unfold(p_ind + j,output_dyck, i + 1 - j);
+
+      long length1=i+1-j;
+      long height1 = 0;
+      long local_height = 0;
+      int x = 1;
+
+      for(long i = 0; i < length1; i ++) {
+        int y = output_dyck[p_ind+j+i];
+        local_height += y;
+        if(local_height < 0) {
+          y = 1;
+          height1 += 2;
+          local_height = 0;
+        }
+        output_dyck[p_ind+j+i] = x;
+        x = y;
+      }
+      height +=height1;
+
+
+
+
+    }
+  }
+
+  //Rcout << "Line 213. \n";
+
+
+  //fold(output_dyck, length + 1, height);
+  long local_height = 0;
+  int x = -1;
+  //Rcout << "Line 121. \n";
+  //Rcout << "output_dyck.size() =" << output_dyck.size() << ". \n";
+  //Rcout << "length - 1 =" << length - 1 << ". \n";
+
+
+  for(long i = length; height > 0; i --) {
+    int y = output_dyck[i];
+    local_height -= y;
+    if(local_height < 0) {
+      y = -1;
+      height -= 2;
+      local_height = 0;
+    }
+    output_dyck[i] = x;
+    x = y;
+  }
+  //Rcout << "Line 134. \n";
+
+
+  //Rcout << "Line 217. \n";
+
+  //Rcout << "Line 238. \n";
+  std::replace (output_dyck.begin(), output_dyck.end(), -1, 0); // 10 99 30 30 99 10 10 99
+
+  return(wrap(output_dyck));
+
+}
 //######################################################################################################################//
 
 // [[Rcpp::depends(RcppArmadillo)]]
@@ -945,6 +1230,7 @@ List draw_trees(double lambda, int num_trees, int seed, int num_split_vars, int 
     //arma::uvec treenodes_bin(0);
 
     std::vector<int> treenodes_bin;
+    //std::vector<int> split_var_vec;
 
 
     int count_terminals = 0;
@@ -987,6 +1273,8 @@ List draw_trees(double lambda, int num_trees, int seed, int num_split_vars, int 
     //IntegerVector split_var_vec(treenodes_bin.size());
     //arma::uvec split_var_vec(treenodes_bin.size());
     std::vector<int> split_var_vec(treenodes_bin.size());
+    //std::vector<int> split_var_vectemp(treenodes_bin.size());
+    //split_var_vec.reserve(treenodes_bin.size());
 
     //loop drawing splitting variables
     //REPLACE SQUARE BRACKETS WITH "( )" if using ARMADILLO vector for split_var_vec or treenodes_bin
@@ -995,7 +1283,7 @@ List draw_trees(double lambda, int num_trees, int seed, int num_split_vars, int 
     //then use a vector of draws
     for(unsigned int i=0; i<treenodes_bin.size();i++){
       if(treenodes_bin[i]==0){
-        split_var_vec[i] = -1;
+        split_var_vec[i]=-1;
       }else{
         // also consider the standard library function uniform_int_distribution
         // might need random header
@@ -1024,12 +1312,15 @@ List draw_trees(double lambda, int num_trees, int seed, int num_split_vars, int 
         //split_var_vec[i] = RcppArmadillo::sample(num_split_vars, 1,true);
         //could try
         split_var_vec[i] = as<int>(Rcpp::sample(num_split_vars, 1,true));
+
+        //split_var_vec.push_back(as<int>(Rcpp::sample(num_split_vars, 1,true)));
         //could also try RcppArmadillo::rmultinom
 
       }
 
     }// end of for-loop drawing split variables
 
+    //split_var_vec=split_var_vectemp;
 
     //Consider making this an armadillo vector
     //NumericVector split_point_vec(treenodes_bin.size());
@@ -3349,8 +3640,23 @@ NumericVector sBART_onefunc_parallel(double lambda,
 
   std::bernoulli_distribution coin_flip(lambda);
 
+
+  std::bernoulli_distribution coin_flip_even(0.5);
+
+  double spike_prob1;
+  if(s_t_hyperprior==1){
+    spike_prob1=a_s_t/(a_s_t + b_s_t);
+  }else{
+    spike_prob1=p_s_t;
+  }
+
+  std::bernoulli_distribution coin_flip_spike(spike_prob1);
+
+
   std::uniform_int_distribution<> distsampvar(1, num_split_vars);
   std::uniform_real_distribution<> dis_cont_unif(0, 1);
+
+  std::poisson_distribution<int> gen_num_term(lambda_poisson);
 
 
   //dqrng::uniform_distribution dis_cont_unif(0.0, 1.0); // Uniform distribution [0,1)
@@ -3418,6 +3724,7 @@ NumericVector sBART_onefunc_parallel(double lambda,
     //arma::uvec treenodes_bin(0);
 
     std::vector<int> treenodes_bin;
+    std::vector<int> split_var_vec;
 
 
     int count_terminals = 0;
@@ -3425,138 +3732,329 @@ NumericVector sBART_onefunc_parallel(double lambda,
 
     //int count_treebuild = 0;
 
+    if(imp_sampler==2){ // If sampling from SPike and Tree
 
-    if(imp_sampler==1){ //If sampling from BART prior
+      //Rcout << "Line 3737 .\n";
 
-      //std::bernoulli_distribution coin_flip2(lambda);
-      double depth1=0;
-      int prev_node=0; //1 if previous node splits, zero otherwise
 
-      double samp_prob;
+      //make coinflip_spike before loop
+      //also make bernoulli with probability 0.5
 
-      while(count_internals > (count_terminals -1)){
-        samp_prob=alpha_BART*pow(double(depth1+1),-beta_BART);
-        std::bernoulli_distribution coin_flip2(samp_prob);
+      //make a poisson distribtion
 
-        int tempdraw = coin_flip2(lgen);
-        treenodes_bin.push_back(tempdraw);
 
-        if(tempdraw==1){
+      //might be easier to store indices as armadillo vector, because will have to remove
+      //potential splits when allocating to terminal nodes
+      std::vector<int> potentialsplitvars;
 
-          depth1=depth1+1; //after a split, the depth will increase by 1
-          prev_node=1;
-          count_internals=count_internals+1;
+      for(int varcount=0; varcount<num_vars;varcount++){
+        bool tempflip=coin_flip_spike(lgen);
+        if(tempflip==TRUE){
+          potentialsplitvars.push_back(varcount);
+        }
+      }
 
-        }else{
+      //Then draw number of terminal nodes from a truncated Poisson
+      //must be at least equal to number of potential splitting variables plus 1
+      int q_numsplitvars=potentialsplitvars.size();
 
-          if(prev_node==1){//zero following a 1, therefore at same depth.
-            //Don't change depth. Do nothing
-          }else{ //zero following a zero, therefore the depth will decrease by 1
-            depth1=depth1-1;
+      int num_term_nodes_draw;
+      if(q_numsplitvars==0){
+        //num_term_nodes_draw==1;
+        treenodes_bin.push_back(0);
+        split_var_vec.push_back(0);
+      }else{
+        do{
+          num_term_nodes_draw = gen_num_term(lgen);//Poissondraw
+        }
+        while(num_term_nodes_draw<q_numsplitvars+1); //Check if enough terminal nodes. If not, take another draw
+
+
+          //Now draw a tree with num_term_nodes_draw terminal nodes
+          //Use Remy's algorithm or the algorithm described by Bacher et al.
+
+          //Rcout << "Line 3771 .\n";
+
+        long length=(num_term_nodes_draw-1)*2;
+        //Rcout << "Line 3774 .\n";
+
+        std::vector<int> treenodes_bintemp(length+1);
+        int p_ind=0;
+        long height = 0;
+
+        //Rcout << "Line 195. \n";
+        //Rcout << "Line 3781 .\n";
+        //Rcout << "q_numsplitvars = " << q_numsplitvars << ".\n";
+
+        for(long i = 0; i < length+1; i ++) {
+          //signed char x = random_int(1) ? 1 : -1;
+          int x = coin_flip_even(lgen) ? 1 : -1;
+          treenodes_bintemp[i] = x;
+          height += x;
+
+          if(height < 0) {
+            // this should return a uniform random integer between 0 and x
+            //unsigned long random_int(unsigned long x);
+            std::uniform_int_distribution<> random_int(0, i);
+            long j = random_int(lgen);
+            //long j = random_int(i);
+            //height += unfold(p_ind + j,treenodes_bintemp, i + 1 - j);
+
+            long length1=i+1-j;
+            long height1 = 0;
+            long local_height = 0;
+            int x = 1;
+
+            for(long i = 0; i < length1; i ++) {
+              int y = treenodes_bintemp[p_ind+j+i];
+              local_height += y;
+              if(local_height < 0) {
+                y = 1;
+                height1 += 2;
+                local_height = 0;
+              }
+              treenodes_bintemp[p_ind+j+i] = x;
+              x = y;
+            }
+            height +=height1;
+
+
+
+
           }
-          prev_node=0;
-          count_terminals=count_terminals+1;
+        }
+
+        //Rcout << "Line 213. \n";
+        //Rcout << "Line 3822 .\n";
+
+
+        //fold(treenodes_bintemp, length + 1, height);
+        long local_height = 0;
+        int x = -1;
+        ////Rcout << "Line 121. \n";
+        //Rcout << "treenodes_bintemp.size() =" << treenodes_bintemp.size() << ". \n";
+        //Rcout << "length - 1 =" << length - 1 << ". \n";
+
+
+        for(long i = length; height > 0; i --) {
+          int y = treenodes_bintemp[i];
+          local_height -= y;
+          if(local_height < 0) {
+            y = -1;
+            height -= 2;
+            local_height = 0;
+          }
+          treenodes_bintemp[i] = x;
+          x = y;
+        }
+        //Rcout << "Line 134. \n";
+
+
+        //Rcout << "Line 217. \n";
+        //Rcout << "Line 3847 .\n";
+
+        //Rcout << "Line 238. \n";
+        std::replace(treenodes_bintemp.begin(), treenodes_bintemp.end(), -1, 0); // 10 99 30 30 99 10 10 99
+
+
+        // Then store tree structure as treenodes_bintemp
+
+        //create splitting variable vector
+        std::vector<int> splitvar_vectemp(treenodes_bintemp.size());
+
+        std::vector<int> drawnvarstemp(num_term_nodes_draw-1);
+
+        //keep count of how many splitting points have been filled in
+        int splitcount=0;
+
+        //loop through nodes, filling in splitting variables for nonterminal nodes
+        //when less than q_numsplitvars remaining internal nodes to be filled in
+        //have to start reducing the set of potential splitting variables
+        //to ensure that each selected potential split variable is used at least once. [hence the if statement containing .erase]
+
+        int index_remaining=0;
+        for(unsigned int nodecount=0; nodecount<treenodes_bintemp.size();nodecount++){
+          if(treenodes_bintemp[nodecount]==1){
+            splitcount++;
+            //Rcout << "potentialsplitvars.size() = " <<  potentialsplitvars.size() << " .\n";
+
+            //Rcout << "potentialsplitvars.size()-1 = " <<  potentialsplitvars.size()-1 << " .\n";
+            if(splitcount>num_term_nodes_draw-1-q_numsplitvars){//CHECK THIS CONDITION
+              //To ensure each variable used at least once, fill in the rest of the splits with all the variables
+              //The split variables will be randomly shuffled anyway, therefore the order is not important here.
+              drawnvarstemp[splitcount-1]=potentialsplitvars[index_remaining]+1;
+              index_remaining++;
+            }else{
+              //randomly draw a splitting varaible from the set of potential splitting variables
+              std::uniform_int_distribution<> draw_var(0,potentialsplitvars.size()-1);//q_numsplitvars-splitcount could replace potentialsplitvars.size()
+              int tempsplitvar = draw_var(lgen);
+              drawnvarstemp[splitcount-1]=potentialsplitvars[tempsplitvar]+1;
+
+            }
+
+            //if(splitcount>num_term_nodes_draw-1-q_numsplitvars){//CHECK THIS CONDITION
+            //  potentialsplitvars.erase(potentialsplitvars.begin()+tempsplitvar);
+            //}
+
+          }else{//if not a split
+            //splitvar_vectemp[nodecount]=-1;
+          }
+        }
+
+        std::shuffle(drawnvarstemp.begin(),drawnvarstemp.end(),lgen);
+
+        splitcount=0;
+        for(unsigned int nodecount=0; nodecount<treenodes_bintemp.size();nodecount++){
+          if(treenodes_bintemp[nodecount]==1){
+            splitvar_vectemp[nodecount]=drawnvarstemp[splitcount];
+            splitcount++;
+          }else{//if not a split
+            splitvar_vectemp[nodecount]=-1;
+          }
+        }
+
+        //Rcout << "Line 3876 .\n";
+        split_var_vec=splitvar_vectemp;
+        treenodes_bin=treenodes_bintemp;
+      }
+    }else{
+      if(imp_sampler==1){ //If sampling from BART prior
+
+        //std::bernoulli_distribution coin_flip2(lambda);
+        double depth1=0;
+        int prev_node=0; //1 if previous node splits, zero otherwise
+
+        double samp_prob;
+
+        while(count_internals > (count_terminals -1)){
+          samp_prob=alpha_BART*pow(double(depth1+1),-beta_BART);
+          std::bernoulli_distribution coin_flip2(samp_prob);
+
+          int tempdraw = coin_flip2(lgen);
+          treenodes_bin.push_back(tempdraw);
+
+          if(tempdraw==1){
+
+            depth1=depth1+1; //after a split, the depth will increase by 1
+            prev_node=1;
+            count_internals=count_internals+1;
+
+          }else{
+
+            if(prev_node==1){//zero following a 1, therefore at same depth.
+              //Don't change depth. Do nothing
+            }else{ //zero following a zero, therefore the depth will decrease by 1
+              depth1=depth1-1;
+            }
+            prev_node=0;
+            count_terminals=count_terminals+1;
+
+          }
 
         }
 
-      }
+      }else{  //If not sampling from BART prior
+        //If sampling from default Q+G prior. i.e. not sampling from BART nor spike and tree prior
 
-    }else{  //If not sampling from BAT prior
-      if(imp_sampler==2){//If sampling from spike and tree prior
-        throw std::range_error("code not yet written for spike and tree sampling");
+          while(count_internals > (count_terminals -1)){
 
-      }else{//If sampling from default Q+G prior. i.e. not sampling from BART nor spike and tree prior
-
-        while(count_internals > (count_terminals -1)){
-
-          //Also consider standard library and random header
-          // std::random_device device;
-          // std::mt19937 gen(device());
-          // std::bernoulli_distribution coin_flip(lambda);
-          // bool outcome = coin_flip(gen);
+            //Also consider standard library and random header
+            // std::random_device device;
+            // std::mt19937 gen(device());
+            // std::bernoulli_distribution coin_flip(lambda);
+            // bool outcome = coin_flip(gen);
 
 
-          int tempdraw = coin_flip(lgen);
+            int tempdraw = coin_flip(lgen);
 
-          //int tempdraw = rbinom(n = 1, prob = lambda,size=1);
-
-
-          //int tempdraw = Rcpp::rbinom(1,lambda,1);
-          //int tempdraw = R::rbinom(1,lambda);
-
-          //Rcout << "tempdraw = " << tempdraw << ".\n" ;
-
-          //int tempdraw = coin_flip2(lgen)-1;
-
-          //int tempdraw = dqrng::dqsample_int(2, 1, true,lambdavec )-1;
+            //int tempdraw = rbinom(n = 1, prob = lambda,size=1);
 
 
-          //need to update rng if use boost?
-          //int tempdraw = bernoulli(rng, binomial::param_type(1, lambda));
+            //int tempdraw = Rcpp::rbinom(1,lambda,1);
+            //int tempdraw = R::rbinom(1,lambda);
 
-          treenodes_bin.push_back(tempdraw);
+            ////Rcout << "tempdraw = " << tempdraw << ".\n" ;
 
+            //int tempdraw = coin_flip2(lgen)-1;
 
-          if(tempdraw==1){
-            count_internals=count_internals+1;
-          }else{
-            count_terminals=count_terminals+1;
-          }
-
-        }//end of while loop creating parent vector treenodes_bin
-      }
-
-    }
+            //int tempdraw = dqrng::dqsample_int(2, 1, true,lambdavec )-1;
 
 
+            //need to update rng if use boost?
+            //int tempdraw = bernoulli(rng, binomial::param_type(1, lambda));
 
-    //Consider making this an armadillo vector
-    //IntegerVector split_var_vec(treenodes_bin.size());
-    //arma::uvec split_var_vec(treenodes_bin.size());
-    std::vector<int> split_var_vec(treenodes_bin.size());
-
-    //loop drawing splitting variables
-    //REPLACE SQUARE BRACKETS WITH "( )" if using ARMADILLO vector for split_var_vec or treenodes_bin
-
-    //if using armadillo, it might be faster to subset to split nodes
-    //then use a vector of draws
-    for(unsigned int i=0; i<treenodes_bin.size();i++){
-      if(treenodes_bin[i]==0){
-        split_var_vec[i] = -1;
-      }else{
-        // also consider the standard library function uniform_int_distribution
-        // might need random header
-        // This uses the Mersenne twister
-
-        //Three lines below should probably be outside all the loops
-        // std::random_device rd;
-        // std::mt19937 engine(rd());
-        // std::uniform_int_distribution<> distsampvar(1, num_split_vars);
-        //
-        // split_var_vec[i] = distsampvar(engine);
-
-        split_var_vec[i] = distsampvar(lgen);
+            treenodes_bin.push_back(tempdraw);
 
 
-        //consider using boost
-        //might need to update rng
-        //split_var_vec[i] <- sample_splitvars(rng);
+            if(tempdraw==1){
+              count_internals=count_internals+1;
+            }else{
+              count_terminals=count_terminals+1;
+            }
 
-        //or use dqrng
-        //not sure if have to update the random number
-        //check if the following line is written properly
-        //split_var_vec[i] = dqrng::dqsample_int(num_split_vars, 1, true);
+          }//end of while loop creating parent vector treenodes_bin
+        }//end of Q+H sampling else statement
+    }//end of not Spike and Tree sampler else statement
 
-        //not sure if this returns an integer or a vector?
-        //split_var_vec[i] = RcppArmadillo::sample(num_split_vars, 1,true);
-        //could try
-        //split_var_vec[i] = as<int>(Rcpp::sample(num_split_vars, 1,true));
-        //could also try RcppArmadillo::rmultinom
+    //Rcout << "Line 3961 .\n";
 
-      }
 
-    }// end of for-loop drawing split variables
+    if(imp_sampler==2){
+      //already filled in splitting variable above for spike and tree prior
+    }else{
+      //Consider making this an armadillo vector
+      //IntegerVector split_var_vec(treenodes_bin.size());
+      //arma::uvec split_var_vec(treenodes_bin.size());
+      std::vector<int> split_var_vectemp(treenodes_bin.size());
 
+      // possibly faster alternative
+      //    split_var_vec.reserve( treenodes_bin.size() );
+      // then push_back elements to split_var_vec in the for loop
+
+      //loop drawing splitting variables
+      //REPLACE SQUARE BRACKETS WITH "( )" if using ARMADILLO vector for split_var_vec or treenodes_bin
+
+      //if using armadillo, it might be faster to subset to split nodes
+      //then use a vector of draws
+      for(unsigned int i=0; i<treenodes_bin.size();i++){
+        if(treenodes_bin[i]==0){
+          split_var_vectemp[i] = -1;
+        }else{
+          // also consider the standard library function uniform_int_distribution
+          // might need random header
+          // This uses the Mersenne twister
+
+          //Three lines below should probably be outside all the loops
+          // std::random_device rd;
+          // std::mt19937 engine(rd());
+          // std::uniform_int_distribution<> distsampvar(1, num_split_vars);
+          //
+          // split_var_vec[i] = distsampvar(engine);
+
+          split_var_vectemp[i] = distsampvar(lgen);
+
+
+          //consider using boost
+          //might need to update rng
+          //split_var_vec[i] <- sample_splitvars(rng);
+
+          //or use dqrng
+          //not sure if have to update the random number
+          //check if the following line is written properly
+          //split_var_vec[i] = dqrng::dqsample_int(num_split_vars, 1, true);
+
+          //not sure if this returns an integer or a vector?
+          //split_var_vec[i] = RcppArmadillo::sample(num_split_vars, 1,true);
+          //could try
+          //split_var_vec[i] = as<int>(Rcpp::sample(num_split_vars, 1,true));
+          //could also try RcppArmadillo::rmultinom
+
+        }
+
+      }// end of for-loop drawing split variables
+
+      split_var_vec=split_var_vectemp;
+    }//end else statrement filling in splitting variable vector
 
     //Consider making this an armadillo vector
     //NumericVector split_point_vec(treenodes_bin.size());
@@ -3618,6 +4116,7 @@ NumericVector sBART_onefunc_parallel(double lambda,
 
 
 
+    //Rcout << "Line 4081 .\n";
 
 
     //CODE FOR ADJUSTING SPLITTING POINTS SO THAT THE TREES ARE VALID
@@ -3693,6 +4192,7 @@ NumericVector sBART_onefunc_parallel(double lambda,
 
 
 
+    //Rcout << "Line 4161 .\n";
 
 
 
@@ -3702,7 +4202,7 @@ NumericVector sBART_onefunc_parallel(double lambda,
 
     //NumericMatrix tree_table1(treenodes_bin.size(),5+num_cats);
 
-    //Rcout << "Line 1037. \n";
+    ////Rcout << "Line 1037. \n";
     //arma::mat tree_table1(treenodes_bin.size(),5+num_cats);
 
     //initialize with zeros. Not sure if this is necessary
@@ -3714,11 +4214,22 @@ NumericVector sBART_onefunc_parallel(double lambda,
     //tree_table1(_,3) = wrap(split_point_vec);
     //tree_table1(_,4) = wrap(treenodes_bin);
 
+
+
     //It might be more efficient to make everything an armadillo object initially
     // but then would need to replace push_back etc with a different approach (but this might be more efficient anyway)
     arma::colvec split_var_vec_arma=arma::conv_to<arma::colvec>::from(split_var_vec);
-    arma::colvec split_point_vec_arma(split_point_vec);
+    //arma::colvec split_point_vec_arma(split_point_vec);
+    //arma::colvec split_point_vec_arma(split_point_vec);
+    arma::colvec split_point_vec_arma=arma::conv_to<arma::colvec>::from(split_point_vec);
+
     arma::colvec treenodes_bin_arma=arma::conv_to<arma::colvec>::from(treenodes_bin);
+
+//Rcout << "split_var_vec_arma = " << split_var_vec_arma << " . \n";
+
+//Rcout << "split_point_vec_arma = " << split_point_vec_arma << " . \n";
+
+//Rcout << "treenodes_bin_arma = " << treenodes_bin_arma << " . \n";
 
 
     //Rcout << "Line 1054. \n";
@@ -3731,8 +4242,9 @@ NumericVector sBART_onefunc_parallel(double lambda,
     tree_table1.col(4) = treenodes_bin_arma;
 
 
-    //Rcout << "Line 1061. j = " << j << ". \n";
+    //Rcout << "Line 4200. j = " << j << ". \n";
 
+    ////Rcout << "Line 4081 .\n";
 
 
     // Now start filling in left daughter and right daughter columns
@@ -3740,7 +4252,7 @@ NumericVector sBART_onefunc_parallel(double lambda,
     int prev_node = -1;
 
     for(unsigned int i=0; i<treenodes_bin.size();i++){
-      //Rcout << "Line 1061. i = " << i << ". \n";
+      ////Rcout << "Line 1061. i = " << i << ". \n";
       if(prev_node==0){
         //tree_table1(rd_spaces[rd_spaces.size()-1], 1)=i;
         //Rcout << "Line 1073. j = " << j << ". \n";
@@ -3772,6 +4284,7 @@ NumericVector sBART_onefunc_parallel(double lambda,
 
 
 
+    //Rcout << "Line 4242 .\n";
 
     //List treepred_output = get_treepreds(original_y, num_cats, alpha_pars,
     //                                     originaldata,
@@ -3839,6 +4352,8 @@ NumericVector sBART_onefunc_parallel(double lambda,
     //List term_obs(term_nodes.n_elem);
 
     //GET J MATRIX
+
+    //Rcout << "Line 4311 .\n";
 
     if(term_nodes.n_elem==1){
       //double nodemean=tree_data(terminal_nodes[0]-1,5);				// let nodemean equal tree_data row terminal_nodes[i]^th row , 6th column. The minus 1 is because terminal nodes consists of indices starting at 1, but need indices to start at 0.
@@ -4057,6 +4572,8 @@ NumericVector sBART_onefunc_parallel(double lambda,
     }// end of else statement (for when more than one terminal node)
     // Now have J matrix
 
+    //Rcout << "Line 4530 .\n";
+
     Wmat=join_rows(Wmat,Jmat);
     //or
     //Wmat.insert_cols(Wmat.n_cols,Jmat);
@@ -4076,6 +4593,7 @@ NumericVector sBART_onefunc_parallel(double lambda,
     //W_tilde.insert_cols(upsilon2,Jtilde);
     //upsilon2+=b_jtest;
 
+    //Rcout << "Line 4551 .\n";
 
     if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
       // //get impportance sampler probability and tree prior
@@ -4157,7 +4675,7 @@ NumericVector sBART_onefunc_parallel(double lambda,
       //
       //     }
       //     //if(alpha_BART==0){
-      //     //  Rcout << "alpha_BART equals zero!!!!.\n";
+      //     //  //Rcout << "alpha_BART equals zero!!!!.\n";
       //     //}
       //   }
       //
@@ -4710,6 +5228,8 @@ NumericVector sBART_onefunc_parallel(double lambda,
 
     //Obtain likelihood
 
+    //Rcout << "Line 5186 .\n";
+
     double b=Wmat.n_cols;
 
 
@@ -4740,8 +5260,8 @@ NumericVector sBART_onefunc_parallel(double lambda,
 
       double templik0=(num_obs*log(temp_sse/num_obs)+b*log(num_obs))  ;
 
-      // Rcout << "num_obs= " << num_obs << ". \n";
-      // Rcout << "b= " << b << ". \n";
+      // //Rcout << "num_obs= " << num_obs << ". \n";
+      // //Rcout << "b= " << b << ". \n";
       // Rcout << "log(num_obs)= " << log(num_obs) << ". \n";
       // Rcout << "log(temp_sse/num_obs)= " << log(temp_sse/num_obs) << ". \n";
       //Rcout << "templik0= " << templik0 << ". \n";
