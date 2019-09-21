@@ -70,6 +70,10 @@ draw_trees <- function(lambda, num_trees, seed, num_split_vars, num_cats) {
     .Call(`_safeBart_draw_trees`, lambda, num_trees, seed, num_split_vars, num_cats)
 }
 
+secondKindStirlingNumber <- function(n, k) {
+    .Call(`_safeBart_secondKindStirlingNumber`, n, k)
+}
+
 #' @title Safe-Bayesian Random Forest. Initial test function.
 #' @export
 sBayesRF <- function(lambda, num_trees, seed, num_cats, y, original_datamat, alpha_parameters, beta_par, test_datamat) {

@@ -1456,7 +1456,34 @@ List draw_trees(double lambda, int num_trees, int seed, int num_split_vars, int 
 
   return(table_list);
 }//end of function definition
+//######################################################################################################################//
 
+// [[Rcpp::depends(RcppArmadillo)]]
+// [[Rcpp::export]]
+double secondKindStirlingNumber(int n, int k) {
+  if(k>n)
+    throw std::range_error("Sterling number undefined for k>n");
+  if(k==0 && n==0)
+    return 1;
+  if (n == 0 || k == 0 || k > n)
+    return 0;
+  if (k == 1 || k == n)
+    return 1;
+
+  arma::mat sf=arma::zeros(n + 1,n + 1);
+  for (int i = 0; i < k+1; i++) {
+    sf(i,i) = 1;
+  }
+  for(int i=1; i< n+1 ; i++){
+    sf(i,1)=1;
+  }
+  for (int i = 3; i < n + 1; i++) {
+    for (int j = 2; j < k + 1; j++) {
+      sf(i,j) = j * sf(i - 1,j) + sf(i - 1,j - 1);
+    }
+  }
+  return sf(n,k);
+}
 //######################################################################################################################//
 
 // [[Rcpp::depends(RcppArmadillo)]]
@@ -4794,8 +4821,15 @@ NumericVector sBART_onefunc_parallel(double lambda,
                   std::lgamma(q_temp+a_s_t)+std::lgamma(num_vars-q_temp+b_s_t)-std::lgamma(num_vars+a_s_t+b_s_t)+
                   k_temp*log(lambda_poisson)-
                   lambda_poisson-std::lgamma(k_temp+1)-denom  -
-                  (std::lgamma(num_obs)+(k_temp-1-q_temp)*log(q_temp)+
-                  std::lgamma(q_temp+1)-(std::lgamma(num_obs-k_temp+1))));
+                  (std::lgamma(2*(k_temp-1)+1)-std::lgamma(k_temp+1)
+                     -std::lgamma(k_temp)+std::lgamma(q_temp+1)
+                      +std::log(secondKindStirlingNumber(k_temp-1,q_temp))
+                      +std::lgamma(num_obs)
+                      -std::lgamma(k_temp)
+                      -std::lgamma(num_obs-k_temp) ));
+
+                  //(std::lgamma(num_obs)+(k_temp-1-q_temp)*log(q_temp)+
+                  //std::lgamma(q_temp+1)-(std::lgamma(num_obs-k_temp+1))));
                 //Rcout << " propsplit= " << propsplit << ".\n";
                 // tree_prior_over_samp_prob=  propsplit/
                 //   BART_prior*
@@ -4806,8 +4840,12 @@ NumericVector sBART_onefunc_parallel(double lambda,
                   q_temp*log(p_s_t)+(num_vars-q_temp)*log(1-(p_s_t))+
                   k_temp*log(lambda_poisson)-
                   lambda_poisson-std::lgamma(k_temp+1)-denom  -
-                  (std::lgamma(num_obs)+(k_temp-1-q_temp)*log(q_temp)+
-                  std::lgamma(q_temp+1)-(std::lgamma(num_obs-k_temp+1))));
+                  (std::lgamma(2*(k_temp-1)+1)-std::lgamma(k_temp+1)
+                     -std::lgamma(k_temp)+std::lgamma(q_temp+1)
+                     +std::log(secondKindStirlingNumber(k_temp-1,q_temp))
+                     +std::lgamma(num_obs)
+                     -std::lgamma(k_temp)
+                     -std::lgamma(num_obs-k_temp) ));
                 //Rcout << " propsplit= " << propsplit << ".\n";
 
                 // tree_prior_over_samp_prob=  propsplit/
@@ -4943,8 +4981,12 @@ NumericVector sBART_onefunc_parallel(double lambda,
                   std::lgamma(q_temp+a_s_t)+std::lgamma(num_vars-q_temp+b_s_t)-std::lgamma(num_vars+a_s_t+b_s_t)+
                   k_temp*log(lambda_poisson)-
                   lambda_poisson-std::lgamma(k_temp+1)-denom  -
-                  (std::lgamma(num_obs)+(k_temp-1-q_temp)*log(q_temp)+
-                  std::lgamma(q_temp+1)-(std::lgamma(num_obs-k_temp+1))));
+                  (std::lgamma(2*(k_temp-1)+1)-std::lgamma(k_temp+1)
+                     -std::lgamma(k_temp)+std::lgamma(q_temp+1)
+                     +std::log(secondKindStirlingNumber(k_temp-1,q_temp))
+                     +std::lgamma(num_obs)
+                     -std::lgamma(k_temp)
+                     -std::lgamma(num_obs-k_temp) ));
                 //Rcout << " propsplit= " << propsplit << ".\n";
                 tree_prior_over_samp_prob=  BART_prior*
                   pow(1/num_vars,arma::sum(treenodes_bin_arma))/propsplit;
@@ -4954,8 +4996,12 @@ NumericVector sBART_onefunc_parallel(double lambda,
                   q_temp*log(p_s_t)+(num_vars-q_temp)*log(1-(p_s_t))+
                   k_temp*log(lambda_poisson)-
                   lambda_poisson-std::lgamma(k_temp+1)-denom  -
-                  (std::lgamma(num_obs)+(k_temp-1-q_temp)*log(q_temp)+
-                  std::lgamma(q_temp+1)-(std::lgamma(num_obs-k_temp+1))));
+                  (std::lgamma(2*(k_temp-1)+1)-std::lgamma(k_temp+1)
+                     -std::lgamma(k_temp)+std::lgamma(q_temp+1)
+                     +std::log(secondKindStirlingNumber(k_temp-1,q_temp))
+                     +std::lgamma(num_obs)
+                     -std::lgamma(k_temp)
+                     -std::lgamma(num_obs-k_temp) ));
                 //Rcout << " propsplit= " << propsplit << ".\n";
 
                 tree_prior_over_samp_prob=  BART_prior*
@@ -5024,8 +5070,12 @@ NumericVector sBART_onefunc_parallel(double lambda,
                     std::lgamma(q_temp+a_s_t)+std::lgamma(num_vars-q_temp+b_s_t)-std::lgamma(num_vars+a_s_t+b_s_t)+
                     k_temp*log(lambda_poisson)-
                     lambda_poisson-std::lgamma(k_temp+1)-denom  -
-                    (std::lgamma(num_obs)+(k_temp-1-q_temp)*log(q_temp)+
-                    std::lgamma(q_temp+1)-(std::lgamma(num_obs-k_temp+1))));
+                    (std::lgamma(2*(k_temp-1)+1)-std::lgamma(k_temp+1)
+                       -std::lgamma(k_temp)+std::lgamma(q_temp+1)
+                       +std::log(secondKindStirlingNumber(k_temp-1,q_temp))
+                       +std::lgamma(num_obs)
+                       -std::lgamma(k_temp)
+                       -std::lgamma(num_obs-k_temp) ));
                   //Rcout << " propsplit= " << propsplit << ".\n";
                   tree_prior_over_samp_prob=  pow(lambda,arma::sum(treenodes_bin_arma))*
                     pow(1-lambda,treenodes_bin_arma.size()-arma::sum(treenodes_bin_arma))*
@@ -5037,8 +5087,12 @@ NumericVector sBART_onefunc_parallel(double lambda,
                     q_temp*log(p_s_t)+(num_vars-q_temp)*log(1-(p_s_t))+
                     k_temp*log(lambda_poisson)-
                     lambda_poisson-std::lgamma(k_temp+1)-denom  -
-                    (std::lgamma(num_obs)+(k_temp-1-q_temp)*log(q_temp)+
-                    std::lgamma(q_temp+1)-(std::lgamma(num_obs-k_temp+1))));
+                    (std::lgamma(2*(k_temp-1)+1)-std::lgamma(k_temp+1)
+                       -std::lgamma(k_temp)+std::lgamma(q_temp+1)
+                       +std::log(secondKindStirlingNumber(k_temp-1,q_temp))
+                       +std::lgamma(num_obs)
+                       -std::lgamma(k_temp)
+                       -std::lgamma(num_obs-k_temp) ));
 
                   tree_prior_over_samp_prob=  pow(lambda,arma::sum(treenodes_bin_arma))*
                     pow(1-lambda,treenodes_bin_arma.size()-arma::sum(treenodes_bin_arma))*
@@ -5137,8 +5191,12 @@ NumericVector sBART_onefunc_parallel(double lambda,
                     std::lgamma(q_temp+a_s_t)+std::lgamma(num_vars-q_temp+b_s_t)-std::lgamma(num_vars+a_s_t+b_s_t)+
                     k_temp*log(lambda_poisson)-
                     lambda_poisson-std::lgamma(k_temp+1)-denom  -
-                    (std::lgamma(num_obs)+(k_temp-1-q_temp)*log(q_temp)+
-                    std::lgamma(q_temp+1)-(std::lgamma(num_obs-k_temp+1))));
+                    (std::lgamma(2*(k_temp-1)+1)-std::lgamma(k_temp+1)
+                       -std::lgamma(k_temp)+std::lgamma(q_temp+1)
+                       +std::log(secondKindStirlingNumber(k_temp-1,q_temp))
+                       +std::lgamma(num_obs)
+                       -std::lgamma(k_temp)
+                       -std::lgamma(num_obs-k_temp) ));
                   //Rcout << " propsplit= " << propsplit << ".\n";
                   // tree_prior_over_samp_prob=  propsplit/
                   //   (pow(lambda,arma::sum(treenodes_bin_arma))*
@@ -5151,8 +5209,12 @@ NumericVector sBART_onefunc_parallel(double lambda,
                     q_temp*log(p_s_t)+(num_vars-q_temp)*log(1-(p_s_t))+
                     k_temp*log(lambda_poisson)-
                     lambda_poisson-std::lgamma(k_temp+1)-denom  -
-                    (std::lgamma(num_obs)+(k_temp-1-q_temp)*log(q_temp)+
-                    std::lgamma(q_temp+1)-(std::lgamma(num_obs-k_temp+1))));
+                    (std::lgamma(2*(k_temp-1)+1)-std::lgamma(k_temp+1)
+                       -std::lgamma(k_temp)+std::lgamma(q_temp+1)
+                       +std::log(secondKindStirlingNumber(k_temp-1,q_temp))
+                       +std::lgamma(num_obs)
+                       -std::lgamma(k_temp)
+                       -std::lgamma(num_obs-k_temp) ));
 
                   // tree_prior_over_samp_prob=  propsplit/
                   //   (pow(lambda,arma::sum(treenodes_bin_arma))*

@@ -206,6 +206,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// secondKindStirlingNumber
+double secondKindStirlingNumber(int n, int k);
+RcppExport SEXP _safeBart_secondKindStirlingNumber(SEXP nSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(secondKindStirlingNumber(n, k));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sBayesRF
 NumericMatrix sBayesRF(double lambda, int num_trees, int seed, int num_cats, NumericVector y, NumericMatrix original_datamat, NumericVector alpha_parameters, double beta_par, NumericMatrix test_datamat);
 RcppExport SEXP _safeBart_sBayesRF(SEXP lambdaSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP num_catsSEXP, SEXP ySEXP, SEXP original_datamatSEXP, SEXP alpha_parametersSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP) {
@@ -354,6 +366,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_safeBart_get_test_probs", (DL_FUNC) &_safeBart_get_test_probs, 4},
     {"_safeBart_get_test_prob_overall", (DL_FUNC) &_safeBart_get_test_prob_overall, 4},
     {"_safeBart_draw_trees", (DL_FUNC) &_safeBart_draw_trees, 5},
+    {"_safeBart_secondKindStirlingNumber", (DL_FUNC) &_safeBart_secondKindStirlingNumber, 2},
     {"_safeBart_sBayesRF", (DL_FUNC) &_safeBart_sBayesRF, 9},
     {"_safeBart_sBayesRF_onefunc", (DL_FUNC) &_safeBart_sBayesRF_onefunc, 9},
     {"_safeBart_sBayesRF_onefunc_arma", (DL_FUNC) &_safeBart_sBayesRF_onefunc_arma, 9},
