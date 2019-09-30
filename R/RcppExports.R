@@ -18,8 +18,20 @@ get_original <- function(low, high, sp_low, sp_high, sum_preds) {
     .Call(`_safeBart_get_original`, low, high, sp_low, sp_high, sum_preds)
 }
 
+get_original_arma <- function(low, high, sp_low, sp_high, sum_preds) {
+    .Call(`_safeBart_get_original_arma`, low, high, sp_low, sp_high, sum_preds)
+}
+
 get_original_TE <- function(low, high, sp_low, sp_high, sum_preds) {
     .Call(`_safeBart_get_original_TE`, low, high, sp_low, sp_high, sum_preds)
+}
+
+get_original_TE_double <- function(low, high, sp_low, sp_high, sum_preds) {
+    .Call(`_safeBart_get_original_TE_double`, low, high, sp_low, sp_high, sum_preds)
+}
+
+get_original_TE_arma <- function(low, high, sp_low, sp_high, sum_preds) {
+    .Call(`_safeBart_get_original_TE_arma`, low, high, sp_low, sp_high, sum_preds)
 }
 
 unfold <- function(p_ind, output_dyck, length) {
@@ -74,6 +86,14 @@ secondKindStirlingNumber <- function(n, k) {
     .Call(`_safeBart_secondKindStirlingNumber`, n, k)
 }
 
+mixt_eval_cdf <- function(x_val, d_o_f, mean_vec, var_vec, weights_vec, quant_val) {
+    .Call(`_safeBart_mixt_eval_cdf`, x_val, d_o_f, mean_vec, var_vec, weights_vec, quant_val)
+}
+
+rootmixt <- function(d_o_f, a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision) {
+    .Call(`_safeBart_rootmixt`, d_o_f, a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision)
+}
+
 #' @title Safe-Bayesian Random Forest. Initial test function.
 #' @export
 sBayesRF <- function(lambda, num_trees, seed, num_cats, y, original_datamat, alpha_parameters, beta_par, test_datamat) {
@@ -114,9 +134,9 @@ sBayesRF_onefunc_arma <- function(lambda, num_trees, seed, num_cats, y, original
     .Call(`_safeBart_sBayesRF_onefunc_arma`, lambda, num_trees, seed, num_cats, y, original_datamat, alpha_parameters, beta_par, test_datamat)
 }
 
-#' @title Parallel Safe-Bayesian Random Forest
+#' @title Parallel Safe-BART
 #'
-#' @description A parallelized implementation of the Safe-Bayesian Random Forest described by Quadrianto and Ghahramani (2015)
+#' @description A parallelized implementation of safe-Bayesian Additive Regression Trees
 #' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
 #' @param num_trees The number of trees to be sampled.
 #' @param seed The seed for random number generation.
@@ -127,7 +147,7 @@ sBayesRF_onefunc_arma <- function(lambda, num_trees, seed, num_cats, y, original
 #' @param beta_par The power to which the likelihood is to be raised. For BMA, set beta_par=1.
 #' @param original_datamat The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.
 #' @param ncores The number of cores to be used in parallelization.
-#' @return A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
+#' @return A vector of out-of-sample predictions.
 #' @export
 sBART_onefunc_parallel <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx) {
     .Call(`_safeBart_sBART_onefunc_parallel`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx)
@@ -150,5 +170,43 @@ sBART_onefunc_parallel <- function(lambda, num_models, num_trees, seed, ytrain, 
 #' @export
 sBCF_onefunc_parallel <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_z, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity) {
     .Call(`_safeBart_sBCF_onefunc_parallel`, lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_z, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity)
+}
+
+#' @title Parallel Safe-BART with prediction intervals
+#'
+#' @description A parallelized implementation of safe-Bayesian Additive Regression Trees.
+#' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
+#' @param num_trees The number of trees to be sampled.
+#' @param seed The seed for random number generation.
+#' @param num_cats The number of possible values for the outcome variable.
+#' @param y The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.
+#' @param original_datamat The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.
+#' @param alpha_parameters Vector of prior parameters.
+#' @param beta_par The power to which the likelihood is to be raised. For BMA, set beta_par=1.
+#' @param original_datamat The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.
+#' @param ncores The number of cores to be used in parallelization.
+#' @return A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.
+#' @export
+sBART_with_ints_parallel <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision) {
+    .Call(`_safeBart_sBART_with_ints_parallel`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision)
+}
+
+#' @title Parallel Safe-Bayesian Causal Forest
+#'
+#' @description A parallelized implementation of the Safe-Bayesian Random Forest described by Quadrianto and Ghahramani (2015)
+#' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
+#' @param num_trees The number of trees to be sampled.
+#' @param seed The seed for random number generation.
+#' @param num_cats The number of possible values for the outcome variable.
+#' @param y The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.
+#' @param original_datamat The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.
+#' @param alpha_parameters Vector of prior parameters.
+#' @param beta_par The power to which the likelihood is to be raised. For BMA, set beta_par=1.
+#' @param original_datamat The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.
+#' @param ncores The number of cores to be used in parallelization.
+#' @return A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
+#' @export
+sBCF_with_ints_parallel <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_z, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision) {
+    .Call(`_safeBart_sBCF_with_ints_parallel`, lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_z, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision)
 }
 
