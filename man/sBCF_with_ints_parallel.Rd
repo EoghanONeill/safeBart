@@ -6,10 +6,10 @@
 \usage{
 sBCF_with_ints_parallel(lambda_mu, lambda_tau, num_models, num_trees_mu,
   num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train,
-  beta_par, test_datamat, test_z, test_pihat, ncores, outsamppreds, nu,
-  a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler,
-  alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2,
-  fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision)
+  beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu,
+  a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu,
+  beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx,
+  PIT_propensity, lower_prob, upper_prob, root_alg_precision)
 }
 \arguments{
 \item{seed}{The seed for random number generation.}

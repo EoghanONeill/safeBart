@@ -1,6 +1,6 @@
-#' @title Parallel Safe-Bayesian Causal Forest with CTAE estimate and prediction intervals
+#' @title ITE and CATE estimates from Safe Bayesian Additive Regression Trees
 #'
-#' @description A parallelized implementation of the Safe-Bayesian Random Forest described by Quadrianto and Ghahramani (2015)
+#' @description ITE and CATE estimates and prediciton intervals from safeBART
 #' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
 #' @param num_trees The number of trees to be sampled.
 #' @param seed The seed for random number generation.
@@ -16,6 +16,7 @@
 #' @param imp_sampler Importance sampler for trees. 1 = BART prior, 2= spike-and-tree, otherwise default prior by Novi and Quandrianto
 #' @param alpha_BART The alpha parameter for the standard BART prior.
 #' @param beta_BART The beta parameter for the standard BART prior.
+#' @param fast_approx If equal to 1, use an approximate BIC weighted average and do not invert matrices for each model (should also use SVD).
 #' @return A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
 #' @useDynLib safeBart, .registration = TRUE
 #' @importFrom Rcpp evalCpp
@@ -69,77 +70,56 @@
 #' cbind(examplepreds1,ytest )
 #' @export
 
-safeBCF_with_intervals <- function(seed,
-                                   y,
-                                   original_datamat,
-                                   ztrain,
-                                   pihat_train,
-                                   test_datamat=matrix(0.0,0,0),
-                                   test_pihat=matrix(0.0,0,0),
-                                   lambda_mu=0.45,
-                                   lambda_tau=0.45,
-                                   num_models=1000,
-                                   num_trees_mu=5,
-                                   num_trees_tau=5,
-                                   beta_par=1,
-                                   ncores=1,
-                                   outsamppreds=1,
-                                   nu=3,
-                                   a_mu=3,
-                                   a_tau=3,
-                                   sigquant=0.9,
-                                   valid_trees=1,
-                                   tree_prior=0,
-                                   imp_sampler=0,
-                                   alpha_BCF_mu=0.95,
-                                   beta_BCF_mu=2,
-                                   alpha_BCF_tau=0.95,
-                                   beta_BCF_tau=2,
-                                   include_pi= "control",
-                                   fast_approx=0,
-                                   PIT_propensity=0,
-                                   l_quant=0.025,
-                                   u_quant=0.975,
-                                   root_alg_precision=0.00001){
+safeBart_ITEs <- function(seed,
+                          y,
+                          original_datamat,
+                          ztrain,
+                          pihat_train,
+                          test_datamat=matrix(0.0,0,0),
+                          test_pihat=matrix(0.0,0,0),
+                          lambda=0.45,
+                          num_models=1000,
+                          num_trees=5,
+                          beta_par=1,
+                          ncores=1,
+                          outsamppreds=1,
+                          nu=3,
+                          a=3,
+                          sigquant=0.9,
+                          valid_trees=1,
+                          tree_prior=0,
+                          imp_sampler=0,
+                          alpha_BART=0.95,
+                          beta_BART=2,
+                          s_t_hyperprior=1,
+                          p_s_t=0.5,
+                          a_s_t=1,
+                          b_s_t=3,
+                          lambda_poisson=10,
+                          fast_approx=0,
+                          PIT_propensity=0,
+                          l_quant=0.025,
+                          u_quant=0.975,
+                          root_alg_precision=0.00001){
 
-
-  if(fast_approx== 1) stop('Code for fast approximation not written for safeBCF_with_intervals(). Set fast_approx==0.')
-
+  if(ncores>num_models ) stop("ncores > num_models")
 
   sigma=sd(y)/(max(y)-min(y))
   qchi = qchisq(1.0-sigquant,nu,1,0);
-  lambdaBCF = (sigma*sigma*qchi)/nu;
+  lambdaBART = (sigma*sigma*qchi)/nu;
 
-  include_pi2=-1
-  if(include_pi=="control") {
-    include_pi2 = 0
-  }
-  if(include_pi=="moderate") {
-    include_pi2 = 1
-  }
-  if(include_pi=="both") {
-    include_pi2 = 2
-  }
-  if(include_pi=="none") {
-    include_pi2 = 4
-  }
-  if(include_pi2==-1) stop('include_pi must be equal to control, moderate, both, or none.')
+  if(is.vector(original_datamat) | is.factor(original_datamat)| is.data.frame(original_datamat)) original_datamat = as.matrix(original_datamat)
+  if(is.vector(test_datamat) | is.factor(test_datamat)| is.data.frame(test_datamat)) test_datamat = as.matrix(test_datamat)
 
+  if((!is.matrix(original_datamat))) stop("argument x.train must be a double matrix")
+  if((!is.matrix(test_datamat)) ) stop("argument x.test must be a double matrix")
 
-  # if(is.vector(original_datamat) | is.factor(original_datamat)| is.data.frame(original_datamat)) original_datamat = as.matrix(original_datamat)
-  # if(is.vector(test_datamat) | is.factor(test_datamat)| is.data.frame(test_datamat)) test_datamat = as.matrix(test_datamat)
-  #
-  # if((!is.matrix(original_datamat))) stop("argument x.train must be a double matrix")
-  # if((!is.matrix(test_datamat)) ) stop("argument x.test must be a double matrix")
-  #
-  # if(nrow(original_datamat) != length(y)) stop("number of rows in x.train must equal length of y.train")
-  # if((ncol(test_datamat)!=ncol(original_datamat))) stop("input x.test must have the same number of columns as x.train")
+  if(nrow(original_datamat) != length(y)) stop("number of rows in x.train must equal length of y.train")
+  #if((ncol(test_datamat)!=ncol(original_datamat))) stop("input x.test must have the same number of columns as x.train")
 
-  sBCFoutput=sBCF_with_ints_parallel(lambda_mu,
-                                     lambda_tau,
+  sBARToutput=sBART_ITEs_with_ints(lambda,
                                      num_models,
-                                     num_trees_mu,
-                                     num_trees_tau,
+                                     num_trees,
                                      seed,
                                      y,
                                      original_datamat,
@@ -151,17 +131,18 @@ safeBCF_with_intervals <- function(seed,
                                      ncores,
                                      outsamppreds,
                                      nu,
-                                     a_mu,
-                                     a_tau,
-                                     lambdaBCF,
+                                     a,
+                                     lambdaBART,
                                      valid_trees,
                                      tree_prior,
                                      imp_sampler,
-                                     alpha_BCF_mu,
-                                     beta_BCF_mu,
-                                     alpha_BCF_tau,
-                                     beta_BCF_tau,
-                                     include_pi2,
+                                     alpha_BART,
+                                     beta_BART,
+                                     s_t_hyperprior,
+                                     p_s_t,
+                                     a_s_t,
+                                     b_s_t,
+                                     lambda_poisson,
                                      fast_approx,
                                      PIT_propensity,
                                      l_quant,
@@ -169,10 +150,11 @@ safeBCF_with_intervals <- function(seed,
                                      root_alg_precision)
 
 
-  names(sBCFoutput) <- c("ITEests",
-                         "ITEintervals",
-                         "CATEests",
-                         "CATEintervals")
 
-  sBCFoutput
+  names(sBARToutput) <- c("ITEests",
+                         "ITEintervals",
+                         "CATEest",
+                         "CATEinterval")
+
+  sBARToutput
 }
