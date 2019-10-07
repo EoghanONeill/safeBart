@@ -11026,7 +11026,7 @@ List sBCF_with_ints_parallel(double lambda_mu,
 
   //Check that various input vectors and matrices have consistent dimensions
 
-  //Rcout << "Line 4528.\n";
+  //Rcout << "Line 11029.\n";
 
   bool is_test_data=0;					// create bool is_test_data. Initialize equal to 0.
   if(test_datamat.nrow()>0){					// If test data has non-zero number of rows.
@@ -11393,7 +11393,7 @@ List sBCF_with_ints_parallel(double lambda_mu,
 
   //Rcout << "Line 3338. \n";
 
-  //Rcout << "Line 4836.\n";
+  //Rcout << "Line 11396.\n";
 
 #pragma omp parallel num_threads(ncores)
 {//start of pragma omp code
@@ -13626,7 +13626,7 @@ List sBCF_with_ints_parallel(double lambda_mu,
 ///////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////
-//Rcout << "Line 6852.\n";
+//Rcout << "Line 13629.\n";
 
 
 //for(unsigned int i=0; i<overall_treetables.n_elem;i++){
@@ -13693,6 +13693,7 @@ arma::mat cate_ints(3, 1);
 
 
 
+//Rcout << "Line 13697.\n";
 
 
 if(fast_approx==1){
@@ -13794,6 +13795,7 @@ if(fast_approx==1){
 }
 
 
+//Rcout << "Line 13798.\n";
 
 
   typedef std::vector<double> stdvec;
@@ -14018,6 +14020,7 @@ if(fast_approx==1){
 #pragma omp barrier
   } // close else statement (number of models not equal to 1)
 
+  //Rcout << "Line 14023.\n";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -14044,6 +14047,7 @@ if(fast_approx==1){
 arma::mat output_rescaled(output.n_rows, output.n_cols);
 double min_y=min(ytrain);
 double max_y=max(ytrain);
+//Rcout << "Line 14050.\n";
 
 #pragma omp parallel num_threads(ncores)
 #pragma omp for
@@ -14055,6 +14059,9 @@ for(unsigned int i=0;i<output.n_cols;i++){
 
 }
 #pragma omp barrier
+
+
+//Rcout << "Line 14064.\n";
 
 arma::mat cate_ints_rescaled=get_original_TE_arma(min_y,max_y,-0.5,0.5, cate_ints.col(0));
 //arma::mat catt_ints_rescaled=get_original_TE_arma(min(y),max(y),-0.5,0.5, catt_ints.col(0));
@@ -14160,7 +14167,7 @@ List sBART_ITEs_with_ints(double lambda,
 
   //Check that various input vectors and matrices have consistent dimensions
 
-  //Rcout << "Line 4528.\n";
+  //Rcout << "Line 14170.\n";
 
   bool is_test_data=0;					// create bool is_test_data. Initialize equal to 0.
   if(test_datamat.nrow()>0){					// If test data has non-zero number of rows.
@@ -14660,7 +14667,7 @@ List sBART_ITEs_with_ints(double lambda,
   //double templik = as<double>(treepred_output[1]);
   //overall_liks[i]= pow(lik_prod,beta_pow);
 
-  //Rcout << "Line 3338. \n";
+  //Rcout << "Line 14670. \n";
 
 
 #pragma omp parallel num_threads(ncores)
@@ -16710,6 +16717,7 @@ List sBART_ITEs_with_ints(double lambda,
 ///////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////
+//Rcout << "Line 16720. \n";
 
 
 
@@ -16795,6 +16803,8 @@ for(unsigned int k=0;k<overall_liks.size();k++){
 //Rcout << "weighted_lik= " << weighted_lik << ". \n";
 //Rcout << "overall_liks= " << overall_liks << ". \n";
 
+//Rcout << "Line 16805. \n";
+
 #pragma omp parallel num_threads(ncores)
 {
   arma::vec result_private;
@@ -16818,6 +16828,7 @@ for(unsigned int k=0;k<overall_liks.size();k++){
 
 }
 
+//Rcout << "Line 16831. \n";
 
 
 int num_obs_output;
@@ -16841,6 +16852,7 @@ double lq_tstandard= boost::math::quantile(dist2,lower_prob);
 double med_tstandard= boost::math::quantile(dist2,0.5); //This is just 0 ??
 double uq_tstandard= boost::math::quantile(dist2,upper_prob);
 
+//Rcout << "Line 16855. \n";
 
 if(weights_vec.size()==1){
 
@@ -16949,6 +16961,7 @@ if(weights_vec.size()==1){
 #pragma omp barrier
 }
 
+//Rcout << "Line 16964. \n";
 
 arma::mat output_rescaled(output.n_rows, output.n_cols);
 double min_y=min(ytrain);
@@ -16960,6 +16973,9 @@ for(unsigned int i=0;i<output.n_cols;i++){
   output_rescaled.col(i)=get_original_TE_arma(min_y,max_y,-0.5,0.5, output.col(i));
 }
 #pragma omp barrier
+
+//Rcout << "Line 16977. \n";
+
 
 arma::vec cate_ints_rescaled=get_original_TE_arma(min_y,max_y,-0.5,0.5, cate_ints.col(0));
 
