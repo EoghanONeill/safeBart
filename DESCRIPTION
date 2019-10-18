@@ -7,7 +7,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "oneill.eoghan.1@gmail.com")
 Description: safeBART is an implementation of Bayesian Additive Regression Trees using importance sampling. This combines aspects of BART-BMA (Hernandez et al. 2018) and safe-Bayesian Random Forests (Quadrianto and Ghahramani 2015).
-License: MIT + file LICENSE
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
