@@ -32,18 +32,12 @@ epsilon <- rnorm(N)
 xcov <- matrix(runif(N*p), nrow=N)
 
 y <- sin(pi*xcov[,1]*xcov[,2]) + 20*(xcov[,3]-0.5)^2+10*xcov[,4]+5*xcov[,5]+epsilon
-# <- rep(1,N) + epsilon
 
 epsilontest <- rnorm(N)
 
 xcovtest <- matrix(runif(N*p), nrow=N)
 ytest <- sin(pi*xcovtest[,1]*xcovtest[,2]) + 20*(xcovtest[,3]-0.5)^2+10*xcovtest[,4]+5*xcovtest[,5]+epsilontest
-#ytest <- rep(1,N) + epsilontest
 
-
-
-
-Num_split_vars <- 10
 
 lambda <- 0.45
 Num_models <- 10000
@@ -51,8 +45,6 @@ num_trees1 <- 5
 
 seed1 <- 42
 ncores <- 7
-
-
 
 examplepreds1 <- safeBart_parallel(seed1,
   y, xcov,xcovtest,
