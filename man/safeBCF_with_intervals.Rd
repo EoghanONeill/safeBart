@@ -4,23 +4,47 @@
 \alias{safeBCF_with_intervals}
 \title{Parallel Safe-Bayesian Causal Forest with CTAE estimate and prediction intervals}
 \usage{
-safeBCF_with_intervals(seed, y, original_datamat, ztrain, pihat_train,
-  test_datamat = matrix(0, 0, 0), test_pihat = matrix(0, 0, 0),
-  lambda_mu = 0.45, lambda_tau = 0.45, num_models = 1000,
-  num_trees_mu = 5, num_trees_tau = 5, beta_par = 1, ncores = 1,
-  outsamppreds = 1, nu = 3, a_mu = 3, a_tau = 3, sigquant = 0.9,
-  valid_trees = 1, tree_prior = 0, imp_sampler = 0,
-  alpha_BCF_mu = 0.95, beta_BCF_mu = 2, alpha_BCF_tau = 0.95,
-  beta_BCF_tau = 2, include_pi = "control", fast_approx = 0,
-  PIT_propensity = 0, l_quant = 0.025, u_quant = 0.975,
-  root_alg_precision = 1e-05)
+safeBCF_with_intervals(
+  seed,
+  y,
+  original_datamat,
+  ztrain,
+  pihat_train,
+  test_datamat = matrix(0, 0, 0),
+  test_pihat = matrix(0, 0, 0),
+  lambda_mu = 0.45,
+  lambda_tau = 0.45,
+  num_models = 1000,
+  num_trees_mu = 5,
+  num_trees_tau = 5,
+  beta_par = 1,
+  ncores = 1,
+  outsamppreds = 1,
+  nu = 3,
+  a_mu = 3,
+  a_tau = 3,
+  sigquant = 0.9,
+  valid_trees = 1,
+  tree_prior = 0,
+  imp_sampler = 0,
+  alpha_BCF_mu = 0.95,
+  beta_BCF_mu = 2,
+  alpha_BCF_tau = 0.95,
+  beta_BCF_tau = 2,
+  include_pi = "control",
+  fast_approx = 0,
+  PIT_propensity = 0,
+  l_quant = 0.025,
+  u_quant = 0.975,
+  root_alg_precision = 1e-05
+)
 }
 \arguments{
 \item{seed}{The seed for random number generation.}
 
 \item{y}{The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.}
 
-\item{original_datamat}{The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.}
+\item{original_datamat}{The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.}
 
 \item{beta_par}{The power to which the likelihood is to be raised. For BMA, set beta_par=1.}
 
@@ -39,8 +63,6 @@ safeBCF_with_intervals(seed, y, original_datamat, ztrain, pihat_train,
 \item{num_cats}{The number of possible values for the outcome variable.}
 
 \item{alpha_parameters}{Vector of prior parameters.}
-
-\item{original_datamat}{The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.}
 
 \item{alpha_BART}{The alpha parameter for the standard BART prior.}
 

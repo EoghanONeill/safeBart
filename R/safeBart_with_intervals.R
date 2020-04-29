@@ -5,7 +5,7 @@
 #' @param num_trees The number of trees to be sampled.
 #' @param seed The seed for random number generation.
 #' @param num_cats The number of possible values for the outcome variable.
-#' @param y The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.
+#' @param y The training data vector of outcomes.
 #' @param original_datamat The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.
 #' @param alpha_parameters Vector of prior parameters.
 #' @param beta_par The power to which the likelihood is to be raised. For BMA, set beta_par=1.

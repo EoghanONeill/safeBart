@@ -4,10 +4,32 @@
 \alias{sBART_onefunc_parallel}
 \title{Parallel Safe-BART}
 \usage{
-sBART_onefunc_parallel(lambda, num_models, num_trees, seed, ytrain,
-  original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a,
-  lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART,
-  s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx)
+sBART_onefunc_parallel(
+  lambda,
+  num_models,
+  num_trees,
+  seed,
+  ytrain,
+  original_datamat,
+  beta_par,
+  test_datamat,
+  ncores,
+  outsamppreds,
+  nu,
+  a,
+  lambdaBART,
+  valid_trees,
+  tree_prior,
+  imp_sampler,
+  alpha_BART,
+  beta_BART,
+  s_t_hyperprior,
+  p_s_t,
+  a_s_t,
+  b_s_t,
+  lambda_poisson,
+  fast_approx
+)
 }
 \arguments{
 \item{lambda}{A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .}
@@ -16,7 +38,7 @@ sBART_onefunc_parallel(lambda, num_models, num_trees, seed, ytrain,
 
 \item{seed}{The seed for random number generation.}
 
-\item{original_datamat}{The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.}
+\item{original_datamat}{The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.}
 
 \item{beta_par}{The power to which the likelihood is to be raised. For BMA, set beta_par=1.}
 
@@ -27,8 +49,6 @@ sBART_onefunc_parallel(lambda, num_models, num_trees, seed, ytrain,
 \item{y}{The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.}
 
 \item{alpha_parameters}{Vector of prior parameters.}
-
-\item{original_datamat}{The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.}
 }
 \value{
 A vector of out-of-sample predictions.

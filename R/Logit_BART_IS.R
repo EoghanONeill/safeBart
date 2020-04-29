@@ -1,11 +1,11 @@
-#' @title Parallel Safe Bayesian Additive Regression Trees
+#' @title Parallel Logit Bayesian Additive Regression Trees
 #'
-#' @description A parallelized implementation of safeBART
+#' @description A parallelized implementation of Logit-BART-IS
 #' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
 #' @param num_trees The number of trees to be sampled.
 #' @param seed The seed for random number generation.
 #' @param num_cats The number of possible values for the outcome variable.
-#' @param y The training data vector of outcomes.
+#' @param y The training data vector of outcomes. This must be a vector of zeros and ones.
 #' @param original_datamat The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.
 #' @param alpha_parameters Vector of prior parameters.
 #' @param beta_par The power to which the likelihood is to be raised. For BMA, set beta_par=1.
@@ -17,6 +17,9 @@
 #' @param alpha_BART The alpha parameter for the standard BART prior.
 #' @param beta_BART The beta parameter for the standard BART prior.
 #' @param fast_approx If equal to 1, use an approximate BIC weighted average and do not invert matrices for each model (should also use SVD).
+#' @param maxit Maximum number of iterations for the quasi-Newton algorithm that finds the MAP estimate for each model (required for Laplace approximation).
+#' @param eps_f Parameter for MAP algorithm stopping criterion. Iteration stops if |f-f'|/|f|<eps_f, where f and f' are the current and previous value of the objective function (negative log likelihood) respectively.
+#' @param eps_g Parameter for MAP algorithm stopping criterion. Iteration stops if ||g|| < eps_g * max(1, ||beta||), where beta is the current coefficient vector and g is the gradient.
 #' @return A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
 #' @useDynLib safeBart, .registration = TRUE
 #' @importFrom Rcpp evalCpp
@@ -70,29 +73,36 @@
 #' cbind(examplepreds1,ytest )
 #' @export
 
-safeBart_parallel <- function(seed,
-                              y,
-                              original_datamat,test_datamat,
-                              lambda=0.45,
-                              num_models=1000,
-                              num_trees=5,
-                              beta_par=1,
-                              ncores=1,
-                              outsamppreds=1,
-                              nu=3,
-                              a=3,
-                              sigquant=0.9,
-                              valid_trees=1,
-                              tree_prior=0,
-                              imp_sampler=0,
-                              alpha_BART=0.95,
-                              beta_BART=2,
-                              s_t_hyperprior=1,
-                              p_s_t=0.5,
-                              a_s_t=1,
-                              b_s_t=3,
-                              lambda_poisson=10,
-                              fast_approx=0){
+Logit_Bart_IS <- function(seed,
+                          y,
+                          original_datamat,
+                          test_datamat,
+                          lambda=0.45,
+                          num_models=1000,
+                          num_trees=5,
+                          beta_par=1,
+                          ncores=1,
+                          outsamppreds=1,
+                          nu=3,
+                          a=3,
+                          sigquant=0.9,
+                          valid_trees=1,
+                          tree_prior=0,
+                          imp_sampler=0,
+                          alpha_BART=0.95,
+                          beta_BART=2,
+                          s_t_hyperprior=1,
+                          p_s_t=0.5,
+                          a_s_t=1,
+                          b_s_t=3,
+                          lambda_poisson=10,
+                          fast_approx=0,
+                          l_quant=0.025,
+                          u_quant=0.975,
+                          root_alg_precision=0.00001,
+                          maxit=300,
+                          eps_f = 1e-8,
+                          eps_g = 1e-5){
 
   if(ncores>num_models ) stop("ncores > num_models")
 
@@ -109,30 +119,39 @@ safeBart_parallel <- function(seed,
   if(nrow(original_datamat) != length(y)) stop("number of rows in x.train must equal length of y.train")
   if((ncol(test_datamat)!=ncol(original_datamat))) stop("input x.test must have the same number of columns as x.train")
 
-  sBARToutput=sBART_onefunc_parallel(lambda,
-                                     num_models,
-                                     num_trees,
-                                     seed,
-                                     y,
-                                     original_datamat,
-                                     beta_par,
-                                     test_datamat,
-                                     ncores,
-                                     outsamppreds,
-                                     nu,
-                                     a,
-                                     lambdaBART,
-                                     valid_trees,
-                                     tree_prior,
-                                     imp_sampler,
-                                     alpha_BART,
-                                     beta_BART,
-                                     s_t_hyperprior,
-                                     p_s_t,
-                                     a_s_t,
-                                     b_s_t,
-                                     lambda_poisson,
-                                     fast_approx)
+  L_bart_output=LBART_IS(lambda,
+                              num_models,
+                              num_trees,
+                              seed,
+                              y,
+                              original_datamat,
+                              beta_par,
+                              test_datamat,
+                              ncores,
+                              outsamppreds,
+                              nu,
+                              a,
+                              lambdaBART,
+                              valid_trees,
+                              tree_prior,
+                              imp_sampler,
+                              alpha_BART,
+                              beta_BART,
+                              s_t_hyperprior,
+                              p_s_t,
+                              a_s_t,
+                              b_s_t,
+                              lambda_poisson,
+                              fast_approx,
+                              l_quant,
+                              u_quant,
+                              root_alg_precision,
+                              maxit,
+                              eps_f,
+                              eps_g)
 
-  sBARToutput
+  names(L_bart_output) <- c("Predictions",
+                          "Intervals")
+
+  L_bart_output
 }

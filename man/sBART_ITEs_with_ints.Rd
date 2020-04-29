@@ -4,12 +4,39 @@
 \alias{sBART_ITEs_with_ints}
 \title{Parallel Safe-BART with prediction intervals}
 \usage{
-sBART_ITEs_with_ints(lambda, num_models, num_trees, seed, ytrain,
-  original_datamat, ztrain, pihat_train, beta_par, test_datamat,
-  test_pihat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees,
-  tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t,
-  a_s_t, b_s_t, lambda_poisson, fast_approx, PIT_propensity, lower_prob,
-  upper_prob, root_alg_precision)
+sBART_ITEs_with_ints(
+  lambda,
+  num_models,
+  num_trees,
+  seed,
+  ytrain,
+  original_datamat,
+  ztrain,
+  pihat_train,
+  beta_par,
+  test_datamat,
+  test_pihat,
+  ncores,
+  outsamppreds,
+  nu,
+  a,
+  lambdaBART,
+  valid_trees,
+  tree_prior,
+  imp_sampler,
+  alpha_BART,
+  beta_BART,
+  s_t_hyperprior,
+  p_s_t,
+  a_s_t,
+  b_s_t,
+  lambda_poisson,
+  fast_approx,
+  PIT_propensity,
+  lower_prob,
+  upper_prob,
+  root_alg_precision
+)
 }
 \arguments{
 \item{lambda}{A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .}
@@ -18,7 +45,7 @@ sBART_ITEs_with_ints(lambda, num_models, num_trees, seed, ytrain,
 
 \item{seed}{The seed for random number generation.}
 
-\item{original_datamat}{The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.}
+\item{original_datamat}{The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.}
 
 \item{beta_par}{The power to which the likelihood is to be raised. For BMA, set beta_par=1.}
 
@@ -29,8 +56,6 @@ sBART_ITEs_with_ints(lambda, num_models, num_trees, seed, ytrain,
 \item{y}{The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.}
 
 \item{alpha_parameters}{Vector of prior parameters.}
-
-\item{original_datamat}{The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.}
 }
 \value{
 A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.

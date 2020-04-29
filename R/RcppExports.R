@@ -90,8 +90,16 @@ mixt_eval_cdf <- function(x_val, d_o_f, mean_vec, var_vec, weights_vec, quant_va
     .Call(`_safeBart_mixt_eval_cdf`, x_val, d_o_f, mean_vec, var_vec, weights_vec, quant_val)
 }
 
+mixnorm_eval_cdf <- function(x_val, mean_vec, var_vec, weights_vec, quant_val) {
+    .Call(`_safeBart_mixnorm_eval_cdf`, x_val, mean_vec, var_vec, weights_vec, quant_val)
+}
+
 rootmixt <- function(d_o_f, a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision) {
     .Call(`_safeBart_rootmixt`, d_o_f, a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision)
+}
+
+rootmixnorm <- function(a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision) {
+    .Call(`_safeBart_rootmixnorm`, a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision)
 }
 
 #' @title Safe-Bayesian Random Forest. Initial test function.
@@ -227,5 +235,35 @@ sBCF_with_ints_parallel <- function(lambda_mu, lambda_tau, num_models, num_trees
 #' @export
 sBART_ITEs_with_ints <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision) {
     .Call(`_safeBart_sBART_ITEs_with_ints`, lambda, num_models, num_trees, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision)
+}
+
+example_cast_eigen <- function(arma_A) {
+    .Call(`_safeBart_example_cast_eigen`, arma_A)
+}
+
+example_cast_arma <- function(eigen_A) {
+    .Call(`_safeBart_example_cast_arma`, eigen_A)
+}
+
+#' @title Parallel Logit-BART-IS with prediction intervals
+#'
+#' @description A parallelized implementation of Logit Bayesian Additive Regression Trees using importance sampling of models.
+#' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
+#' @param num_trees The number of trees to be sampled.
+#' @param seed The seed for random number generation.
+#' @param num_cats The number of possible values for the outcome variable.
+#' @param y The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.
+#' @param original_datamat The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.
+#' @param alpha_parameters Vector of prior parameters.
+#' @param beta_par The power to which the likelihood is to be raised. For BMA, set beta_par=1.
+#' @param original_datamat The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.
+#' @param ncores The number of cores to be used in parallelization.
+#' @param maxit Maximum number of iterations for the quasi-Newton algorithm that finds the MAP estimate for each model (required for Laplace approximation).
+#' @param eps_f Parameter for MAP algorithm stopping criterion. Iteration stops if |f-f'|/|f|<eps_f, where f and f' are the current and previous value of the objective function (negative log likelihood) respectively.
+#' @param eps_g Parameter for MAP algorithm stopping criterion. Iteration stops if ||g|| < eps_g * max(1, ||beta||), where beta is the current coefficient vector and g is the gradient.
+#' @return A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.
+#' @export
+LBART_IS <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, maxit, eps_f, eps_g) {
+    .Call(`_safeBart_LBART_IS`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, maxit, eps_f, eps_g)
 }
 

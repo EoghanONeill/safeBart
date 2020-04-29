@@ -4,22 +4,46 @@
 \alias{safeBart_ITEs}
 \title{ITE and CATE estimates from Safe Bayesian Additive Regression Trees}
 \usage{
-safeBart_ITEs(seed, y, original_datamat, ztrain, pihat_train,
-  test_datamat = matrix(0, 0, 0), test_pihat = matrix(0, 0, 0),
-  lambda = 0.45, num_models = 1000, num_trees = 5, beta_par = 1,
-  ncores = 1, outsamppreds = 1, nu = 3, a = 3, sigquant = 0.9,
-  valid_trees = 1, tree_prior = 0, imp_sampler = 0,
-  alpha_BART = 0.95, beta_BART = 2, s_t_hyperprior = 1,
-  p_s_t = 0.5, a_s_t = 1, b_s_t = 3, lambda_poisson = 10,
-  fast_approx = 0, PIT_propensity = 0, l_quant = 0.025,
-  u_quant = 0.975, root_alg_precision = 1e-05)
+safeBart_ITEs(
+  seed,
+  y,
+  original_datamat,
+  ztrain,
+  pihat_train,
+  test_datamat = matrix(0, 0, 0),
+  test_pihat = matrix(0, 0, 0),
+  lambda = 0.45,
+  num_models = 1000,
+  num_trees = 5,
+  beta_par = 1,
+  ncores = 1,
+  outsamppreds = 1,
+  nu = 3,
+  a = 3,
+  sigquant = 0.9,
+  valid_trees = 1,
+  tree_prior = 0,
+  imp_sampler = 0,
+  alpha_BART = 0.95,
+  beta_BART = 2,
+  s_t_hyperprior = 1,
+  p_s_t = 0.5,
+  a_s_t = 1,
+  b_s_t = 3,
+  lambda_poisson = 10,
+  fast_approx = 0,
+  PIT_propensity = 0,
+  l_quant = 0.025,
+  u_quant = 0.975,
+  root_alg_precision = 1e-05
+)
 }
 \arguments{
 \item{seed}{The seed for random number generation.}
 
 \item{y}{The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.}
 
-\item{original_datamat}{The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.}
+\item{original_datamat}{The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.}
 
 \item{lambda}{A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .}
 
@@ -44,8 +68,6 @@ safeBart_ITEs(seed, y, original_datamat, ztrain, pihat_train,
 \item{num_cats}{The number of possible values for the outcome variable.}
 
 \item{alpha_parameters}{Vector of prior parameters.}
-
-\item{original_datamat}{The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.}
 }
 \value{
 A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
