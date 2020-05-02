@@ -19185,6 +19185,18 @@ List LBART_IS(double lambda,
                                    num_obs,
                                    false, false);
 
+
+
+    for(int i = 0; i < num_obs; i++){
+      if(probsarmatemp[i]>=0.9999){
+        Rcout << "PROBABILITY GREATER THAN OR EQUAL TO ONE. \n";
+        Rcout << "probsarmatemp[i] = "<< probsarmatemp[i] << " \n";
+      }
+      if(probsarmatemp[i]<=0.0001){
+        Rcout << "PROBABILITY LESS THAN Or EQUAL TO ZERO. \n";
+        Rcout << "probsarmatemp[i] = "<< probsarmatemp[i] << " \n";
+      }
+    }
     arma::mat Smatarma2 = arma::diagmat(probsarmatemp%(1-probsarmatemp))  ;
     //Rcout << "Line 19183. \n";
     //Rcout << "Smatarma.n_cols" << Smatarma.n_cols<< " \n";
@@ -19196,12 +19208,12 @@ List LBART_IS(double lambda,
 
     //Rcout << "Smatarma2" << Smatarma2 << " \n";
 
-    if (!(Smatarma2.is_symmetric()) ) {
-      Rcout << "Line 19196. \n";
-      Rcout << "Smatarma2" << Smatarma2 << " \n";
-
-      //throw std::runtime_error("Possibly non semi-positive definitie matrix!");
-    }
+    // if (!(Smatarma2.is_symmetric()) ) {
+    //   Rcout << "Line 19196. \n";
+    //   Rcout << "Smatarma2" << Smatarma2 << " \n";
+    //
+    //   //throw std::runtime_error("Possibly non semi-positive definitie matrix!");
+    // }
 
     // if (!(Smatarma.is_symmetric()) ) {
     //   Rcout << "Line 19203. \n";
@@ -19218,15 +19230,36 @@ List LBART_IS(double lambda,
     //Rcout << "Hessianout.diagonal()" << Hessianout.diagonal() << ".\n";
 
     arma::mat Hmat= Wmat.t()*Smatarma2*Wmat;
+
+    //arma::mat Hmat= Wmat.t()*arma::diagmat(probsarmatemp%(1-probsarmatemp))*Wmat;
+
+
     Hmat.diag() += a;
 
     double templik0 = 0.5*beta.size()*std::log(a) -nll.negloglikout() - 0.5*real(arma::log_det(Hmat)) ;
 
     //Now convert output to armadillo objects
 
+    if (!Hmat.is_symmetric() ) {
+      Rcout << "Hmat not symmetric \n";
+      Rcout << "Hmat = \n"<< Hmat << " \n";
+      Rcout << "Smatarma2 = \n"<< Smatarma2 << " \n";
+      Rcout << "Wmat = \n"<< Wmat << " \n";
+      Rcout << "probsarmatemp = \n"<< probsarmatemp << " \n";
+      throw std::runtime_error("Possibly non semi-positive definitie matrix!");
+    }
+
+    if (!Hmat.is_sympd() ) {
+      Rcout << "Hmat not sympd \n";
+      Rcout << "Hmat= \n"<< Hmat << " \n";
+      Rcout << "Smatarma2 = \n"<< Smatarma2 << " \n";
+      Rcout << "Wmat = \n"<< Wmat << " \n";
+
+      throw std::runtime_error("Possibly non semi-positive definitie matrix!");
+    }
 
     //arma::mat Hmat= example_cast_arma(Hessianout);
-    arma::mat invHmat= Hmat.i();
+    arma::mat invHmat= arma::inv_sympd(Hmat);
     arma::vec mapcoeffs= arma::vec(beta.data(),
                                    b,
                                    false, false);
@@ -19235,9 +19268,9 @@ List LBART_IS(double lambda,
     //also might need to be rewritten
     //currently writtenas if reading eigen matrix
     //but nll.current_p() is just a vector
-    arma::vec predprobvec = arma::vec((nll.current_p()).data(),
-                                      num_obs,
-                                      false, false);
+    // arma::vec predprobvec = arma::vec((nll.current_p()).data(),
+    //                                   num_obs,
+    //                                   false, false);
 
 
     //arma::vec whw_vars = W_tilde*(invHmat.each_col()%W_tilde.t());
@@ -19255,23 +19288,23 @@ List LBART_IS(double lambda,
     // }
 
     //Rcout << "Line 19214. \n";
-    if (!Hmat.is_symmetric(0.01) ) {
-      Rcout << "Line 19221. \n";
+    // if (!Hmat.is_symmetric(0.01) ) {
+    //   Rcout << "Line 19221. \n";
+    //
+    //   throw std::runtime_error("Possibly non semi-positive definitie matrix!");
+    // }
 
-      throw std::runtime_error("Possibly non semi-positive definitie matrix!");
-    }
-
-    if (!invHmat.is_symmetric(0.01) ) {
-      Rcout << "Line 19227. \n";
-
-      throw std::runtime_error("Possibly non semi-positive definitie matrix!");
-    }
-
-    if ( !invHmat.is_sympd()) {
-      Rcout << "Line 19228. \n";
-
-      throw std::runtime_error("Possibly non semi-positive definitie matrix!");
-    }
+    // if (!invHmat.is_symmetric(0.01) ) {
+    //   Rcout << "Line 19227. \n";
+    //
+    //   throw std::runtime_error("Possibly non semi-positive definitie matrix!");
+    // }
+    //
+    // if ( !invHmat.is_sympd()) {
+    //   Rcout << "Line 19228. \n";
+    //
+    //   throw std::runtime_error("Possibly non semi-positive definitie matrix!");
+    // }
 
     //Rcout << "Line 19194. \n";
 
@@ -19297,9 +19330,9 @@ List LBART_IS(double lambda,
 
     //Rcout << "wo_means = " << wo_means << ".\n";
     //Rcout << "whw_vars = " << whw_vars << ".\n";
-    arma::vec tempargofphi = (wo_means/arma::sqrt( (8/M_PI)+ whw_vars));
+    //arma::vec tempargofphi = (wo_means/arma::sqrt( (8/M_PI)+ whw_vars));
     //Rcout << "tempargofphi = " <<  tempargofphi << ".\n";
-    arma::vec tempdenom = arma::sqrt( (8/M_PI)+ whw_vars);
+    //arma::vec tempdenom = arma::sqrt( (8/M_PI)+ whw_vars);
     //Rcout << "tempdenom = " <<  tempdenom << ".\n";
 
     overall_preds.col(j)=predprobstemp;
@@ -19605,7 +19638,7 @@ for(unsigned int k=0;k<overall_liks.size();k++){
 
 }
 
-Rcout << "weighted_lik= " << weighted_lik << ". \n";
+//Rcout << "weighted_lik= " << weighted_lik << ". \n";
 //Rcout << "overall_liks= " << overall_liks << ". \n";
 
 #pragma omp parallel num_threads(ncores)
@@ -19617,9 +19650,28 @@ Rcout << "weighted_lik= " << weighted_lik << ". \n";
   pred_vec_overall += result_private;
 }
 
-//Rcout << "overall_preds = " << overall_preds << ". \n";
+Rcout << "overall_preds = " << overall_preds << ". \n \n \n \n \n ";
 
-//Rcout << "weighted_lik = " << weighted_lik << ". \n";
+Rcout << "t_vars_arma ***********************************. \n";
+Rcout << "t_vars_arma ***********************************. \n";
+Rcout << "t_vars_arma ***********************************. \n";
+Rcout << "t_vars_arma ***********************************. \n";
+
+Rcout << "t_vars_arma = " << t_vars_arma << ". \n \n \n \n \n ";
+
+
+//Rcout << "overall_map_xbeta ***********************************. \n";
+//Rcout << "overall_map_xbeta ***********************************. \n";
+//Rcout << "overall_map_xbeta ***********************************. \n";
+//Rcout << "overall_map_xbeta ***********************************. \n";
+//Rcout << "overall_map_xbeta = " << overall_map_xbeta << ". \n \n \n \n ";
+
+
+//Rcout << "weighted_lik ***********************************. \n";
+//Rcout << "weighted_lik ***********************************. \n";
+//Rcout << "weighted_lik ***********************************. \n";
+//Rcout << "weighted_lik ***********************************. \n";
+//Rcout << "weighted_lik = " << weighted_lik << ". \n \n \n \n \n \n";
 
 
 //double sumlik_total= arma::sum(overall_liks);
@@ -19650,7 +19702,7 @@ std::vector<double> weights_vec= arma::conv_to<stdvec>::from(weighted_lik);
 //double lq_tstandard= boost::math::quantile(dist2,lower_prob);
 //double med_tstandard= boost::math::quantile(dist2,0.5); //This is just 0 ??
 //double uq_tstandard= boost::math::quantile(dist2,upper_prob);
-Rcout << "Line 19577. \n";
+//Rcout << "Line 19577. \n";
 
 //std::normal_distribution<double>
 boost::math::normal normdist1(0,1);
@@ -19662,7 +19714,8 @@ double uq_norm= boost::math::quantile(normdist1,upper_prob);
 //then it is possible to solve for the lower bound using the normal inverse quantile,
 //the mean and variance of the (laplace approximated) latent outcome
 // and the sigmoid (logistic) function
-Rcout << "Line 19589. \n";
+
+//Rcout << "Line 19589. \n";
 
 if(weights_vec.size()==1){
 #pragma omp parallel num_threads(ncores)
@@ -19745,7 +19798,7 @@ if(weights_vec.size()==1){
 #pragma omp barrier
 }
 
-Rcout << "Line 19657. \n";
+//Rcout << "Line 19657. \n";
 
 //Rcout << "Line 10924. \n";
 
