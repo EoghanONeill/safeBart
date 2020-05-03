@@ -19187,21 +19187,44 @@ List LBART_IS(double lambda,
 
 
 
-    for(int i = 0; i < num_obs; i++){
-      if(probsarmatemp[i]>=0.9999){
-        Rcout << "PROBABILITY GREATER THAN OR EQUAL TO ONE. \n";
-        //Rcout << "probsarmatemp[i] = "<< probsarmatemp[i] << " \n";
-      }
-      if(probsarmatemp[i]<=0.0001){
-        Rcout << "PROBABILITY LESS THAN Or EQUAL TO ZERO. \n";
-        Rcout << "probsarmatemp[i] = "<< probsarmatemp[i] << " \n";
-        Rcout << "j = "<< j << " \n";
-        Rcout << "i = "<< i << " \n";
-        Rcout << "probsarmatemp = \n "<< probsarmatemp << " \n";
-        //Rcout << "sum(probsarmatemp) = \n "<< arma::sum(probsarmatemp) << " \n";
-        Rcout << "nll.current_p() = \n "<< nll.current_p() << " \n";
-      }
-    }
+
+    // for(int i = 0; i < num_obs; i++){
+    //   if(probsarmatemp[i]>=0.9999){
+    //     Rcout << "PROBABILITY GREATER THAN OR EQUAL TO ONE. \n";
+    //     //Rcout << "probsarmatemp[i] = "<< probsarmatemp[i] << " \n";
+    //   }
+    //   if(probsarmatemp[i]<=0.0001){
+    //     Rcout << "PROBABILITY LESS THAN Or EQUAL TO ZERO. \n";
+    //     Rcout << "probsarmatemp[i] = "<< probsarmatemp[i] << " \n";
+    //     Rcout << "j = "<< j << " \n";
+    //     Rcout << "i = "<< i << " \n";
+    //     Rcout << "probsarmatemp = \n "<< probsarmatemp << " \n";
+    //     //Rcout << "sum(probsarmatemp) = \n "<< arma::sum(probsarmatemp) << " \n";
+    //     Rcout << "nll.current_p() = \n "<< nll.current_p() << " \n";
+    //   }
+    //   if(probsarmatemp[i]>=nll.current_p()[i]+0.001){
+    //     Rcout << "PROBABILITY probsarmatemp[i]>=nll.current_p()[i]+0.001. \n";
+    //     //Rcout << "probsarmatemp[i] = "<< probsarmatemp[i] << " \n";
+    //     Rcout << "probsarmatemp[i] = "<< probsarmatemp[i] << " \n";
+    //     Rcout << "j = "<< j << " \n";
+    //     Rcout << "i = "<< i << " \n";
+    //     Rcout << "probsarmatemp = \n "<< probsarmatemp << " \n";
+    //     //Rcout << "sum(probsarmatemp) = \n "<< arma::sum(probsarmatemp) << " \n";
+    //     Rcout << "nll.current_p() = \n "<< nll.current_p() << " \n";
+    //   }
+    //   if(probsarmatemp[i]<=nll.current_p()[i]-0.001){
+    //     Rcout << "PROBABILITY probsarmatemp[i]<=nll.current_p()[i]-0.001. \n";
+    //     Rcout << "probsarmatemp[i] = "<< probsarmatemp[i] << " \n";
+    //     Rcout << "j = "<< j << " \n";
+    //     Rcout << "i = "<< i << " \n";
+    //     Rcout << "probsarmatemp = \n "<< probsarmatemp << " \n";
+    //     //Rcout << "sum(probsarmatemp) = \n "<< arma::sum(probsarmatemp) << " \n";
+    //     Rcout << "nll.current_p() = \n "<< nll.current_p() << " \n";
+    //   }
+    //
+    // }
+
+
     arma::mat Smatarma2 = arma::diagmat(probsarmatemp%(1-probsarmatemp))  ;
     //Rcout << "Line 19183. \n";
     //Rcout << "Smatarma.n_cols" << Smatarma.n_cols<< " \n";
@@ -19245,29 +19268,29 @@ List LBART_IS(double lambda,
 
     //Now convert output to armadillo objects
 
-    if (!Hmat.is_symmetric() ) {
-      Rcout << "Hmat not symmetric \n";
-      Rcout << "Hmat = \n"<< Hmat << " \n";
-      Rcout << "Smatarma2 = \n"<< Smatarma2 << " \n";
-      Rcout << "Wmat = \n"<< Wmat << " \n";
-      Rcout << "probsarmatemp = \n"<< probsarmatemp << " \n";
-      throw std::runtime_error("Possibly non semi-positive definitie matrix!");
-    }
-
-    if (!Hmat.is_sympd() ) {
-      Rcout << "Hmat not sympd \n";
-      Rcout << "Hmat= \n"<< Hmat << " \n";
-      Rcout << "Smatarma2 = \n"<< Smatarma2 << " \n";
-      Rcout << "Wmat = \n"<< Wmat << " \n";
-
-      throw std::runtime_error("Possibly non semi-positive definitie matrix!");
-    }
+    // if (!Hmat.is_symmetric() ) {
+    //   Rcout << "Hmat not symmetric \n";
+    //   Rcout << "Hmat = \n"<< Hmat << " \n";
+    //   Rcout << "Smatarma2 = \n"<< Smatarma2 << " \n";
+    //   Rcout << "Wmat = \n"<< Wmat << " \n";
+    //   Rcout << "probsarmatemp = \n"<< probsarmatemp << " \n";
+    //   throw std::runtime_error("Possibly non semi-positive definitie matrix!");
+    // }
+    //
+    // if (!Hmat.is_sympd() ) {
+    //   Rcout << "Hmat not sympd \n";
+    //   Rcout << "Hmat= \n"<< Hmat << " \n";
+    //   Rcout << "Smatarma2 = \n"<< Smatarma2 << " \n";
+    //   Rcout << "Wmat = \n"<< Wmat << " \n";
+    //
+    //   throw std::runtime_error("Possibly non semi-positive definitie matrix!");
+    // }
 
     //arma::mat Hmat= example_cast_arma(Hessianout);
     arma::mat invHmat= arma::inv_sympd(Hmat);
     arma::vec mapcoeffs= arma::vec(beta.data(),
                                    b,
-                                   false, false);
+                                   true, false);
 
     //line below might be unnecessary
     //also might need to be rewritten
@@ -19655,14 +19678,14 @@ for(unsigned int k=0;k<overall_liks.size();k++){
   pred_vec_overall += result_private;
 }
 
-Rcout << "overall_preds = " << overall_preds << ". \n \n \n \n \n ";
-
-Rcout << "t_vars_arma ***********************************. \n";
-Rcout << "t_vars_arma ***********************************. \n";
-Rcout << "t_vars_arma ***********************************. \n";
-Rcout << "t_vars_arma ***********************************. \n";
-
-Rcout << "t_vars_arma = " << t_vars_arma << ". \n \n \n \n \n ";
+// Rcout << "overall_preds = " << overall_preds << ". \n \n \n \n \n ";
+//
+// Rcout << "t_vars_arma ***********************************. \n";
+// Rcout << "t_vars_arma ***********************************. \n";
+// Rcout << "t_vars_arma ***********************************. \n";
+// Rcout << "t_vars_arma ***********************************. \n";
+//
+// Rcout << "t_vars_arma = " << t_vars_arma << ". \n \n \n \n \n ";
 
 
 //Rcout << "overall_map_xbeta ***********************************. \n";
