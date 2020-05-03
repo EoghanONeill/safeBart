@@ -19183,18 +19183,23 @@ List LBART_IS(double lambda,
 
     arma::vec probsarmatemp= arma::vec(nll.current_p().data(),
                                    num_obs,
-                                   false, false);
+                                   true, false);
 
 
 
     for(int i = 0; i < num_obs; i++){
       if(probsarmatemp[i]>=0.9999){
         Rcout << "PROBABILITY GREATER THAN OR EQUAL TO ONE. \n";
-        Rcout << "probsarmatemp[i] = "<< probsarmatemp[i] << " \n";
+        //Rcout << "probsarmatemp[i] = "<< probsarmatemp[i] << " \n";
       }
       if(probsarmatemp[i]<=0.0001){
         Rcout << "PROBABILITY LESS THAN Or EQUAL TO ZERO. \n";
         Rcout << "probsarmatemp[i] = "<< probsarmatemp[i] << " \n";
+        Rcout << "j = "<< j << " \n";
+        Rcout << "i = "<< i << " \n";
+        Rcout << "probsarmatemp = \n "<< probsarmatemp << " \n";
+        //Rcout << "sum(probsarmatemp) = \n "<< arma::sum(probsarmatemp) << " \n";
+        Rcout << "nll.current_p() = \n "<< nll.current_p() << " \n";
       }
     }
     arma::mat Smatarma2 = arma::diagmat(probsarmatemp%(1-probsarmatemp))  ;
