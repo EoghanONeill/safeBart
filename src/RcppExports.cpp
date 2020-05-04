@@ -642,6 +642,52 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// LBART_IS_ITEs
+List LBART_IS_ITEs(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, NumericVector ztrain, NumericMatrix pihat_train, double beta_par, NumericMatrix test_datamat, NumericMatrix test_pihat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART, int s_t_hyperprior, double p_s_t, double a_s_t, double b_s_t, double lambda_poisson, int fast_approx, int PIT_propensity, double lower_prob, double upper_prob, double root_alg_precision, int maxit, double eps_f, double eps_g, int num_iter, int include_cate_intervals);
+RcppExport SEXP _safeBart_LBART_IS_ITEs(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP ztrainSEXP, SEXP pihat_trainSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP test_pihatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP, SEXP s_t_hyperpriorSEXP, SEXP p_s_tSEXP, SEXP a_s_tSEXP, SEXP b_s_tSEXP, SEXP lambda_poissonSEXP, SEXP fast_approxSEXP, SEXP PIT_propensitySEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP maxitSEXP, SEXP eps_fSEXP, SEXP eps_gSEXP, SEXP num_iterSEXP, SEXP include_cate_intervalsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< int >::type num_models(num_modelsSEXP);
+    Rcpp::traits::input_parameter< int >::type num_trees(num_treesSEXP);
+    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type ytrain(ytrainSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type original_datamat(original_datamatSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type ztrain(ztrainSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type pihat_train(pihat_trainSEXP);
+    Rcpp::traits::input_parameter< double >::type beta_par(beta_parSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type test_datamat(test_datamatSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type test_pihat(test_pihatSEXP);
+    Rcpp::traits::input_parameter< int >::type ncores(ncoresSEXP);
+    Rcpp::traits::input_parameter< int >::type outsamppreds(outsamppredsSEXP);
+    Rcpp::traits::input_parameter< double >::type nu(nuSEXP);
+    Rcpp::traits::input_parameter< double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< double >::type lambdaBART(lambdaBARTSEXP);
+    Rcpp::traits::input_parameter< int >::type valid_trees(valid_treesSEXP);
+    Rcpp::traits::input_parameter< int >::type tree_prior(tree_priorSEXP);
+    Rcpp::traits::input_parameter< int >::type imp_sampler(imp_samplerSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha_BART(alpha_BARTSEXP);
+    Rcpp::traits::input_parameter< double >::type beta_BART(beta_BARTSEXP);
+    Rcpp::traits::input_parameter< int >::type s_t_hyperprior(s_t_hyperpriorSEXP);
+    Rcpp::traits::input_parameter< double >::type p_s_t(p_s_tSEXP);
+    Rcpp::traits::input_parameter< double >::type a_s_t(a_s_tSEXP);
+    Rcpp::traits::input_parameter< double >::type b_s_t(b_s_tSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda_poisson(lambda_poissonSEXP);
+    Rcpp::traits::input_parameter< int >::type fast_approx(fast_approxSEXP);
+    Rcpp::traits::input_parameter< int >::type PIT_propensity(PIT_propensitySEXP);
+    Rcpp::traits::input_parameter< double >::type lower_prob(lower_probSEXP);
+    Rcpp::traits::input_parameter< double >::type upper_prob(upper_probSEXP);
+    Rcpp::traits::input_parameter< double >::type root_alg_precision(root_alg_precisionSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    Rcpp::traits::input_parameter< double >::type eps_f(eps_fSEXP);
+    Rcpp::traits::input_parameter< double >::type eps_g(eps_gSEXP);
+    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
+    Rcpp::traits::input_parameter< int >::type include_cate_intervals(include_cate_intervalsSEXP);
+    rcpp_result_gen = Rcpp::wrap(LBART_IS_ITEs(lambda, num_models, num_trees, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, maxit, eps_f, eps_g, num_iter, include_cate_intervals));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_safeBart_cpptrans_cdf", (DL_FUNC) &_safeBart_cpptrans_cdf, 1},
@@ -678,6 +724,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_safeBart_example_cast_eigen", (DL_FUNC) &_safeBart_example_cast_eigen, 1},
     {"_safeBart_example_cast_arma", (DL_FUNC) &_safeBart_example_cast_arma, 1},
     {"_safeBart_LBART_IS", (DL_FUNC) &_safeBart_LBART_IS, 30},
+    {"_safeBart_LBART_IS_ITEs", (DL_FUNC) &_safeBart_LBART_IS_ITEs, 36},
     {NULL, NULL, 0}
 };
 
