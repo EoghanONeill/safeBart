@@ -1,6 +1,6 @@
-#' @title Parallel Logit Bayesian Additive Regression Trees
+#' @title Parallel Logit Bayesian Additive Regression Trees for ITE estimation
 #'
-#' @description A parallelized implementation of Logit-BART-IS
+#' @description A parallelized implementation of Logit-BART-IS for ITE estimation
 #' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
 #' @param num_trees The number of trees to be sampled.
 #' @param seed The seed for random number generation.
@@ -73,7 +73,7 @@
 #' cbind(examplepreds1,ytest )
 #' @export
 
-Logit_Bart_IS <- function(seed,
+Logit_Bart_IS_ITEs <- function(seed,
                           y,
                           original_datamat,
                           ztrain,
