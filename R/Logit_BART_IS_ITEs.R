@@ -122,7 +122,7 @@ Logit_Bart_IS_ITEs <- function(seed,
   if((!is.matrix(test_datamat)) ) stop("argument x.test must be a double matrix")
 
   if(nrow(original_datamat) != length(y)) stop("number of rows in x.train must equal length of y.train")
-  if((ncol(test_datamat)!=ncol(original_datamat))) stop("input x.test must have the same number of columns as x.train")
+  #if((ncol(test_datamat)!=ncol(original_datamat))) stop("input x.test must have the same number of columns as x.train")
 
   L_bart_output=LBART_IS_ITEs(lambda,
                          num_models,
