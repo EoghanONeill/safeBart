@@ -20393,6 +20393,7 @@ List LBART_IS_ITEs(double lambda,
   if(include_cate_intervals==1){
     arma::field<arma::mat> tempf(num_models);
     arma::field<arma::vec> tempf2(num_models);
+    //Rcout << "Line 20396. \n";
 
     varmats_cate_f = tempf ;
     Wtreat_cate_f = tempf ;
@@ -22434,6 +22435,7 @@ List LBART_IS_ITEs(double lambda,
       t_vars_mats_f(j) = tempvarcube;
 
       if(include_cate_intervals==1){
+        //Rcout << "Line 22437. \n";
 
         varmats_cate_f(j) = invHmat;
         Wcontr_cate_f(j) = W_tilde0;
@@ -22490,6 +22492,7 @@ List LBART_IS_ITEs(double lambda,
       //Rcout << "Line 22489.\n";
 
       if(include_cate_intervals==1){
+        //Rcout << "Line 22493. \n";
 
         varmats_cate_f(j) = invHmat;
         Wcontr_cate_f(j) = Wmat0;
@@ -23020,6 +23023,7 @@ arma::vec cate_quants(3);
 
 if(include_cate_intervals==1){
   //loop over models
+  //Rcout << "Line 23023. \n";
 
   arma::vec cate_draws_forQ(num_iter);
 
@@ -23035,6 +23039,7 @@ if(include_cate_intervals==1){
 
   arma::ivec num_to_samp_arma=Rcpp::as<arma::ivec>(num_its_to_sample);		// converts to arma vec
   //arma::ivec num_its_sum = cumsum(num_to_samp_arma);
+  //Rcout << "Line 23042. \n";
 
   //if parallelize, need to replace num_drawd_made with calculations of where to insert
   int num_draws_made = 0;
@@ -23043,6 +23048,7 @@ if(include_cate_intervals==1){
 
   for(int i=0;i<num_models;i++){
     int num_its_temp  = num_to_samp_arma(i);
+    //Rcout << "Line 23051. \n";
 
     //code for parallelization
     // int num_its_temp=0;
@@ -23066,12 +23072,13 @@ if(include_cate_intervals==1){
 
     arma::vec mutemp = mapnodemeans_f(i)  ;
     arma::mat sigmatemp = varmats_cate_f(i);
+    //Rcout << "Line 23075. \n";
 
     if(!sigmatemp.is_sympd() ){
 
       for(int q=0;q<num_its_temp;q++){
         //fill in a draw for individual j
-        ite_draws_forQ(q)= 0;
+        cate_draws_forQ(q)= 0;
         num_draws_made++;
 
       }
@@ -23085,25 +23092,28 @@ if(include_cate_intervals==1){
       // if(i==0){
       //   for(int q=0;q<num_its_temp;q++){
       //     //fill in a draw for individual j
-      //     ite_draws_forQ(q,j)= (1/(1+ std::exp(-alphadraws(q,0) )))-(1/(1+ std::exp(-alphadraws(q,1) ))) ;
+      //     cate_draws_forQ(q,j)= (1/(1+ std::exp(-alphadraws(q,0) )))-(1/(1+ std::exp(-alphadraws(q,1) ))) ;
       //
       //   }
       // }else{
       //   for(int q=num_its_sum(i-1);q<num_its_sum(i);q++){
       //     //fill in a draw for individual j
-      //     ite_draws_forQ(q,j)= (1/(1+ std::exp(-alphadraws(q,0) )))-(1/(1+ std::exp(-alphadraws(q,1) ))) ;
+      //     cate_draws_forQ(q,j)= (1/(1+ std::exp(-alphadraws(q,0) )))-(1/(1+ std::exp(-alphadraws(q,1) ))) ;
       //
       //   }
       // }
 
 
+      //Rcout << "Line 23107. \n";
 
       //Ocoeffdraws.row(q)*(Wcontr_cate_f(j).t())
 
       for(int q=0;q<num_its_temp;q++){
+        //Rcout << "Line 23112. \n";
 
         arma::vec WOtreattemp = (Wtreat_cate_f(i))*(Ocoeffdraws.row(q).t());
         arma::vec WOcontrtemp = (Wcontr_cate_f(i))*(Ocoeffdraws.row(q).t());
+        //Rcout << "Line 23116. \n";
 
         //vectorizing to obtain vector of differences of sigmoids
         //then taking the mean to give the CATE
@@ -23119,15 +23129,17 @@ if(include_cate_intervals==1){
         // }
         // catedraw = catedraw/double(numobstemp0);
 
-        ite_draws_forQ(q)= catedraw;
+        cate_draws_forQ(q)= catedraw;
         num_draws_made++;
 
       }
     }
 
   }
+  //Rcout << "Line 23139. \n";
 
-  cate_quants = arma::quantile(ite_draws_forQ, probs_for_quantiles);
+  cate_quants = arma::quantile(cate_draws_forQ, probs_for_quantiles);
+  //Rcout << "Line 23141. \n";
 
   //for each model draw coefficients and calculate teh CATE for each draw of coefficients
   //could calculate ITEs as part of this
@@ -23137,6 +23149,7 @@ if(include_cate_intervals==1){
 
 
 if(include_cate_intervals==1){
+  //Rcout << "Line 23140. \n";
 
   List ret(4);
   ret(0) = wrap(pred_vec_overall);
@@ -23828,6 +23841,8 @@ List LBCF_IS(double lambda_mu,
   arma::field<arma::vec> mapnodemeans_f;
 
   if(include_cate_intervals==1){
+    //Rcout << "Line 23830. \n";
+
     arma::field<arma::mat> tempf(num_models);
     arma::field<arma::vec> tempf2(num_models);
 
@@ -26096,6 +26111,7 @@ List LBCF_IS(double lambda_mu,
       t_vars_mats_f(j) = tempvarcube;
 
       if(include_cate_intervals==1){
+        //Rcout << "Line 26099. \n";
 
         varmats_cate_f(j) = invHmat;
         Wcontr_cate_f(j) = W_tilde0;
@@ -26153,6 +26169,7 @@ List LBCF_IS(double lambda_mu,
       //Rcout << "Line 26142.\n";
 
       if(include_cate_intervals==1){
+        //Rcout << "Line 26256. \n";
 
         varmats_cate_f(j) = invHmat;
         Wcontr_cate_f(j) = Wmat0;
@@ -26690,6 +26707,7 @@ arma::vec cate_quants(3);
 
 if(include_cate_intervals==1){
   //loop over models
+  //Rcout << "Line 26693. \n";
 
   arma::vec cate_draws_forQ(num_iter);
 
@@ -26710,6 +26728,7 @@ if(include_cate_intervals==1){
   int num_draws_made = 0;
   //use line below if parallelize
   //arma::ivec num_to_samp_arma = num_samp_mat.col(j);
+  //Rcout << "Line 26714. \n";
 
   for(int i=0;i<num_models;i++){
     int num_its_temp  = num_to_samp_arma(i);
@@ -26741,7 +26760,7 @@ if(include_cate_intervals==1){
 
       for(int q=0;q<num_its_temp;q++){
         //fill in a draw for individual j
-        ite_draws_forQ(q)= 0;
+        cate_draws_forQ(q)= 0;
         num_draws_made++;
 
       }
@@ -26755,13 +26774,13 @@ if(include_cate_intervals==1){
       // if(i==0){
       //   for(int q=0;q<num_its_temp;q++){
       //     //fill in a draw for individual j
-      //     ite_draws_forQ(q,j)= (1/(1+ std::exp(-alphadraws(q,0) )))-(1/(1+ std::exp(-alphadraws(q,1) ))) ;
+      //     cate_draws_forQ(q,j)= (1/(1+ std::exp(-alphadraws(q,0) )))-(1/(1+ std::exp(-alphadraws(q,1) ))) ;
       //
       //   }
       // }else{
       //   for(int q=num_its_sum(i-1);q<num_its_sum(i);q++){
       //     //fill in a draw for individual j
-      //     ite_draws_forQ(q,j)= (1/(1+ std::exp(-alphadraws(q,0) )))-(1/(1+ std::exp(-alphadraws(q,1) ))) ;
+      //     cate_draws_forQ(q,j)= (1/(1+ std::exp(-alphadraws(q,0) )))-(1/(1+ std::exp(-alphadraws(q,1) ))) ;
       //
       //   }
       // }
@@ -26769,6 +26788,7 @@ if(include_cate_intervals==1){
 
 
       //Ocoeffdraws.row(q)*(Wcontr_cate_f(j).t())
+      //Rcout << "Line 26774. \n";
 
       for(int q=0;q<num_its_temp;q++){
 
@@ -26789,7 +26809,7 @@ if(include_cate_intervals==1){
         // }
         // catedraw = catedraw/double(numobstemp0);
 
-        ite_draws_forQ(q)= catedraw;
+        cate_draws_forQ(q)= catedraw;
         num_draws_made++;
 
       }
@@ -26797,7 +26817,7 @@ if(include_cate_intervals==1){
 
   }
 
-  cate_quants = arma::quantile(ite_draws_forQ, probs_for_quantiles);
+  cate_quants = arma::quantile(cate_draws_forQ, probs_for_quantiles);
 
   //for each model draw coefficients and calculate teh CATE for each draw of coefficients
   //could calculate ITEs as part of this
