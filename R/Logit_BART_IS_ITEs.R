@@ -79,7 +79,8 @@ Logit_Bart_IS_ITEs <- function(seed,
                           ztrain,
                           pihat_train,
                           test_datamat=matrix(0.0,0,0),
-                          test_pihat=matrix(0.0,0,0),                          lambda=0.45,
+                          test_pihat=matrix(0.0,0,0),
+                          lambda=0.45,
                           num_models=1000,
                           num_trees=5,
                           beta_par=1,
@@ -130,8 +131,11 @@ Logit_Bart_IS_ITEs <- function(seed,
                          seed,
                          y,
                          original_datamat,
+                         ztrain,
+                         pihat_train,
                          beta_par,
                          test_datamat,
+                         test_pihat,
                          ncores,
                          outsamppreds,
                          nu,
@@ -148,6 +152,7 @@ Logit_Bart_IS_ITEs <- function(seed,
                          b_s_t,
                          lambda_poisson,
                          fast_approx,
+                         PIT_propensity,
                          l_quant,
                          u_quant,
                          root_alg_precision,
@@ -157,12 +162,16 @@ Logit_Bart_IS_ITEs <- function(seed,
                          num_iter,
                          include_cate_intervals)
 
-
-
+if(include_cate_intervals==1){
   names(L_bart_output) <- c("ITEests",
                           "ITEintervals",
                           "CATEest",
                           "CATEinterval")
+}else{
+  names(L_bart_output) <- c("ITEests",
+                            "ITEintervals",
+                            "CATEest")
+}
 
   L_bart_output
 }

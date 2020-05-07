@@ -237,10 +237,6 @@ sBART_ITEs_with_ints <- function(lambda, num_models, num_trees, seed, ytrain, or
     .Call(`_safeBart_sBART_ITEs_with_ints`, lambda, num_models, num_trees, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision)
 }
 
-example_cast_eigen <- function(arma_A) {
-    .Call(`_safeBart_example_cast_eigen`, arma_A)
-}
-
 example_cast_arma <- function(eigen_A) {
     .Call(`_safeBart_example_cast_arma`, eigen_A)
 }
@@ -287,5 +283,27 @@ LBART_IS <- function(lambda, num_models, num_trees, seed, ytrain, original_datam
 #' @export
 LBART_IS_ITEs <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, maxit, eps_f, eps_g, num_iter, include_cate_intervals) {
     .Call(`_safeBart_LBART_IS_ITEs`, lambda, num_models, num_trees, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, maxit, eps_f, eps_g, num_iter, include_cate_intervals)
+}
+
+#' @title Parallel Logit-BART-IS for ITE estimation with prediction intervals
+#'
+#' @description A parallelized implementation of Logit Bayesian Additive Regression Trees using importance sampling of models.
+#' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
+#' @param num_trees The number of trees to be sampled.
+#' @param seed The seed for random number generation.
+#' @param num_cats The number of possible values for the outcome variable.
+#' @param y The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.
+#' @param original_datamat The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.
+#' @param alpha_parameters Vector of prior parameters.
+#' @param beta_par The power to which the likelihood is to be raised. For BMA, set beta_par=1.
+#' @param original_datamat The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.
+#' @param ncores The number of cores to be used in parallelization.
+#' @param maxit Maximum number of iterations for the quasi-Newton algorithm that finds the MAP estimate for each model (required for Laplace approximation).
+#' @param eps_f Parameter for MAP algorithm stopping criterion. Iteration stops if |f-f'|/|f|<eps_f, where f and f' are the current and previous value of the objective function (negative log likelihood) respectively.
+#' @param eps_g Parameter for MAP algorithm stopping criterion. Iteration stops if ||g|| < eps_g * max(1, ||beta||), where beta is the current coefficient vector and g is the gradient.
+#' @return A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.
+#' @export
+LBCF_IS <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, maxit, eps_f, eps_g, num_iter, include_cate_intervals) {
+    .Call(`_safeBart_LBCF_IS`, lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, maxit, eps_f, eps_g, num_iter, include_cate_intervals)
 }
 

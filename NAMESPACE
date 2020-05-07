@@ -2,6 +2,8 @@
 
 export(LBART_IS)
 export(LBART_IS_ITEs)
+export(LBCF_IS)
+export(Logit_BCF_IS)
 export(Logit_Bart_IS)
 export(Logit_Bart_IS_ITEs)
 export(cpptrans_cdf)
