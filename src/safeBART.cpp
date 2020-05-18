@@ -10827,9 +10827,11 @@ List sBART_with_ints_parallel(double lambda,
       double temp_scal= as_scalar(temp_for_scal) ;
       //Rcout << "Line 4156";
       //arma::mat covar_t=temp_scal*(I_test+w_tilde_M_inv*(W_tilde.t()));
-      arma::mat covar_t=temp_scal*(I_test+W_tilde*sec_term_inv*(W_tilde.t()));
-
-      t_vars_arma.col(j)=covar_t.diag();
+      //arma::mat covar_t=temp_scal*(I_test+W_tilde*sec_term_inv*(W_tilde.t()));
+      //arma::mat covar_t=temp_scal*(I_test+
+      //  (arma::sum((W_tilde*sec_term_inv).t() % W_tilde.t(), 0)).t());
+      t_vars_arma.col(j)=temp_scal*(1+
+        (arma::sum((W_tilde*sec_term_inv).t() % W_tilde.t(), 0)).t());
 
 
       //Rcout << "Line 3985, j= " << j << ". \n";
