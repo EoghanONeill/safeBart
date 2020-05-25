@@ -11496,8 +11496,14 @@ List sBCF_with_ints_parallel(double lambda_mu,
   arma::vec cate_means_arma(num_models);
   arma::vec cate_vars_arma(num_models);
 
-  arma::vec averagingvec=(1/double(num_obs))*arma::ones<arma::vec>(num_obs);
+  //arma::vec averagingvec=(1/double(num_obs))*arma::ones<arma::vec>(num_obs);
 
+  arma::vec averagingvec;
+  if(is_test_data==1){
+    averagingvec=(1/double(num_test_obs))*arma::ones<arma::vec>(num_test_obs);
+  }else{
+    averagingvec=(1/double(num_obs))*arma::ones<arma::vec>(num_obs);
+  }
   //overall_treetables[i]= wrap(tree_table1);
   //double templik = as<double>(treepred_output[1]);
   //overall_liks[i]= pow(lik_prod,beta_pow);
@@ -13787,7 +13793,14 @@ double cate_pred=0;
 //double catnt_pred;
 
 //NumericMatrix draws_wrapped= wrap(draws_for_preds);
-arma::mat output(3, num_obs);
+
+int num_obs_0;
+if(is_test_data==1){
+  num_obs_0=num_test_obs;
+}else{
+  num_obs_0=num_obs;
+}
+arma::mat output(3, num_obs_0);
 //NumericVector probs_for_quantiles =  NumericVector::create(lower_prob, 0.5, upper_prob);
 
 //std::vector<double> probs_for_quantiles {lower_prob, 0.5, upper_prob};
@@ -13940,7 +13953,7 @@ if(fast_approx==1){
 
 #pragma omp parallel num_threads(ncores)
 #pragma omp for
-    for(int i=0;i<num_obs;i++){
+    for(int i=0;i<num_obs_0;i++){
       std::vector<double> tempmeans= arma::conv_to<stdvec>::from(overall_preds.row(i));
       std::vector<double> tempvars= arma::conv_to<stdvec>::from(t_vars_arma.row(i));
 
@@ -14089,7 +14102,7 @@ if(fast_approx==1){
 
 #pragma omp parallel num_threads(ncores)
 #pragma omp for
-    for(int i=0;i<num_obs;i++){
+    for(int i=0;i<num_obs_0;i++){
       //output(_,i)=Quantile(draws_wrapped(_,i), probs_for_quantiles);
 
       std::vector<double> tempmeans= arma::conv_to<stdvec>::from(overall_preds.row(i));
