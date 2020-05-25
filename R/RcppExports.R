@@ -56,6 +56,10 @@ find_term_nodes <- function(tree_table) {
     .Call(`_safeBart_find_term_nodes`, tree_table)
 }
 
+find_term_nodes2 <- function(tree_table) {
+    .Call(`_safeBart_find_term_nodes2`, tree_table)
+}
+
 get_treepreds <- function(original_y, num_cats, alpha_pars, originaldata, treetable) {
     .Call(`_safeBart_get_treepreds`, original_y, num_cats, alpha_pars, originaldata, treetable)
 }
@@ -197,6 +201,52 @@ sBCF_onefunc_parallel <- function(lambda_mu, lambda_tau, num_models, num_trees_m
 #' @export
 sBART_with_ints_parallel <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision) {
     .Call(`_safeBart_sBART_with_ints_parallel`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision)
+}
+
+#' @title Parallel Safe-BART with prediction intervals
+#'
+#' @description A parallelized implementation of safe-Bayesian Additive Regression Trees.
+#' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
+#' @param num_trees The number of trees to be sampled.
+#' @param seed The seed for random number generation.
+#' @param num_cats The number of possible values for the outcome variable.
+#' @param y The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.
+#' @param original_datamat The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.
+#' @param alpha_parameters Vector of prior parameters.
+#' @param beta_par The power to which the likelihood is to be raised. For BMA, set beta_par=1.
+#' @param original_datamat The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.
+#' @param ncores The number of cores to be used in parallelization.
+#' @return A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.
+#' @export
+BARTIS_train <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision) {
+    .Call(`_safeBart_BARTIS_train`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision)
+}
+
+#' @title Parallel Safe-BART with prediction intervals
+#'
+#' @description A parallelized implementation of safe-Bayesian Additive Regression Trees.
+#' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
+#' @param num_trees The number of trees to be sampled.
+#' @param seed The seed for random number generation.
+#' @param num_cats The number of possible values for the outcome variable.
+#' @param y The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.
+#' @param original_datamat The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.
+#' @param alpha_parameters Vector of prior parameters.
+#' @param beta_par The power to which the likelihood is to be raised. For BMA, set beta_par=1.
+#' @param original_datamat The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.
+#' @param ncores The number of cores to be used in parallelization.
+#' @return A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.
+#' @export
+BARTIS_train_no_test_no_output <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision) {
+    .Call(`_safeBart_BARTIS_train_no_test_no_output`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision)
+}
+
+get_termobs_test_data_fields <- function(test_data, tree_data) {
+    .Call(`_safeBart_get_termobs_test_data_fields`, test_data, tree_data)
+}
+
+pred_ints_exact_outsamp_par <- function(overall_sum_trees, ytrain, post_weights, num_obs, num_test_obs, a, sigma, mu_mu, nu, lambda, test_datamat, lower_prob, upper_prob, num_cores, root_alg_precision, original_datamat) {
+    .Call(`_safeBart_pred_ints_exact_outsamp_par`, overall_sum_trees, ytrain, post_weights, num_obs, num_test_obs, a, sigma, mu_mu, nu, lambda, test_datamat, lower_prob, upper_prob, num_cores, root_alg_precision, original_datamat)
 }
 
 #' @title Parallel Safe-Bayesian Causal Forest
