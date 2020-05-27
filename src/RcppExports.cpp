@@ -7,6 +7,32 @@
 
 using namespace Rcpp;
 
+// get_imp_vars
+NumericVector get_imp_vars(NumericVector split_vars, int num_col, NumericVector current_vars);
+RcppExport SEXP _safeBart_get_imp_vars(SEXP split_varsSEXP, SEXP num_colSEXP, SEXP current_varsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type split_vars(split_varsSEXP);
+    Rcpp::traits::input_parameter< int >::type num_col(num_colSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type current_vars(current_varsSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_imp_vars(split_vars, num_col, current_vars));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_weighted_var_imp
+List get_weighted_var_imp(int num_vars, NumericVector BIC, List sum_trees);
+RcppExport SEXP _safeBart_get_weighted_var_imp(SEXP num_varsSEXP, SEXP BICSEXP, SEXP sum_treesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_vars(num_varsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type BIC(BICSEXP);
+    Rcpp::traits::input_parameter< List >::type sum_trees(sum_treesSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_weighted_var_imp(num_vars, BIC, sum_trees));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpptrans_cdf
 NumericMatrix cpptrans_cdf(NumericMatrix originaldata);
 RcppExport SEXP _safeBart_cpptrans_cdf(SEXP originaldataSEXP) {
@@ -848,6 +874,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_safeBart_get_imp_vars", (DL_FUNC) &_safeBart_get_imp_vars, 3},
+    {"_safeBart_get_weighted_var_imp", (DL_FUNC) &_safeBart_get_weighted_var_imp, 3},
     {"_safeBart_cpptrans_cdf", (DL_FUNC) &_safeBart_cpptrans_cdf, 1},
     {"_safeBart_cpptrans_cdf_test", (DL_FUNC) &_safeBart_cpptrans_cdf_test, 2},
     {"_safeBart_scale_response", (DL_FUNC) &_safeBart_scale_response, 5},
