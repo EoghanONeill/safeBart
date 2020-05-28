@@ -149,7 +149,7 @@ train_BART_IS_no_output <- function(seed,
   sBARToutput$lambdaBART <- lambdaBART
   sBARToutput$sigma <- sigma
   sBARToutput$nu <- nu
-  
+  sBARToutput$numvars <- ncol(original_datamat)
   
   
   sBARToutput
