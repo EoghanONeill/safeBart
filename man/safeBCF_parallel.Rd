@@ -2,7 +2,7 @@
 % Please edit documentation in R/safeBCF_parallel.R
 \name{safeBCF_parallel}
 \alias{safeBCF_parallel}
-\title{Parallel Safe-Bayesian Causal Forest}
+\title{Parallel Safe-Bayesian Causal Forest (Bayesian Causal Forest using Importance Sampling of models, BCF-IS)}
 \usage{
 safeBCF_parallel(
   seed,

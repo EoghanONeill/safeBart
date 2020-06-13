@@ -1,10 +1,10 @@
 #' @title Variable importances as defined by Hernandez et al. (2018)
-#' 
+#'
 #' @description This measure defines the importance of a variable as the model-probability weighted sum of the number of splits on the variable of interest, divided by the sum over all variables of such weighted counts of splits.
-#' @param object A bartBMA object obtained using the barBMA function.
-#' @export 
-#' @return A vector of variable importances. The variables are ordered in the same order that they occur in columns of the input covariate matrix used to obtain the input bartBMA object.
-#' @examples 
+#' @param object A BART-IS object obtained using the train_BART_IS or train_BART_IS_no_output function.
+#' @export
+#' @return A vector of variable importances. The variables are ordered in the same order that they occur in columns of the input covariate matrix used to obtain the input BART-IS object.
+#' @examples
 #' #set the seed
 #' set.seed(100)
 #' #simulate some data
@@ -17,9 +17,9 @@
 #' xcovtest <- matrix(runif(N*p), nrow=N)
 #' ytest <- sin(pi*xcovtest[,1]*xcovtest[,2]) + 20*(xcovtest[,3]-0.5)^2+10*xcovtest[,4]+
 #'   5*xcovtest[,5]+epsilontest
-#' 
-#' #Train the object 
-#' bart_bma_example <- bartBMA(x.train = xcov,y.train=y,x.test=xcovtest,zero_split = 1, 
+#'
+#' #Train the object
+#' bart_bma_example <- bartBMA(x.train = xcov,y.train=y,x.test=xcovtest,zero_split = 1,
 #'                             only_max_num_trees = 1,split_rule_node = 0)
 #' #Obtain the variable importances
 #' varImpScores(bart_bma_example)

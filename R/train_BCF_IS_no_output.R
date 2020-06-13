@@ -1,4 +1,5 @@
-#' @title Parallel Safe-Bayesian Causal Forest (Bayesian Causal Forest using Importance Sampling of models, BCF-IS)
+
+#' @title Parallel Safe-Bayesian Causal Forest (using Importance Sampling) with CATE estimate and prediction intervals, and outputs matrices representing tree structures
 #'
 #' @description A parallelized implementation of the Safe-Bayesian Random Forest described by Quadrianto and Ghahramani (2015)
 #' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
@@ -69,35 +70,39 @@
 #' cbind(examplepreds1,ytest )
 #' @export
 
-safeBCF_parallel <- function(seed,
-                            y,
-                            original_datamat,
-                            ztrain,
-                            pihat_train,
-                            test_datamat=matrix(0.0,0,0),
-                            test_pihat=matrix(0.0,0,0),
-                            lambda_mu=0.45,
-                            lambda_tau=0.45,
-                            num_models=1000,
-                            num_trees_mu=5,
-                            num_trees_tau=5,
-                            beta_par=1,
-                            ncores=1,
-                            outsamppreds=1,
-                            nu=3,
-                            a_mu=3,
-                            a_tau=3,
-                            sigquant=0.9,
-                            valid_trees=1,
-                            tree_prior=0,
-                            imp_sampler=0,
-                            alpha_BCF_mu=0.95,
-                            beta_BCF_mu=2,
-                            alpha_BCF_tau=0.95,
-                            beta_BCF_tau=2,
-                            include_pi= "control",
-                            fast_approx=0,
-                            PIT_propensity=0){
+train_BCF_IS_no_output <- function(seed,
+                         y,
+                         original_datamat,
+                         ztrain,
+                         pihat_train,#test_datamat=matrix(0.0,0,0),test_pihat=matrix(0.0,0,0),
+                         lambda_mu=0.45,
+                         lambda_tau=0.45,
+                         num_models=1000,
+                         num_trees_mu=5,
+                         num_trees_tau=5,
+                         beta_par=1,
+                         ncores=1,
+                         outsamppreds=1,
+                         nu=3,
+                         a_mu=3,
+                         a_tau=3,
+                         sigquant=0.9,
+                         valid_trees=1,
+                         tree_prior=0,
+                         imp_sampler=0,
+                         alpha_BCF_mu=0.95,
+                         beta_BCF_mu=2,
+                         alpha_BCF_tau=0.95,
+                         beta_BCF_tau=2,
+                         include_pi= "control",
+                         fast_approx=0,
+                         PIT_propensity=0,
+                         l_quant=0.025,
+                         u_quant=0.975,
+                         root_alg_precision=0.00001){
+
+
+  if(fast_approx== 1) stop('Code for fast approximation not written for safeBCF_with_intervals(). Set fast_approx==0.')
 
 
   sigma=sd(y)/(max(y)-min(y))
@@ -129,35 +134,55 @@ safeBCF_parallel <- function(seed,
   # if(nrow(original_datamat) != length(y)) stop("number of rows in x.train must equal length of y.train")
   # if((ncol(test_datamat)!=ncol(original_datamat))) stop("input x.test must have the same number of columns as x.train")
 
-  sBCFoutput=sBCF_onefunc_parallel(lambda_mu,
-                                    lambda_tau,
-                                    num_models,
-                                    num_trees_mu,
-                                    num_trees_tau,
-                                    seed,
-                                    y,
-                                    original_datamat,
-                                    ztrain,
-                                    pihat_train,
-                                    beta_par,
-                                    test_datamat,
-                                    test_pihat,
-                                    ncores,
-                                    outsamppreds,
-                                    nu,
-                                    a_mu,
-                                    a_tau,
-                                    lambdaBCF,
-                                    valid_trees,
-                                    tree_prior,
-                                    imp_sampler,
-                                    alpha_BCF_mu,
-                                    beta_BCF_mu,
-                                    alpha_BCF_tau,
-                                    beta_BCF_tau,
-                                    include_pi2,
-                                   fast_approx,
-                                   PIT_propensity)
+  sBCFoutput=sBCF_train_no_test_no_output(lambda_mu,
+                                     lambda_tau,
+                                     num_models,
+                                     num_trees_mu,
+                                     num_trees_tau,
+                                     seed,
+                                     y,
+                                     original_datamat,
+                                     ztrain,
+                                     pihat_train,
+                                     beta_par,#test_datamat,test_pihat,
+                                     ncores,
+                                     outsamppreds,
+                                     nu,
+                                     a_mu,
+                                     a_tau,
+                                     lambdaBCF,
+                                     valid_trees,
+                                     tree_prior,
+                                     imp_sampler,
+                                     alpha_BCF_mu,
+                                     beta_BCF_mu,
+                                     alpha_BCF_tau,
+                                     beta_BCF_tau,
+                                     include_pi2,
+                                     fast_approx,
+                                     PIT_propensity,
+                                     l_quant,
+                                     u_quant,
+                                     root_alg_precision)
+
+
+  names(sBCFoutput) <- c("sumoftrees_mu",
+                         "sumoftrees_tau",
+                         "ytrain",
+                         "xtrain",
+                         "model_probs")
+
+
+  sBCFoutput$a_mu <- a_mu
+  sBCFoutput$a_tau <- a_tau
+  sBCFoutput$lambdaBCF <- lambdaBCF
+  sBCFoutput$sigma <- sigma
+  sBCFoutput$nu <- nu
+  sBCFoutput$numvars <- ncol(original_datamat)
+
+  sBCFoutput$include_pi2 <- include_pi2
+  sBCFoutput$num_ps <- ncol(pihat_train)
 
   sBCFoutput
 }
+

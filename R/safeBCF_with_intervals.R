@@ -1,4 +1,4 @@
-#' @title Parallel Safe-Bayesian Causal Forest with CTAE estimate and prediction intervals
+#' @title Parallel Safe-Bayesian Causal Forest (Bayesian Causal Forest using Importance Sampling of models, BCF-IS) with CATE estimate and prediction intervals
 #'
 #' @description A parallelized implementation of the Safe-Bayesian Random Forest described by Quadrianto and Ghahramani (2015)
 #' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
