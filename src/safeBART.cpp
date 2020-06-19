@@ -29255,7 +29255,7 @@ public:
     }
     //prob[i] = R::log1pexp(xbeta[i]);
     negloglik = prob.sum() - yxbeta ;
-    const double f = negloglik - (lambda/2)*beta.squaredNorm();
+    const double f = negloglik + 0.5*(lambda)*beta.squaredNorm();
 
     // Gradient
     //   X' * (p - y), p = exp(X * beta) / (1 + exp(X * beta))
@@ -31341,7 +31341,13 @@ List LBART_IS(double lambda,
 
     Hmat.diag() += a;
 
-    double templik0 = 0.5*beta.size()*std::log(a) -nll.negloglikout() - 0.5*real(arma::log_det(Hmat)) ;
+    //nll.negloglikout() is proportional to the negative log posterior
+    // Note 0.5*beta.size()*std::log(a) not included in nll.negloglikout()
+    // because this is contant with respect to parameter values for a given model
+    // but it must be added here because the number of terminal nodes affects the marg. lik.
+
+    double templik0 = 0.5*beta.size()*std::log(a) -nll.negloglikout() -
+      0.5*real(arma::log_det(Hmat)) - 0.5*(a)*beta.squaredNorm();
 
     //Now convert output to armadillo objects
 
@@ -34390,7 +34396,8 @@ List LBART_IS_ITEs(double lambda,
 
     Hmat.diag() += a;
 
-    double templik0 = 0.5*beta.size()*std::log(a) -nll.negloglikout() - 0.5*real(arma::log_det(Hmat)) ;
+    double templik0 = 0.5*beta.size()*std::log(a) -nll.negloglikout() -
+      0.5*real(arma::log_det(Hmat)) - 0.5*(a)*beta.squaredNorm();
 
     //Now convert output to armadillo objects
 
@@ -35312,8 +35319,8 @@ public:
     //prob[i] = R::log1pexp(xbeta[i]);
     negloglik = prob.sum() - yxbeta ;
     const double f = negloglik
-      - (a_mu/2)*(beta.head(b_mu)).squaredNorm()
-      - (a_tau/2)*(beta.tail(b_tau)).squaredNorm();
+      + (a_mu/2)*(beta.head(b_mu)).squaredNorm()
+      + (a_tau/2)*(beta.tail(b_tau)).squaredNorm();
 
     // Gradient
     //   X' * (p - y), p = exp(X * beta) / (1 + exp(X * beta))
@@ -38059,7 +38066,9 @@ List LBCF_IS(double lambda_mu,
     double templik0 = 0.5*b_mu*std::log(a_mu)+
       0.5*b_tau*std::log(a_tau) -
       nll.negloglikout() -
-      0.5*real(arma::log_det(Hmat)) ;
+      0.5*real(arma::log_det(Hmat)) -
+      (a_mu/2)*(beta.head(b_mu)).squaredNorm() -
+      (a_tau/2)*(beta.tail(b_tau)).squaredNorm();
 
     //Now convert output to armadillo objects
 
