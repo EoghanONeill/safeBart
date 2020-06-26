@@ -33,397 +33,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// cpptrans_cdf
-NumericMatrix cpptrans_cdf(NumericMatrix originaldata);
-RcppExport SEXP _safeBart_cpptrans_cdf(SEXP originaldataSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type originaldata(originaldataSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpptrans_cdf(originaldata));
-    return rcpp_result_gen;
-END_RCPP
-}
-// cpptrans_cdf_test
-NumericMatrix cpptrans_cdf_test(NumericMatrix originaldata, NumericMatrix testdata);
-RcppExport SEXP _safeBart_cpptrans_cdf_test(SEXP originaldataSEXP, SEXP testdataSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type originaldata(originaldataSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type testdata(testdataSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpptrans_cdf_test(originaldata, testdata));
-    return rcpp_result_gen;
-END_RCPP
-}
-// scale_response
-NumericVector scale_response(double a, double b, double c, double d, NumericVector y);
-RcppExport SEXP _safeBart_scale_response(SEXP aSEXP, SEXP bSEXP, SEXP cSEXP, SEXP dSEXP, SEXP ySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type a(aSEXP);
-    Rcpp::traits::input_parameter< double >::type b(bSEXP);
-    Rcpp::traits::input_parameter< double >::type c(cSEXP);
-    Rcpp::traits::input_parameter< double >::type d(dSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(scale_response(a, b, c, d, y));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_original
-NumericVector get_original(double low, double high, double sp_low, double sp_high, NumericVector sum_preds);
-RcppExport SEXP _safeBart_get_original(SEXP lowSEXP, SEXP highSEXP, SEXP sp_lowSEXP, SEXP sp_highSEXP, SEXP sum_predsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type low(lowSEXP);
-    Rcpp::traits::input_parameter< double >::type high(highSEXP);
-    Rcpp::traits::input_parameter< double >::type sp_low(sp_lowSEXP);
-    Rcpp::traits::input_parameter< double >::type sp_high(sp_highSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type sum_preds(sum_predsSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_original(low, high, sp_low, sp_high, sum_preds));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_original_arma
-arma::vec get_original_arma(double low, double high, double sp_low, double sp_high, arma::vec sum_preds);
-RcppExport SEXP _safeBart_get_original_arma(SEXP lowSEXP, SEXP highSEXP, SEXP sp_lowSEXP, SEXP sp_highSEXP, SEXP sum_predsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type low(lowSEXP);
-    Rcpp::traits::input_parameter< double >::type high(highSEXP);
-    Rcpp::traits::input_parameter< double >::type sp_low(sp_lowSEXP);
-    Rcpp::traits::input_parameter< double >::type sp_high(sp_highSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type sum_preds(sum_predsSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_original_arma(low, high, sp_low, sp_high, sum_preds));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_original_TE
-NumericVector get_original_TE(double low, double high, double sp_low, double sp_high, NumericVector sum_preds);
-RcppExport SEXP _safeBart_get_original_TE(SEXP lowSEXP, SEXP highSEXP, SEXP sp_lowSEXP, SEXP sp_highSEXP, SEXP sum_predsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type low(lowSEXP);
-    Rcpp::traits::input_parameter< double >::type high(highSEXP);
-    Rcpp::traits::input_parameter< double >::type sp_low(sp_lowSEXP);
-    Rcpp::traits::input_parameter< double >::type sp_high(sp_highSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type sum_preds(sum_predsSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_original_TE(low, high, sp_low, sp_high, sum_preds));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_original_TE_double
-double get_original_TE_double(double low, double high, double sp_low, double sp_high, double sum_preds);
-RcppExport SEXP _safeBart_get_original_TE_double(SEXP lowSEXP, SEXP highSEXP, SEXP sp_lowSEXP, SEXP sp_highSEXP, SEXP sum_predsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type low(lowSEXP);
-    Rcpp::traits::input_parameter< double >::type high(highSEXP);
-    Rcpp::traits::input_parameter< double >::type sp_low(sp_lowSEXP);
-    Rcpp::traits::input_parameter< double >::type sp_high(sp_highSEXP);
-    Rcpp::traits::input_parameter< double >::type sum_preds(sum_predsSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_original_TE_double(low, high, sp_low, sp_high, sum_preds));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_original_TE_arma
-arma::vec get_original_TE_arma(double low, double high, double sp_low, double sp_high, arma::vec sum_preds);
-RcppExport SEXP _safeBart_get_original_TE_arma(SEXP lowSEXP, SEXP highSEXP, SEXP sp_lowSEXP, SEXP sp_highSEXP, SEXP sum_predsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type low(lowSEXP);
-    Rcpp::traits::input_parameter< double >::type high(highSEXP);
-    Rcpp::traits::input_parameter< double >::type sp_low(sp_lowSEXP);
-    Rcpp::traits::input_parameter< double >::type sp_high(sp_highSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type sum_preds(sum_predsSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_original_TE_arma(low, high, sp_low, sp_high, sum_preds));
-    return rcpp_result_gen;
-END_RCPP
-}
-// unfold
-long unfold(int p_ind, std::vector<int> output_dyck, long length);
-RcppExport SEXP _safeBart_unfold(SEXP p_indSEXP, SEXP output_dyckSEXP, SEXP lengthSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type p_ind(p_indSEXP);
-    Rcpp::traits::input_parameter< std::vector<int> >::type output_dyck(output_dyckSEXP);
-    Rcpp::traits::input_parameter< long >::type length(lengthSEXP);
-    rcpp_result_gen = Rcpp::wrap(unfold(p_ind, output_dyck, length));
-    return rcpp_result_gen;
-END_RCPP
-}
-// fold
-void fold(std::vector<int> output_dyck, long length, long height);
-RcppExport SEXP _safeBart_fold(SEXP output_dyckSEXP, SEXP lengthSEXP, SEXP heightSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<int> >::type output_dyck(output_dyckSEXP);
-    Rcpp::traits::input_parameter< long >::type length(lengthSEXP);
-    Rcpp::traits::input_parameter< long >::type height(heightSEXP);
-    fold(output_dyck, length, height);
-    return R_NilValue;
-END_RCPP
-}
-// dyck_path
-void dyck_path(std::vector<int> output_dyck, long length);
-RcppExport SEXP _safeBart_dyck_path(SEXP output_dyckSEXP, SEXP lengthSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<int> >::type output_dyck(output_dyckSEXP);
-    Rcpp::traits::input_parameter< long >::type length(lengthSEXP);
-    dyck_path(output_dyck, length);
-    return R_NilValue;
-END_RCPP
-}
-// wrapper_dyck_path
-IntegerVector wrapper_dyck_path(long length);
-RcppExport SEXP _safeBart_wrapper_dyck_path(SEXP lengthSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< long >::type length(lengthSEXP);
-    rcpp_result_gen = Rcpp::wrap(wrapper_dyck_path(length));
-    return rcpp_result_gen;
-END_RCPP
-}
-// find_term_nodes
-NumericVector find_term_nodes(NumericMatrix tree_table);
-RcppExport SEXP _safeBart_find_term_nodes(SEXP tree_tableSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type tree_table(tree_tableSEXP);
-    rcpp_result_gen = Rcpp::wrap(find_term_nodes(tree_table));
-    return rcpp_result_gen;
-END_RCPP
-}
-// find_term_nodes2
-NumericVector find_term_nodes2(NumericMatrix tree_table);
-RcppExport SEXP _safeBart_find_term_nodes2(SEXP tree_tableSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type tree_table(tree_tableSEXP);
-    rcpp_result_gen = Rcpp::wrap(find_term_nodes2(tree_table));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_treepreds
-List get_treepreds(NumericVector original_y, int num_cats, NumericVector alpha_pars, NumericMatrix originaldata, NumericMatrix treetable);
-RcppExport SEXP _safeBart_get_treepreds(SEXP original_ySEXP, SEXP num_catsSEXP, SEXP alpha_parsSEXP, SEXP originaldataSEXP, SEXP treetableSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type original_y(original_ySEXP);
-    Rcpp::traits::input_parameter< int >::type num_cats(num_catsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type alpha_pars(alpha_parsSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type originaldata(originaldataSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type treetable(treetableSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_treepreds(original_y, num_cats, alpha_pars, originaldata, treetable));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_treelist
-List get_treelist(NumericVector original_y, int num_cats, NumericVector alpha_pars, double beta_pow, NumericMatrix originaldata, List treetable_list);
-RcppExport SEXP _safeBart_get_treelist(SEXP original_ySEXP, SEXP num_catsSEXP, SEXP alpha_parsSEXP, SEXP beta_powSEXP, SEXP originaldataSEXP, SEXP treetable_listSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type original_y(original_ySEXP);
-    Rcpp::traits::input_parameter< int >::type num_cats(num_catsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type alpha_pars(alpha_parsSEXP);
-    Rcpp::traits::input_parameter< double >::type beta_pow(beta_powSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type originaldata(originaldataSEXP);
-    Rcpp::traits::input_parameter< List >::type treetable_list(treetable_listSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_treelist(original_y, num_cats, alpha_pars, beta_pow, originaldata, treetable_list));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_test_probs
-arma::mat get_test_probs(NumericVector weights, int num_cats, NumericMatrix testdata, NumericMatrix treetable);
-RcppExport SEXP _safeBart_get_test_probs(SEXP weightsSEXP, SEXP num_catsSEXP, SEXP testdataSEXP, SEXP treetableSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type weights(weightsSEXP);
-    Rcpp::traits::input_parameter< int >::type num_cats(num_catsSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type testdata(testdataSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type treetable(treetableSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_test_probs(weights, num_cats, testdata, treetable));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_test_prob_overall
-NumericMatrix get_test_prob_overall(NumericVector weights, int num_cats, NumericMatrix testdata, List treetable_list);
-RcppExport SEXP _safeBart_get_test_prob_overall(SEXP weightsSEXP, SEXP num_catsSEXP, SEXP testdataSEXP, SEXP treetable_listSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type weights(weightsSEXP);
-    Rcpp::traits::input_parameter< int >::type num_cats(num_catsSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type testdata(testdataSEXP);
-    Rcpp::traits::input_parameter< List >::type treetable_list(treetable_listSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_test_prob_overall(weights, num_cats, testdata, treetable_list));
-    return rcpp_result_gen;
-END_RCPP
-}
-// draw_trees
-List draw_trees(double lambda, int num_trees, int seed, int num_split_vars, int num_cats);
-RcppExport SEXP _safeBart_draw_trees(SEXP lambdaSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP num_split_varsSEXP, SEXP num_catsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< int >::type num_trees(num_treesSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
-    Rcpp::traits::input_parameter< int >::type num_split_vars(num_split_varsSEXP);
-    Rcpp::traits::input_parameter< int >::type num_cats(num_catsSEXP);
-    rcpp_result_gen = Rcpp::wrap(draw_trees(lambda, num_trees, seed, num_split_vars, num_cats));
-    return rcpp_result_gen;
-END_RCPP
-}
-// secondKindStirlingNumber
-double secondKindStirlingNumber(int n, int k);
-RcppExport SEXP _safeBart_secondKindStirlingNumber(SEXP nSEXP, SEXP kSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(secondKindStirlingNumber(n, k));
-    return rcpp_result_gen;
-END_RCPP
-}
-// mixt_eval_cdf
-double mixt_eval_cdf(double x_val, double d_o_f, std::vector<double> mean_vec, std::vector<double> var_vec, std::vector<double> weights_vec, double quant_val);
-RcppExport SEXP _safeBart_mixt_eval_cdf(SEXP x_valSEXP, SEXP d_o_fSEXP, SEXP mean_vecSEXP, SEXP var_vecSEXP, SEXP weights_vecSEXP, SEXP quant_valSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type x_val(x_valSEXP);
-    Rcpp::traits::input_parameter< double >::type d_o_f(d_o_fSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type mean_vec(mean_vecSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type var_vec(var_vecSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type weights_vec(weights_vecSEXP);
-    Rcpp::traits::input_parameter< double >::type quant_val(quant_valSEXP);
-    rcpp_result_gen = Rcpp::wrap(mixt_eval_cdf(x_val, d_o_f, mean_vec, var_vec, weights_vec, quant_val));
-    return rcpp_result_gen;
-END_RCPP
-}
-// mixnorm_eval_cdf
-double mixnorm_eval_cdf(double x_val, std::vector<double> mean_vec, std::vector<double> var_vec, std::vector<double> weights_vec, double quant_val);
-RcppExport SEXP _safeBart_mixnorm_eval_cdf(SEXP x_valSEXP, SEXP mean_vecSEXP, SEXP var_vecSEXP, SEXP weights_vecSEXP, SEXP quant_valSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type x_val(x_valSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type mean_vec(mean_vecSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type var_vec(var_vecSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type weights_vec(weights_vecSEXP);
-    Rcpp::traits::input_parameter< double >::type quant_val(quant_valSEXP);
-    rcpp_result_gen = Rcpp::wrap(mixnorm_eval_cdf(x_val, mean_vec, var_vec, weights_vec, quant_val));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rootmixt
-double rootmixt(double d_o_f, double a, double b, std::vector<double> mean_vec, std::vector<double> var_vec, std::vector<double> weights_vec, double quant_val, double root_alg_precision);
-RcppExport SEXP _safeBart_rootmixt(SEXP d_o_fSEXP, SEXP aSEXP, SEXP bSEXP, SEXP mean_vecSEXP, SEXP var_vecSEXP, SEXP weights_vecSEXP, SEXP quant_valSEXP, SEXP root_alg_precisionSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type d_o_f(d_o_fSEXP);
-    Rcpp::traits::input_parameter< double >::type a(aSEXP);
-    Rcpp::traits::input_parameter< double >::type b(bSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type mean_vec(mean_vecSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type var_vec(var_vecSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type weights_vec(weights_vecSEXP);
-    Rcpp::traits::input_parameter< double >::type quant_val(quant_valSEXP);
-    Rcpp::traits::input_parameter< double >::type root_alg_precision(root_alg_precisionSEXP);
-    rcpp_result_gen = Rcpp::wrap(rootmixt(d_o_f, a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rootmixnorm
-double rootmixnorm(double a, double b, std::vector<double> mean_vec, std::vector<double> var_vec, std::vector<double> weights_vec, double quant_val, double root_alg_precision);
-RcppExport SEXP _safeBart_rootmixnorm(SEXP aSEXP, SEXP bSEXP, SEXP mean_vecSEXP, SEXP var_vecSEXP, SEXP weights_vecSEXP, SEXP quant_valSEXP, SEXP root_alg_precisionSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type a(aSEXP);
-    Rcpp::traits::input_parameter< double >::type b(bSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type mean_vec(mean_vecSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type var_vec(var_vecSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type weights_vec(weights_vecSEXP);
-    Rcpp::traits::input_parameter< double >::type quant_val(quant_valSEXP);
-    Rcpp::traits::input_parameter< double >::type root_alg_precision(root_alg_precisionSEXP);
-    rcpp_result_gen = Rcpp::wrap(rootmixnorm(a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision));
-    return rcpp_result_gen;
-END_RCPP
-}
-// sBayesRF
-NumericMatrix sBayesRF(double lambda, int num_trees, int seed, int num_cats, NumericVector y, NumericMatrix original_datamat, NumericVector alpha_parameters, double beta_par, NumericMatrix test_datamat);
-RcppExport SEXP _safeBart_sBayesRF(SEXP lambdaSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP num_catsSEXP, SEXP ySEXP, SEXP original_datamatSEXP, SEXP alpha_parametersSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< int >::type num_trees(num_treesSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
-    Rcpp::traits::input_parameter< int >::type num_cats(num_catsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type original_datamat(original_datamatSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type alpha_parameters(alpha_parametersSEXP);
-    Rcpp::traits::input_parameter< double >::type beta_par(beta_parSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type test_datamat(test_datamatSEXP);
-    rcpp_result_gen = Rcpp::wrap(sBayesRF(lambda, num_trees, seed, num_cats, y, original_datamat, alpha_parameters, beta_par, test_datamat));
-    return rcpp_result_gen;
-END_RCPP
-}
-// sBayesRF_onefunc
-NumericMatrix sBayesRF_onefunc(double lambda, int num_trees, int seed, int num_cats, NumericVector y, NumericMatrix original_datamat, NumericVector alpha_parameters, double beta_par, NumericMatrix test_datamat);
-RcppExport SEXP _safeBart_sBayesRF_onefunc(SEXP lambdaSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP num_catsSEXP, SEXP ySEXP, SEXP original_datamatSEXP, SEXP alpha_parametersSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< int >::type num_trees(num_treesSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
-    Rcpp::traits::input_parameter< int >::type num_cats(num_catsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type original_datamat(original_datamatSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type alpha_parameters(alpha_parametersSEXP);
-    Rcpp::traits::input_parameter< double >::type beta_par(beta_parSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type test_datamat(test_datamatSEXP);
-    rcpp_result_gen = Rcpp::wrap(sBayesRF_onefunc(lambda, num_trees, seed, num_cats, y, original_datamat, alpha_parameters, beta_par, test_datamat));
-    return rcpp_result_gen;
-END_RCPP
-}
-// sBayesRF_onefunc_arma
-NumericMatrix sBayesRF_onefunc_arma(double lambda, int num_trees, int seed, int num_cats, NumericVector y, NumericMatrix original_datamat, NumericVector alpha_parameters, double beta_par, NumericMatrix test_datamat);
-RcppExport SEXP _safeBart_sBayesRF_onefunc_arma(SEXP lambdaSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP num_catsSEXP, SEXP ySEXP, SEXP original_datamatSEXP, SEXP alpha_parametersSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< int >::type num_trees(num_treesSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
-    Rcpp::traits::input_parameter< int >::type num_cats(num_catsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type original_datamat(original_datamatSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type alpha_parameters(alpha_parametersSEXP);
-    Rcpp::traits::input_parameter< double >::type beta_par(beta_parSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type test_datamat(test_datamatSEXP);
-    rcpp_result_gen = Rcpp::wrap(sBayesRF_onefunc_arma(lambda, num_trees, seed, num_cats, y, original_datamat, alpha_parameters, beta_par, test_datamat));
-    return rcpp_result_gen;
-END_RCPP
-}
 // sBART_onefunc_parallel
 NumericVector sBART_onefunc_parallel(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, double beta_par, NumericMatrix test_datamat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART, int s_t_hyperprior, double p_s_t, double a_s_t, double b_s_t, double lambda_poisson, int fast_approx);
 RcppExport SEXP _safeBart_sBART_onefunc_parallel(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP, SEXP s_t_hyperpriorSEXP, SEXP p_s_tSEXP, SEXP a_s_tSEXP, SEXP b_s_tSEXP, SEXP lambda_poissonSEXP, SEXP fast_approxSEXP) {
@@ -810,17 +419,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// example_cast_arma
-arma::mat example_cast_arma(Eigen::MatrixXd eigen_A);
-RcppExport SEXP _safeBart_example_cast_arma(SEXP eigen_ASEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type eigen_A(eigen_ASEXP);
-    rcpp_result_gen = Rcpp::wrap(example_cast_arma(eigen_A));
-    return rcpp_result_gen;
-END_RCPP
-}
 // LBART_IS
 List LBART_IS(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, double beta_par, NumericMatrix test_datamat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART, int s_t_hyperprior, double p_s_t, double a_s_t, double b_s_t, double lambda_poisson, int fast_approx, double lower_prob, double upper_prob, double root_alg_precision, int maxit, double eps_f, double eps_g);
 RcppExport SEXP _safeBart_LBART_IS(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP, SEXP s_t_hyperpriorSEXP, SEXP p_s_tSEXP, SEXP a_s_tSEXP, SEXP b_s_tSEXP, SEXP lambda_poissonSEXP, SEXP fast_approxSEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP maxitSEXP, SEXP eps_fSEXP, SEXP eps_gSEXP) {
@@ -954,37 +552,241 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// scale_response
+NumericVector scale_response(double a, double b, double c, double d, NumericVector y);
+RcppExport SEXP _safeBart_scale_response(SEXP aSEXP, SEXP bSEXP, SEXP cSEXP, SEXP dSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< double >::type b(bSEXP);
+    Rcpp::traits::input_parameter< double >::type c(cSEXP);
+    Rcpp::traits::input_parameter< double >::type d(dSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(scale_response(a, b, c, d, y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_original
+NumericVector get_original(double low, double high, double sp_low, double sp_high, NumericVector sum_preds);
+RcppExport SEXP _safeBart_get_original(SEXP lowSEXP, SEXP highSEXP, SEXP sp_lowSEXP, SEXP sp_highSEXP, SEXP sum_predsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type low(lowSEXP);
+    Rcpp::traits::input_parameter< double >::type high(highSEXP);
+    Rcpp::traits::input_parameter< double >::type sp_low(sp_lowSEXP);
+    Rcpp::traits::input_parameter< double >::type sp_high(sp_highSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type sum_preds(sum_predsSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_original(low, high, sp_low, sp_high, sum_preds));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_original_arma
+arma::vec get_original_arma(double low, double high, double sp_low, double sp_high, arma::vec sum_preds);
+RcppExport SEXP _safeBart_get_original_arma(SEXP lowSEXP, SEXP highSEXP, SEXP sp_lowSEXP, SEXP sp_highSEXP, SEXP sum_predsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type low(lowSEXP);
+    Rcpp::traits::input_parameter< double >::type high(highSEXP);
+    Rcpp::traits::input_parameter< double >::type sp_low(sp_lowSEXP);
+    Rcpp::traits::input_parameter< double >::type sp_high(sp_highSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type sum_preds(sum_predsSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_original_arma(low, high, sp_low, sp_high, sum_preds));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_original_TE
+NumericVector get_original_TE(double low, double high, double sp_low, double sp_high, NumericVector sum_preds);
+RcppExport SEXP _safeBart_get_original_TE(SEXP lowSEXP, SEXP highSEXP, SEXP sp_lowSEXP, SEXP sp_highSEXP, SEXP sum_predsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type low(lowSEXP);
+    Rcpp::traits::input_parameter< double >::type high(highSEXP);
+    Rcpp::traits::input_parameter< double >::type sp_low(sp_lowSEXP);
+    Rcpp::traits::input_parameter< double >::type sp_high(sp_highSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type sum_preds(sum_predsSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_original_TE(low, high, sp_low, sp_high, sum_preds));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_original_TE_double
+double get_original_TE_double(double low, double high, double sp_low, double sp_high, double sum_preds);
+RcppExport SEXP _safeBart_get_original_TE_double(SEXP lowSEXP, SEXP highSEXP, SEXP sp_lowSEXP, SEXP sp_highSEXP, SEXP sum_predsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type low(lowSEXP);
+    Rcpp::traits::input_parameter< double >::type high(highSEXP);
+    Rcpp::traits::input_parameter< double >::type sp_low(sp_lowSEXP);
+    Rcpp::traits::input_parameter< double >::type sp_high(sp_highSEXP);
+    Rcpp::traits::input_parameter< double >::type sum_preds(sum_predsSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_original_TE_double(low, high, sp_low, sp_high, sum_preds));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_original_TE_arma
+arma::vec get_original_TE_arma(double low, double high, double sp_low, double sp_high, arma::vec sum_preds);
+RcppExport SEXP _safeBart_get_original_TE_arma(SEXP lowSEXP, SEXP highSEXP, SEXP sp_lowSEXP, SEXP sp_highSEXP, SEXP sum_predsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type low(lowSEXP);
+    Rcpp::traits::input_parameter< double >::type high(highSEXP);
+    Rcpp::traits::input_parameter< double >::type sp_low(sp_lowSEXP);
+    Rcpp::traits::input_parameter< double >::type sp_high(sp_highSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type sum_preds(sum_predsSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_original_TE_arma(low, high, sp_low, sp_high, sum_preds));
+    return rcpp_result_gen;
+END_RCPP
+}
+// find_term_nodes
+NumericVector find_term_nodes(NumericMatrix tree_table);
+RcppExport SEXP _safeBart_find_term_nodes(SEXP tree_tableSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type tree_table(tree_tableSEXP);
+    rcpp_result_gen = Rcpp::wrap(find_term_nodes(tree_table));
+    return rcpp_result_gen;
+END_RCPP
+}
+// find_term_nodes2
+NumericVector find_term_nodes2(NumericMatrix tree_table);
+RcppExport SEXP _safeBart_find_term_nodes2(SEXP tree_tableSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type tree_table(tree_tableSEXP);
+    rcpp_result_gen = Rcpp::wrap(find_term_nodes2(tree_table));
+    return rcpp_result_gen;
+END_RCPP
+}
+// secondKindStirlingNumber
+double secondKindStirlingNumber(int n, int k);
+RcppExport SEXP _safeBart_secondKindStirlingNumber(SEXP nSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(secondKindStirlingNumber(n, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mixt_eval_cdf
+double mixt_eval_cdf(double x_val, double d_o_f, std::vector<double> mean_vec, std::vector<double> var_vec, std::vector<double> weights_vec, double quant_val);
+RcppExport SEXP _safeBart_mixt_eval_cdf(SEXP x_valSEXP, SEXP d_o_fSEXP, SEXP mean_vecSEXP, SEXP var_vecSEXP, SEXP weights_vecSEXP, SEXP quant_valSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x_val(x_valSEXP);
+    Rcpp::traits::input_parameter< double >::type d_o_f(d_o_fSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type mean_vec(mean_vecSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type var_vec(var_vecSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type weights_vec(weights_vecSEXP);
+    Rcpp::traits::input_parameter< double >::type quant_val(quant_valSEXP);
+    rcpp_result_gen = Rcpp::wrap(mixt_eval_cdf(x_val, d_o_f, mean_vec, var_vec, weights_vec, quant_val));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mixnorm_eval_cdf
+double mixnorm_eval_cdf(double x_val, std::vector<double> mean_vec, std::vector<double> var_vec, std::vector<double> weights_vec, double quant_val);
+RcppExport SEXP _safeBart_mixnorm_eval_cdf(SEXP x_valSEXP, SEXP mean_vecSEXP, SEXP var_vecSEXP, SEXP weights_vecSEXP, SEXP quant_valSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x_val(x_valSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type mean_vec(mean_vecSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type var_vec(var_vecSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type weights_vec(weights_vecSEXP);
+    Rcpp::traits::input_parameter< double >::type quant_val(quant_valSEXP);
+    rcpp_result_gen = Rcpp::wrap(mixnorm_eval_cdf(x_val, mean_vec, var_vec, weights_vec, quant_val));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rootmixt
+double rootmixt(double d_o_f, double a, double b, std::vector<double> mean_vec, std::vector<double> var_vec, std::vector<double> weights_vec, double quant_val, double root_alg_precision);
+RcppExport SEXP _safeBart_rootmixt(SEXP d_o_fSEXP, SEXP aSEXP, SEXP bSEXP, SEXP mean_vecSEXP, SEXP var_vecSEXP, SEXP weights_vecSEXP, SEXP quant_valSEXP, SEXP root_alg_precisionSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type d_o_f(d_o_fSEXP);
+    Rcpp::traits::input_parameter< double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< double >::type b(bSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type mean_vec(mean_vecSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type var_vec(var_vecSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type weights_vec(weights_vecSEXP);
+    Rcpp::traits::input_parameter< double >::type quant_val(quant_valSEXP);
+    Rcpp::traits::input_parameter< double >::type root_alg_precision(root_alg_precisionSEXP);
+    rcpp_result_gen = Rcpp::wrap(rootmixt(d_o_f, a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rootmixnorm
+double rootmixnorm(double a, double b, std::vector<double> mean_vec, std::vector<double> var_vec, std::vector<double> weights_vec, double quant_val, double root_alg_precision);
+RcppExport SEXP _safeBart_rootmixnorm(SEXP aSEXP, SEXP bSEXP, SEXP mean_vecSEXP, SEXP var_vecSEXP, SEXP weights_vecSEXP, SEXP quant_valSEXP, SEXP root_alg_precisionSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< double >::type b(bSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type mean_vec(mean_vecSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type var_vec(var_vecSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type weights_vec(weights_vecSEXP);
+    Rcpp::traits::input_parameter< double >::type quant_val(quant_valSEXP);
+    Rcpp::traits::input_parameter< double >::type root_alg_precision(root_alg_precisionSEXP);
+    rcpp_result_gen = Rcpp::wrap(rootmixnorm(a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Tobit_BART_IS
+List Tobit_BART_IS(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, double beta_par, NumericMatrix test_datamat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART, int s_t_hyperprior, double p_s_t, double a_s_t, double b_s_t, double lambda_poisson, int fast_approx, double lower_prob, double upper_prob, double root_alg_precision, int maxit, double eps_f, double eps_g, double below_cens2);
+RcppExport SEXP _safeBart_Tobit_BART_IS(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP, SEXP s_t_hyperpriorSEXP, SEXP p_s_tSEXP, SEXP a_s_tSEXP, SEXP b_s_tSEXP, SEXP lambda_poissonSEXP, SEXP fast_approxSEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP maxitSEXP, SEXP eps_fSEXP, SEXP eps_gSEXP, SEXP below_cens2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< int >::type num_models(num_modelsSEXP);
+    Rcpp::traits::input_parameter< int >::type num_trees(num_treesSEXP);
+    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type ytrain(ytrainSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type original_datamat(original_datamatSEXP);
+    Rcpp::traits::input_parameter< double >::type beta_par(beta_parSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type test_datamat(test_datamatSEXP);
+    Rcpp::traits::input_parameter< int >::type ncores(ncoresSEXP);
+    Rcpp::traits::input_parameter< int >::type outsamppreds(outsamppredsSEXP);
+    Rcpp::traits::input_parameter< double >::type nu(nuSEXP);
+    Rcpp::traits::input_parameter< double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< double >::type lambdaBART(lambdaBARTSEXP);
+    Rcpp::traits::input_parameter< int >::type valid_trees(valid_treesSEXP);
+    Rcpp::traits::input_parameter< int >::type tree_prior(tree_priorSEXP);
+    Rcpp::traits::input_parameter< int >::type imp_sampler(imp_samplerSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha_BART(alpha_BARTSEXP);
+    Rcpp::traits::input_parameter< double >::type beta_BART(beta_BARTSEXP);
+    Rcpp::traits::input_parameter< int >::type s_t_hyperprior(s_t_hyperpriorSEXP);
+    Rcpp::traits::input_parameter< double >::type p_s_t(p_s_tSEXP);
+    Rcpp::traits::input_parameter< double >::type a_s_t(a_s_tSEXP);
+    Rcpp::traits::input_parameter< double >::type b_s_t(b_s_tSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda_poisson(lambda_poissonSEXP);
+    Rcpp::traits::input_parameter< int >::type fast_approx(fast_approxSEXP);
+    Rcpp::traits::input_parameter< double >::type lower_prob(lower_probSEXP);
+    Rcpp::traits::input_parameter< double >::type upper_prob(upper_probSEXP);
+    Rcpp::traits::input_parameter< double >::type root_alg_precision(root_alg_precisionSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    Rcpp::traits::input_parameter< double >::type eps_f(eps_fSEXP);
+    Rcpp::traits::input_parameter< double >::type eps_g(eps_gSEXP);
+    Rcpp::traits::input_parameter< double >::type below_cens2(below_cens2SEXP);
+    rcpp_result_gen = Rcpp::wrap(Tobit_BART_IS(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, maxit, eps_f, eps_g, below_cens2));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_safeBart_get_imp_vars", (DL_FUNC) &_safeBart_get_imp_vars, 3},
     {"_safeBart_get_weighted_var_imp", (DL_FUNC) &_safeBart_get_weighted_var_imp, 3},
-    {"_safeBart_cpptrans_cdf", (DL_FUNC) &_safeBart_cpptrans_cdf, 1},
-    {"_safeBart_cpptrans_cdf_test", (DL_FUNC) &_safeBart_cpptrans_cdf_test, 2},
-    {"_safeBart_scale_response", (DL_FUNC) &_safeBart_scale_response, 5},
-    {"_safeBart_get_original", (DL_FUNC) &_safeBart_get_original, 5},
-    {"_safeBart_get_original_arma", (DL_FUNC) &_safeBart_get_original_arma, 5},
-    {"_safeBart_get_original_TE", (DL_FUNC) &_safeBart_get_original_TE, 5},
-    {"_safeBart_get_original_TE_double", (DL_FUNC) &_safeBart_get_original_TE_double, 5},
-    {"_safeBart_get_original_TE_arma", (DL_FUNC) &_safeBart_get_original_TE_arma, 5},
-    {"_safeBart_unfold", (DL_FUNC) &_safeBart_unfold, 3},
-    {"_safeBart_fold", (DL_FUNC) &_safeBart_fold, 3},
-    {"_safeBart_dyck_path", (DL_FUNC) &_safeBart_dyck_path, 2},
-    {"_safeBart_wrapper_dyck_path", (DL_FUNC) &_safeBart_wrapper_dyck_path, 1},
-    {"_safeBart_find_term_nodes", (DL_FUNC) &_safeBart_find_term_nodes, 1},
-    {"_safeBart_find_term_nodes2", (DL_FUNC) &_safeBart_find_term_nodes2, 1},
-    {"_safeBart_get_treepreds", (DL_FUNC) &_safeBart_get_treepreds, 5},
-    {"_safeBart_get_treelist", (DL_FUNC) &_safeBart_get_treelist, 6},
-    {"_safeBart_get_test_probs", (DL_FUNC) &_safeBart_get_test_probs, 4},
-    {"_safeBart_get_test_prob_overall", (DL_FUNC) &_safeBart_get_test_prob_overall, 4},
-    {"_safeBart_draw_trees", (DL_FUNC) &_safeBart_draw_trees, 5},
-    {"_safeBart_secondKindStirlingNumber", (DL_FUNC) &_safeBart_secondKindStirlingNumber, 2},
-    {"_safeBart_mixt_eval_cdf", (DL_FUNC) &_safeBart_mixt_eval_cdf, 6},
-    {"_safeBart_mixnorm_eval_cdf", (DL_FUNC) &_safeBart_mixnorm_eval_cdf, 5},
-    {"_safeBart_rootmixt", (DL_FUNC) &_safeBart_rootmixt, 8},
-    {"_safeBart_rootmixnorm", (DL_FUNC) &_safeBart_rootmixnorm, 7},
-    {"_safeBart_sBayesRF", (DL_FUNC) &_safeBart_sBayesRF, 9},
-    {"_safeBart_sBayesRF_onefunc", (DL_FUNC) &_safeBart_sBayesRF_onefunc, 9},
-    {"_safeBart_sBayesRF_onefunc_arma", (DL_FUNC) &_safeBart_sBayesRF_onefunc_arma, 9},
     {"_safeBart_sBART_onefunc_parallel", (DL_FUNC) &_safeBart_sBART_onefunc_parallel, 24},
     {"_safeBart_sBCF_onefunc_parallel", (DL_FUNC) &_safeBart_sBCF_onefunc_parallel, 29},
     {"_safeBart_sBART_with_ints_parallel", (DL_FUNC) &_safeBart_sBART_with_ints_parallel, 27},
@@ -996,10 +798,23 @@ static const R_CallMethodDef CallEntries[] = {
     {"_safeBart_sBCF_train", (DL_FUNC) &_safeBart_sBCF_train, 32},
     {"_safeBart_sBCF_train_no_test_no_output", (DL_FUNC) &_safeBart_sBCF_train_no_test_no_output, 30},
     {"_safeBart_sBART_ITEs_with_ints", (DL_FUNC) &_safeBart_sBART_ITEs_with_ints, 31},
-    {"_safeBart_example_cast_arma", (DL_FUNC) &_safeBart_example_cast_arma, 1},
     {"_safeBart_LBART_IS", (DL_FUNC) &_safeBart_LBART_IS, 30},
     {"_safeBart_LBART_IS_ITEs", (DL_FUNC) &_safeBart_LBART_IS_ITEs, 36},
     {"_safeBart_LBCF_IS", (DL_FUNC) &_safeBart_LBCF_IS, 37},
+    {"_safeBart_scale_response", (DL_FUNC) &_safeBart_scale_response, 5},
+    {"_safeBart_get_original", (DL_FUNC) &_safeBart_get_original, 5},
+    {"_safeBart_get_original_arma", (DL_FUNC) &_safeBart_get_original_arma, 5},
+    {"_safeBart_get_original_TE", (DL_FUNC) &_safeBart_get_original_TE, 5},
+    {"_safeBart_get_original_TE_double", (DL_FUNC) &_safeBart_get_original_TE_double, 5},
+    {"_safeBart_get_original_TE_arma", (DL_FUNC) &_safeBart_get_original_TE_arma, 5},
+    {"_safeBart_find_term_nodes", (DL_FUNC) &_safeBart_find_term_nodes, 1},
+    {"_safeBart_find_term_nodes2", (DL_FUNC) &_safeBart_find_term_nodes2, 1},
+    {"_safeBart_secondKindStirlingNumber", (DL_FUNC) &_safeBart_secondKindStirlingNumber, 2},
+    {"_safeBart_mixt_eval_cdf", (DL_FUNC) &_safeBart_mixt_eval_cdf, 6},
+    {"_safeBart_mixnorm_eval_cdf", (DL_FUNC) &_safeBart_mixnorm_eval_cdf, 5},
+    {"_safeBart_rootmixt", (DL_FUNC) &_safeBart_rootmixt, 8},
+    {"_safeBart_rootmixnorm", (DL_FUNC) &_safeBart_rootmixnorm, 7},
+    {"_safeBart_Tobit_BART_IS", (DL_FUNC) &_safeBart_Tobit_BART_IS, 31},
     {NULL, NULL, 0}
 };
 

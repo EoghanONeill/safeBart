@@ -9,151 +9,6 @@ get_weighted_var_imp <- function(num_vars, BIC, sum_trees) {
     .Call(`_safeBart_get_weighted_var_imp`, num_vars, BIC, sum_trees)
 }
 
-#' @export
-cpptrans_cdf <- function(originaldata) {
-    .Call(`_safeBart_cpptrans_cdf`, originaldata)
-}
-
-cpptrans_cdf_test <- function(originaldata, testdata) {
-    .Call(`_safeBart_cpptrans_cdf_test`, originaldata, testdata)
-}
-
-scale_response <- function(a, b, c, d, y) {
-    .Call(`_safeBart_scale_response`, a, b, c, d, y)
-}
-
-get_original <- function(low, high, sp_low, sp_high, sum_preds) {
-    .Call(`_safeBart_get_original`, low, high, sp_low, sp_high, sum_preds)
-}
-
-get_original_arma <- function(low, high, sp_low, sp_high, sum_preds) {
-    .Call(`_safeBart_get_original_arma`, low, high, sp_low, sp_high, sum_preds)
-}
-
-get_original_TE <- function(low, high, sp_low, sp_high, sum_preds) {
-    .Call(`_safeBart_get_original_TE`, low, high, sp_low, sp_high, sum_preds)
-}
-
-get_original_TE_double <- function(low, high, sp_low, sp_high, sum_preds) {
-    .Call(`_safeBart_get_original_TE_double`, low, high, sp_low, sp_high, sum_preds)
-}
-
-get_original_TE_arma <- function(low, high, sp_low, sp_high, sum_preds) {
-    .Call(`_safeBart_get_original_TE_arma`, low, high, sp_low, sp_high, sum_preds)
-}
-
-unfold <- function(p_ind, output_dyck, length) {
-    .Call(`_safeBart_unfold`, p_ind, output_dyck, length)
-}
-
-fold <- function(output_dyck, length, height) {
-    invisible(.Call(`_safeBart_fold`, output_dyck, length, height))
-}
-
-dyck_path <- function(output_dyck, length) {
-    invisible(.Call(`_safeBart_dyck_path`, output_dyck, length))
-}
-
-#' @description Test draw of trees of given length
-#' @export
-wrapper_dyck_path <- function(length) {
-    .Call(`_safeBart_wrapper_dyck_path`, length)
-}
-
-find_term_nodes <- function(tree_table) {
-    .Call(`_safeBart_find_term_nodes`, tree_table)
-}
-
-find_term_nodes2 <- function(tree_table) {
-    .Call(`_safeBart_find_term_nodes2`, tree_table)
-}
-
-get_treepreds <- function(original_y, num_cats, alpha_pars, originaldata, treetable) {
-    .Call(`_safeBart_get_treepreds`, original_y, num_cats, alpha_pars, originaldata, treetable)
-}
-
-#' @title For a set of trees, obtain tree matrices with predictions, and obtain model weights
-#' @export
-get_treelist <- function(original_y, num_cats, alpha_pars, beta_pow, originaldata, treetable_list) {
-    .Call(`_safeBart_get_treelist`, original_y, num_cats, alpha_pars, beta_pow, originaldata, treetable_list)
-}
-
-get_test_probs <- function(weights, num_cats, testdata, treetable) {
-    .Call(`_safeBart_get_test_probs`, weights, num_cats, testdata, treetable)
-}
-
-#' @title Given tree tables and model weights, obtain predicted probabilities for test data.
-#' @export
-get_test_prob_overall <- function(weights, num_cats, testdata, treetable_list) {
-    .Call(`_safeBart_get_test_prob_overall`, weights, num_cats, testdata, treetable_list)
-}
-
-#' @title Draw a set of trees from the prior.
-#' @export
-draw_trees <- function(lambda, num_trees, seed, num_split_vars, num_cats) {
-    .Call(`_safeBart_draw_trees`, lambda, num_trees, seed, num_split_vars, num_cats)
-}
-
-secondKindStirlingNumber <- function(n, k) {
-    .Call(`_safeBart_secondKindStirlingNumber`, n, k)
-}
-
-mixt_eval_cdf <- function(x_val, d_o_f, mean_vec, var_vec, weights_vec, quant_val) {
-    .Call(`_safeBart_mixt_eval_cdf`, x_val, d_o_f, mean_vec, var_vec, weights_vec, quant_val)
-}
-
-mixnorm_eval_cdf <- function(x_val, mean_vec, var_vec, weights_vec, quant_val) {
-    .Call(`_safeBart_mixnorm_eval_cdf`, x_val, mean_vec, var_vec, weights_vec, quant_val)
-}
-
-rootmixt <- function(d_o_f, a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision) {
-    .Call(`_safeBart_rootmixt`, d_o_f, a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision)
-}
-
-rootmixnorm <- function(a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision) {
-    .Call(`_safeBart_rootmixnorm`, a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision)
-}
-
-#' @title Safe-Bayesian Random Forest. Initial test function.
-#' @export
-sBayesRF <- function(lambda, num_trees, seed, num_cats, y, original_datamat, alpha_parameters, beta_par, test_datamat) {
-    .Call(`_safeBart_sBayesRF`, lambda, num_trees, seed, num_cats, y, original_datamat, alpha_parameters, beta_par, test_datamat)
-}
-
-#' @title Safe-Bayesian Random Forest
-#'
-#' @description An implementation of the Safe-Bayesian Random Forest described by Quadrianto and Ghahramani (2015)
-#' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
-#' @param num_trees The number of trees to be sampled.
-#' @param seed The seed for random number generation.
-#' @param num_cats The number of possible values for the outcome variable.
-#' @param y The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.
-#' @param original_datamat The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.
-#' @param alpha_parameters Vector of prior parameters.
-#' @param beta_par The power to which the likelihood is to be raised. For BMA, set beta_par=1.
-#' @param original_datamat The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.
-#' @export
-sBayesRF_onefunc <- function(lambda, num_trees, seed, num_cats, y, original_datamat, alpha_parameters, beta_par, test_datamat) {
-    .Call(`_safeBart_sBayesRF_onefunc`, lambda, num_trees, seed, num_cats, y, original_datamat, alpha_parameters, beta_par, test_datamat)
-}
-
-#' @title Safe-Bayesian Random Forest in C++
-#'
-#' @description An implementation of the Safe-Bayesian Random Forest described by Quadrianto and Ghahramani (2015)
-#' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
-#' @param num_trees The number of trees to be sampled.
-#' @param seed The seed for random number generation.
-#' @param num_cats The number of possible values for the outcome variable.
-#' @param y The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.
-#' @param original_datamat The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.
-#' @param alpha_parameters Vector of prior parameters.
-#' @param beta_par The power to which the likelihood is to be raised. For BMA, set beta_par=1.
-#' @param original_datamat The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.
-#' @export
-sBayesRF_onefunc_arma <- function(lambda, num_trees, seed, num_cats, y, original_datamat, alpha_parameters, beta_par, test_datamat) {
-    .Call(`_safeBart_sBayesRF_onefunc_arma`, lambda, num_trees, seed, num_cats, y, original_datamat, alpha_parameters, beta_par, test_datamat)
-}
-
 #' @title Parallel Safe-BART
 #'
 #' @description A parallelized implementation of safe-Bayesian Additive Regression Trees
@@ -333,10 +188,6 @@ sBART_ITEs_with_ints <- function(lambda, num_models, num_trees, seed, ytrain, or
     .Call(`_safeBart_sBART_ITEs_with_ints`, lambda, num_models, num_trees, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision)
 }
 
-example_cast_arma <- function(eigen_A) {
-    .Call(`_safeBart_example_cast_arma`, eigen_A)
-}
-
 #' @title Parallel Logit-BART-IS with prediction intervals
 #'
 #' @description A parallelized implementation of Logit Bayesian Additive Regression Trees using importance sampling of models.
@@ -401,5 +252,79 @@ LBART_IS_ITEs <- function(lambda, num_models, num_trees, seed, ytrain, original_
 #' @export
 LBCF_IS <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, maxit, eps_f, eps_g, num_iter, include_cate_intervals) {
     .Call(`_safeBart_LBCF_IS`, lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, maxit, eps_f, eps_g, num_iter, include_cate_intervals)
+}
+
+scale_response <- function(a, b, c, d, y) {
+    .Call(`_safeBart_scale_response`, a, b, c, d, y)
+}
+
+get_original <- function(low, high, sp_low, sp_high, sum_preds) {
+    .Call(`_safeBart_get_original`, low, high, sp_low, sp_high, sum_preds)
+}
+
+get_original_arma <- function(low, high, sp_low, sp_high, sum_preds) {
+    .Call(`_safeBart_get_original_arma`, low, high, sp_low, sp_high, sum_preds)
+}
+
+get_original_TE <- function(low, high, sp_low, sp_high, sum_preds) {
+    .Call(`_safeBart_get_original_TE`, low, high, sp_low, sp_high, sum_preds)
+}
+
+get_original_TE_double <- function(low, high, sp_low, sp_high, sum_preds) {
+    .Call(`_safeBart_get_original_TE_double`, low, high, sp_low, sp_high, sum_preds)
+}
+
+get_original_TE_arma <- function(low, high, sp_low, sp_high, sum_preds) {
+    .Call(`_safeBart_get_original_TE_arma`, low, high, sp_low, sp_high, sum_preds)
+}
+
+find_term_nodes <- function(tree_table) {
+    .Call(`_safeBart_find_term_nodes`, tree_table)
+}
+
+find_term_nodes2 <- function(tree_table) {
+    .Call(`_safeBart_find_term_nodes2`, tree_table)
+}
+
+secondKindStirlingNumber <- function(n, k) {
+    .Call(`_safeBart_secondKindStirlingNumber`, n, k)
+}
+
+mixt_eval_cdf <- function(x_val, d_o_f, mean_vec, var_vec, weights_vec, quant_val) {
+    .Call(`_safeBart_mixt_eval_cdf`, x_val, d_o_f, mean_vec, var_vec, weights_vec, quant_val)
+}
+
+mixnorm_eval_cdf <- function(x_val, mean_vec, var_vec, weights_vec, quant_val) {
+    .Call(`_safeBart_mixnorm_eval_cdf`, x_val, mean_vec, var_vec, weights_vec, quant_val)
+}
+
+rootmixt <- function(d_o_f, a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision) {
+    .Call(`_safeBart_rootmixt`, d_o_f, a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision)
+}
+
+rootmixnorm <- function(a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision) {
+    .Call(`_safeBart_rootmixnorm`, a, b, mean_vec, var_vec, weights_vec, quant_val, root_alg_precision)
+}
+
+#' @title Parallel Logit-BART-IS with prediction intervals
+#'
+#' @description A parallelized implementation of Logit Bayesian Additive Regression Trees using importance sampling of models.
+#' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
+#' @param num_trees The number of trees to be sampled.
+#' @param seed The seed for random number generation.
+#' @param num_cats The number of possible values for the outcome variable.
+#' @param y The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.
+#' @param original_datamat The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.
+#' @param alpha_parameters Vector of prior parameters.
+#' @param beta_par The power to which the likelihood is to be raised. For BMA, set beta_par=1.
+#' @param original_datamat The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.
+#' @param ncores The number of cores to be used in parallelization.
+#' @param maxit Maximum number of iterations for the quasi-Newton algorithm that finds the MAP estimate for each model (required for Laplace approximation).
+#' @param eps_f Parameter for MAP algorithm stopping criterion. Iteration stops if |f-f'|/|f|<eps_f, where f and f' are the current and previous value of the objective function (negative log likelihood) respectively.
+#' @param eps_g Parameter for MAP algorithm stopping criterion. Iteration stops if ||g|| < eps_g * max(1, ||beta||), where beta is the current coefficient vector and g is the gradient.
+#' @return A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.
+#' @export
+Tobit_BART_IS <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, maxit, eps_f, eps_g, below_cens2) {
+    .Call(`_safeBart_Tobit_BART_IS`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, maxit, eps_f, eps_g, below_cens2)
 }
 
