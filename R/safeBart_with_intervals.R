@@ -141,7 +141,9 @@ safeBart_with_intervals <- function(seed,
                                      root_alg_precision)
 
   names(sBARToutput) <- c("Predictions",
-                          "Intervals")
+                          "Intervals",
+                          "model_probs",
+                          "insamp_preds")
 
   sBARToutput
 }

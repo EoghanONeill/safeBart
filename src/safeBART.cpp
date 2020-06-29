@@ -177,7 +177,7 @@ NumericVector sBART_onefunc_parallel(double lambda,
       ans(ind) = j;     // j is the 1-based index of the lower bound
     }
 
-    arma_test_data.col(k)=(ans)/nobsref;
+    arma_test_data.col(k)=(ans+1)/nobsref;
 
   }
 
@@ -5226,7 +5226,7 @@ List sBART_with_ints_parallel(double lambda,
       ans(ind) = j;     // j is the 1-based index of the lower bound
     }
 
-    arma_test_data.col(k)=(ans)/nobsref;
+    arma_test_data.col(k)=(ans+1)/nobsref;
 
   }
 
@@ -5310,6 +5310,7 @@ List sBART_with_ints_parallel(double lambda,
 
   arma::vec pred_vec_overall=arma::zeros<arma::vec>(arma_test_data.n_rows);
 
+  arma::vec pred_vec_overall2=arma::zeros<arma::vec>(arma_orig_data.n_rows);
 
   //arma::field<arma::mat> overall_treetables(num_models);
 
@@ -5320,6 +5321,7 @@ List sBART_with_ints_parallel(double lambda,
   arma::mat overall_preds(num_test_obs,num_models);
   arma::mat t_vars_arma(num_test_obs,num_models);
 
+  arma::mat overall_preds2(num_obs,num_models);
 
   //overall_treetables[i]= wrap(tree_table1);
   //double templik = as<double>(treepred_output[1]);
@@ -7145,6 +7147,8 @@ List sBART_with_ints_parallel(double lambda,
 
       overall_preds.col(j)=preds_temp_arma;
 
+      arma::vec preds_temp_arma2= Wmat*sec_term_inv*third_term;
+      overall_preds2.col(j)=preds_temp_arma2;
 
 
       arma::mat temp_for_scal = ((nu*lambdaBART+yty-mvm)/(nu+num_obs));
@@ -7263,6 +7267,20 @@ List sBART_with_ints_parallel(double lambda,
 #pragma omp critical
   pred_vec_overall += result_private;
 }
+
+
+///////////////////
+
+#pragma omp parallel num_threads(ncores)
+{
+  arma::vec result_private=arma::zeros<arma::vec>(arma_orig_data.n_rows);
+#pragma omp for nowait //fill result_private in parallel
+  for(unsigned int i=0; i<overall_preds2.n_cols; i++) result_private += overall_preds2.col(i)*weighted_lik(i);
+#pragma omp critical
+  pred_vec_overall2 += result_private;
+}
+
+
 
 
 //double sumlik_total= arma::sum(overall_liks);
@@ -7387,13 +7405,16 @@ for(unsigned int i=0;i<output.n_cols;i++){
 //Rcout << "Line 4042. \n";
 NumericVector orig_preds=get_original(min(ytrain),max(ytrain),-0.5,0.5,wrap(pred_vec_overall)) ;
 
+NumericVector orig_preds2=get_original(min(ytrain),max(ytrain),-0.5,0.5,wrap(pred_vec_overall2)) ;
+
 //return(orig_preds);
 
 
-List ret(2);
+List ret(4);
 ret[0]= orig_preds;
 ret[1]= wrap(output_rescaled);
-
+ret[2]= wrap(weighted_lik);
+ret[3]= wrap(orig_preds2);
 
 return(ret);
 
@@ -7581,7 +7602,7 @@ List BARTIS_train(double lambda,
       ans(ind) = j;     // j is the 1-based index of the lower bound
     }
 
-    arma_test_data.col(k)=(ans)/nobsref;
+    arma_test_data.col(k)=(ans+1)/nobsref;
 
   }
 
@@ -25769,7 +25790,7 @@ List LBART_IS(double lambda,
       ans(ind) = j;     // j is the 1-based index of the lower bound
     }
 
-    arma_test_data.col(k)=(ans)/nobsref;
+    arma_test_data.col(k)=(ans+1)/nobsref;
 
   }
 

@@ -4076,7 +4076,7 @@ List Tobit_BART_IS(double lambda,
       ans(ind) = j;     // j is the 1-based index of the lower bound
     }
 
-    arma_test_data.col(k)=(ans)/nobsref;
+    arma_test_data.col(k)=(ans+1)/nobsref;
 
   }
 
