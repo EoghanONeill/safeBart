@@ -2424,24 +2424,42 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
   arma::mat x_moderate_test_a(T1.n_rows,T1.n_cols);
   arma::mat pihat_a_test(pihat_1_test.n_rows,pihat_1_test.n_cols);
 
+
   if(is_test_data==1){
     //THIS CAN BE PARALLELIZED IF THERE ARE MANY VARIABLES
     arma::mat x_control_a_test_temp(T1.n_rows,T1.n_cols);
 
     for(unsigned int k=0; k<T1.n_cols;k++){
+      arma::vec ref= D1.col(k);
+
       arma::vec samp= T1.col(k);
+
+      arma::vec sref=arma::sort(ref);
       arma::vec sv=arma::sort(samp);
+
+
       //std::sort(sv.begin(), sv.end());
       arma::uvec ord = arma::sort_index(samp);
       double nobs = samp.n_elem;
+      double nobsref = ref.n_elem;
+
       arma::vec ans(nobs);
       for (unsigned int i = 0, j = 0; i < nobs; ++i) {
         int ind=ord(i);
         double ssampi(samp[ind]);
-        while (sv(j) < ssampi && j < sv.size()) ++j;
-        ans(ind) = j;     // j is the 1-based index of the lower bound
+
+        if(j+1>sref.size()){
+        }else{
+          while (sref(j) < ssampi && j < sref.size()){
+            ++j;
+            if(j==sref.size()) break;
+          }
+        }
+
+        //while (sv(j) < ssampi && j < sv.size()) ++j;
+        //ans(ind) = j;     // j is the 1-based index of the lower bound
       }
-      x_control_a_test_temp.col(k)=(ans+1)/nobs;
+      x_control_a_test_temp.col(k)=(ans+1)/nobsref;
     }
 
     arma::mat x_control_test_a=x_control_a_test_temp;			// create arma mat copy of x_control_a_temp.
@@ -2451,20 +2469,40 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
     if(PIT_propensity==1){
       //THIS CAN BE PARALLELIZED IF THERE ARE MANY VARIABLES
       for(unsigned int k=0; k<pihat_1_test.n_cols;k++){
+        arma::vec ref= pihat_1.col(k);
+
         arma::vec samp= pihat_1_test.col(k);
+
+        arma::vec sref=arma::sort(ref);
+
         arma::vec sv=arma::sort(samp);
         //std::sort(sv.begin(), sv.end());
         arma::uvec ord = arma::sort_index(samp);
         double nobs = samp.n_elem;
+
+        double nobsref = ref.n_elem;
+
         arma::vec ans(nobs);
+
         for (unsigned int i = 0, j = 0; i < nobs; ++i) {
           int ind=ord(i);
           double ssampi(samp[ind]);
-          while (sv(j) < ssampi && j < sv.size()) ++j;
-          ans(ind) = j;     // j is the 1-based index of the lower bound
+
+          if(j+1>sref.size()){
+          }else{
+            while (sref(j) < ssampi && j < sref.size()){
+              ++j;
+              if(j==sref.size()) break;
+            }
+          }
+
+          //while (sv(j) < ssampi && j < sv.size()) ++j;
+          //ans(ind) = j;     // j is the 1-based index of the lower bound
         }
-        pihat_a_test.col(k)=(ans+1)/nobs;
+
+        pihat_a_test.col(k)=(ans+1)/nobsref;
       }
+
     }else{
       pihat_a_test=pihat_1_test;
     }
@@ -2479,7 +2517,6 @@ NumericVector sBCF_onefunc_parallel(double lambda_mu,
       x_control_test_a.insert_cols(0,pihat_a_test);		// add propensity scores as new leftmost columns of x_control_test_a
     }
   }
-
 
   //NumericMatrix x_control_test=wrap(x_control_test_a);	// convert x_control_test_a to a NumericMatrix called x_control_test
 
@@ -13204,19 +13241,36 @@ List sBCF_with_ints_parallel(double lambda_mu,
     arma::mat x_control_a_test_temp(T1.n_rows,T1.n_cols);
 
     for(unsigned int k=0; k<T1.n_cols;k++){
+      arma::vec ref= D1.col(k);
+
       arma::vec samp= T1.col(k);
+
+      arma::vec sref=arma::sort(ref);
       arma::vec sv=arma::sort(samp);
+
+
       //std::sort(sv.begin(), sv.end());
       arma::uvec ord = arma::sort_index(samp);
       double nobs = samp.n_elem;
+      double nobsref = ref.n_elem;
+
       arma::vec ans(nobs);
       for (unsigned int i = 0, j = 0; i < nobs; ++i) {
         int ind=ord(i);
         double ssampi(samp[ind]);
-        while (sv(j) < ssampi && j < sv.size()) ++j;
-        ans(ind) = j;     // j is the 1-based index of the lower bound
+
+        if(j+1>sref.size()){
+        }else{
+          while (sref(j) < ssampi && j < sref.size()){
+            ++j;
+            if(j==sref.size()) break;
+          }
+        }
+
+        //while (sv(j) < ssampi && j < sv.size()) ++j;
+        //ans(ind) = j;     // j is the 1-based index of the lower bound
       }
-      x_control_a_test_temp.col(k)=(ans+1)/nobs;
+      x_control_a_test_temp.col(k)=(ans+1)/nobsref;
     }
 
     arma::mat x_control_test_a=x_control_a_test_temp;			// create arma mat copy of x_control_a_temp.
@@ -13226,26 +13280,49 @@ List sBCF_with_ints_parallel(double lambda_mu,
     if(PIT_propensity==1){
       //THIS CAN BE PARALLELIZED IF THERE ARE MANY VARIABLES
       for(unsigned int k=0; k<pihat_1_test.n_cols;k++){
+        arma::vec ref= pihat_1.col(k);
+
         arma::vec samp= pihat_1_test.col(k);
+
+        arma::vec sref=arma::sort(ref);
+
         arma::vec sv=arma::sort(samp);
         //std::sort(sv.begin(), sv.end());
         arma::uvec ord = arma::sort_index(samp);
         double nobs = samp.n_elem;
+
+        double nobsref = ref.n_elem;
+
         arma::vec ans(nobs);
+
         for (unsigned int i = 0, j = 0; i < nobs; ++i) {
           int ind=ord(i);
           double ssampi(samp[ind]);
-          while (sv(j) < ssampi && j < sv.size()) ++j;
-          ans(ind) = j;     // j is the 1-based index of the lower bound
+
+          if(j+1>sref.size()){
+          }else{
+            while (sref(j) < ssampi && j < sref.size()){
+              ++j;
+              if(j==sref.size()) break;
+            }
+          }
+
+          //while (sv(j) < ssampi && j < sv.size()) ++j;
+          //ans(ind) = j;     // j is the 1-based index of the lower bound
         }
-        pihat_a_test.col(k)=(ans+1)/nobs;
+
+        pihat_a_test.col(k)=(ans+1)/nobsref;
       }
+
     }else{
       pihat_a_test=pihat_1_test;
     }
 
 
   }
+
+
+
 
 
 
@@ -16359,19 +16436,36 @@ List sBCF_train(double lambda_mu,
     arma::mat x_control_a_test_temp(T1.n_rows,T1.n_cols);
 
     for(unsigned int k=0; k<T1.n_cols;k++){
+      arma::vec ref= D1.col(k);
+
       arma::vec samp= T1.col(k);
+
+      arma::vec sref=arma::sort(ref);
       arma::vec sv=arma::sort(samp);
+
+
       //std::sort(sv.begin(), sv.end());
       arma::uvec ord = arma::sort_index(samp);
       double nobs = samp.n_elem;
+      double nobsref = ref.n_elem;
+
       arma::vec ans(nobs);
       for (unsigned int i = 0, j = 0; i < nobs; ++i) {
         int ind=ord(i);
         double ssampi(samp[ind]);
-        while (sv(j) < ssampi && j < sv.size()) ++j;
-        ans(ind) = j;     // j is the 1-based index of the lower bound
+
+        if(j+1>sref.size()){
+        }else{
+          while (sref(j) < ssampi && j < sref.size()){
+            ++j;
+            if(j==sref.size()) break;
+          }
+        }
+
+        //while (sv(j) < ssampi && j < sv.size()) ++j;
+        //ans(ind) = j;     // j is the 1-based index of the lower bound
       }
-      x_control_a_test_temp.col(k)=(ans+1)/nobs;
+      x_control_a_test_temp.col(k)=(ans+1)/nobsref;
     }
 
     arma::mat x_control_test_a=x_control_a_test_temp;			// create arma mat copy of x_control_a_temp.
@@ -16381,26 +16475,47 @@ List sBCF_train(double lambda_mu,
     if(PIT_propensity==1){
       //THIS CAN BE PARALLELIZED IF THERE ARE MANY VARIABLES
       for(unsigned int k=0; k<pihat_1_test.n_cols;k++){
+        arma::vec ref= pihat_1.col(k);
+
         arma::vec samp= pihat_1_test.col(k);
+
+        arma::vec sref=arma::sort(ref);
+
         arma::vec sv=arma::sort(samp);
         //std::sort(sv.begin(), sv.end());
         arma::uvec ord = arma::sort_index(samp);
         double nobs = samp.n_elem;
+
+        double nobsref = ref.n_elem;
+
         arma::vec ans(nobs);
+
         for (unsigned int i = 0, j = 0; i < nobs; ++i) {
           int ind=ord(i);
           double ssampi(samp[ind]);
-          while (sv(j) < ssampi && j < sv.size()) ++j;
-          ans(ind) = j;     // j is the 1-based index of the lower bound
+
+          if(j+1>sref.size()){
+          }else{
+            while (sref(j) < ssampi && j < sref.size()){
+              ++j;
+              if(j==sref.size()) break;
+            }
+          }
+
+          //while (sv(j) < ssampi && j < sv.size()) ++j;
+          //ans(ind) = j;     // j is the 1-based index of the lower bound
         }
-        pihat_a_test.col(k)=(ans+1)/nobs;
+
+        pihat_a_test.col(k)=(ans+1)/nobsref;
       }
+
     }else{
       pihat_a_test=pihat_1_test;
     }
 
 
   }
+
 
 
 
@@ -31890,19 +32005,36 @@ List LBCF_IS(double lambda_mu,
     arma::mat x_control_a_test_temp(T1.n_rows,T1.n_cols);
 
     for(unsigned int k=0; k<T1.n_cols;k++){
+      arma::vec ref= D1.col(k);
+
       arma::vec samp= T1.col(k);
+
+      arma::vec sref=arma::sort(ref);
       arma::vec sv=arma::sort(samp);
+
+
       //std::sort(sv.begin(), sv.end());
       arma::uvec ord = arma::sort_index(samp);
       double nobs = samp.n_elem;
+      double nobsref = ref.n_elem;
+
       arma::vec ans(nobs);
       for (unsigned int i = 0, j = 0; i < nobs; ++i) {
         int ind=ord(i);
         double ssampi(samp[ind]);
-        while (sv(j) < ssampi && j < sv.size()) ++j;
-        ans(ind) = j;     // j is the 1-based index of the lower bound
+
+        if(j+1>sref.size()){
+        }else{
+          while (sref(j) < ssampi && j < sref.size()){
+            ++j;
+            if(j==sref.size()) break;
+          }
+        }
+
+        //while (sv(j) < ssampi && j < sv.size()) ++j;
+        //ans(ind) = j;     // j is the 1-based index of the lower bound
       }
-      x_control_a_test_temp.col(k)=(ans+1)/nobs;
+      x_control_a_test_temp.col(k)=(ans+1)/nobsref;
     }
 
     arma::mat x_control_test_a=x_control_a_test_temp;			// create arma mat copy of x_control_a_temp.
@@ -31912,20 +32044,40 @@ List LBCF_IS(double lambda_mu,
     if(PIT_propensity==1){
       //THIS CAN BE PARALLELIZED IF THERE ARE MANY VARIABLES
       for(unsigned int k=0; k<pihat_1_test.n_cols;k++){
+        arma::vec ref= pihat_1.col(k);
+
         arma::vec samp= pihat_1_test.col(k);
+
+        arma::vec sref=arma::sort(ref);
+
         arma::vec sv=arma::sort(samp);
         //std::sort(sv.begin(), sv.end());
         arma::uvec ord = arma::sort_index(samp);
         double nobs = samp.n_elem;
+
+        double nobsref = ref.n_elem;
+
         arma::vec ans(nobs);
+
         for (unsigned int i = 0, j = 0; i < nobs; ++i) {
           int ind=ord(i);
           double ssampi(samp[ind]);
-          while (sv(j) < ssampi && j < sv.size()) ++j;
-          ans(ind) = j;     // j is the 1-based index of the lower bound
+
+          if(j+1>sref.size()){
+          }else{
+            while (sref(j) < ssampi && j < sref.size()){
+              ++j;
+              if(j==sref.size()) break;
+            }
+          }
+
+          //while (sv(j) < ssampi && j < sv.size()) ++j;
+          //ans(ind) = j;     // j is the 1-based index of the lower bound
         }
-        pihat_a_test.col(k)=(ans+1)/nobs;
+
+        pihat_a_test.col(k)=(ans+1)/nobsref;
       }
+
     }else{
       pihat_a_test=pihat_1_test;
     }
