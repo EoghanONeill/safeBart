@@ -83,8 +83,8 @@ train_BART_IS_no_output <- function(seed,
                                     a=3,
                                     sigquant=0.9,
                                     valid_trees=1,
-                                    tree_prior=0,
-                                    imp_sampler=0,
+                                    tree_prior=1,
+                                    imp_sampler=1,
                                     alpha_BART=0.95,
                                     beta_BART=2,
                                     s_t_hyperprior=1,
@@ -96,22 +96,22 @@ train_BART_IS_no_output <- function(seed,
                                     l_quant=0.025,
                                     u_quant=0.975,
                                     root_alg_precision=0.00001){
-  
+
   if(ncores>num_models ) stop("ncores > num_models")
-  
+
   sigma=sd(y)/(max(y)-min(y))
   qchi = qchisq(1.0-sigquant,nu,1,0);
   lambdaBART = (sigma*sigma*qchi)/nu;
-  
+
   if(is.vector(original_datamat) | is.factor(original_datamat)| is.data.frame(original_datamat)) original_datamat = as.matrix(original_datamat)
   #if(is.vector(test_datamat) | is.factor(test_datamat)| is.data.frame(test_datamat)) test_datamat = as.matrix(test_datamat)
-  
+
   if((!is.matrix(original_datamat))) stop("argument x.train must be a double matrix")
   #if((!is.matrix(test_datamat)) ) stop("argument x.test must be a double matrix")
-  
+
   if(nrow(original_datamat) != length(y)) stop("number of rows in x.train must equal length of y.train")
   #if((ncol(test_datamat)!=ncol(original_datamat))) stop("input x.test must have the same number of columns as x.train")
-  
+
   sBARToutput=BARTIS_train_no_test_no_output(lambda,
                                        num_models,
                                        num_trees,
@@ -138,22 +138,22 @@ train_BART_IS_no_output <- function(seed,
                                        l_quant,
                                        u_quant,
                                        root_alg_precision)
-  
+
   names(sBARToutput) <- c("model_probs",
                           "sumoftrees",
                           "ytrain",
                           "xtrain")
-  
-  
+
+
   sBARToutput$a <- a
   sBARToutput$lambdaBART <- lambdaBART
   sBARToutput$sigma <- sigma
   sBARToutput$nu <- nu
   sBARToutput$numvars <- ncol(original_datamat)
-  
-  
+
+
   sBARToutput
-  
-  
-  
+
+
+
 }
