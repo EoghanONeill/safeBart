@@ -35100,8 +35100,27 @@ List BART_MOTR_IS_cpp(double lambda,
       arma::uvec uniquesplitvars=arma::unique(split_var_vectemp)-1;
       //double q_temp=uniquesplitvars.n_elem;
 
+      //get matrix of original variables used as splitting points
+      //for linear part of model
       arma::mat temp_append_vars = arma_orig_data.cols(uniquesplitvars);
-      Wmat=join_rows(Wmat,temp_append_vars);
+
+      //Now interact the linear variables with terminal node indicators
+      //To give node specific linear model variables
+
+      //create a matrix in which to put the interactions
+      arma::mat temp_interac_mat(temp_append_vars.n_rows,
+                                 temp_append_vars.n_cols*Jmat.n_cols);
+      //w is used to index the columns of the interaction matrix
+      int w=0;
+      //loop over all possible interactions, creating columns
+      for(unsigned int u=0; u<temp_append_vars.n_cols; u++){
+        for(unsigned int v=0; v<Jmat.n_cols; v++){
+          temp_interac_mat.col(w)=temp_append_vars.col(u)%Jmat.col(v);
+          w++;
+        }
+      }
+
+      Wmat=join_rows(Wmat,temp_interac_mat);
 
       //or
       //Wmat.insert_cols(Wmat.n_cols,Jmat);
@@ -35116,7 +35135,25 @@ List BART_MOTR_IS_cpp(double lambda,
       W_tilde=join_rows(W_tilde,Jtilde);
 
       arma::mat temp_append_vars_test = arma_test_data.cols(uniquesplitvars);
-      W_tilde=join_rows(W_tilde,temp_append_vars_test);
+
+
+      arma::mat temp_interac_mat_test(temp_append_vars_test.n_rows,
+                                 temp_append_vars_test.n_cols*Jtilde.n_cols);
+      //w is used to index the columns of the interaction matrix
+      int wtest=0;
+      //loop over all possible interactions, creating columns
+      for(unsigned int u=0; u<temp_append_vars_test.n_cols; u++){
+        for(unsigned int v=0; v<Jtilde.n_cols; v++){
+          temp_interac_mat_test.col(wtest)=temp_append_vars_test.col(u)%Jtilde.col(v);
+          wtest++;
+        }
+      }
+
+      W_tilde=join_rows(W_tilde,temp_interac_mat_test);
+
+      //W_tilde=join_rows(W_tilde,temp_append_vars_test);
+
+
       //or
       //W_tilde.insert_cols(W_tilde.n_cols,Jtilde);
       //or
@@ -37511,7 +37548,26 @@ List BCF_MOTR_IS_cpp(double lambda_mu,
       //double q_temp=uniquesplitvars.n_elem;
 
       arma::mat temp_append_vars = x_control_a.cols(uniquesplitvars);
-      Wmat_mu=join_rows(Wmat_mu,temp_append_vars);
+
+      arma::mat temp_interac_mat(temp_append_vars.n_rows,
+                                 temp_append_vars.n_cols*Jmat.n_cols);
+      //w is used to index the columns of the interaction matrix
+      int w=0;
+      //loop over all possible interactions, creating columns
+      for(unsigned int u=0; u<temp_append_vars.n_cols; u++){
+        for(unsigned int v=0; v<Jmat.n_cols; v++){
+          temp_interac_mat.col(w)=temp_append_vars.col(u)%Jmat.col(v);
+          w++;
+        }
+      }
+
+      Wmat_mu=join_rows(Wmat_mu,temp_interac_mat);
+
+
+      //Wmat_mu=join_rows(Wmat_mu,temp_append_vars);
+
+
+
 
 
       //Obtain test W_tilde, i.e. W matrix for test data
@@ -37520,9 +37576,35 @@ List BCF_MOTR_IS_cpp(double lambda_mu,
         arma::uvec uniquesplitvars=arma::unique(split_var_vectemp)-1;
         //double q_temp=uniquesplitvars.n_elem;
 
-        arma::mat temp_append_vars = x_control_test_a.cols(uniquesplitvars);
-        W_tilde_mu=join_rows(W_tilde_mu,temp_append_vars);
+        arma::mat temp_append_vars_test = x_control_test_a.cols(uniquesplitvars);
+
+
+        arma::mat temp_interac_mat_test(temp_append_vars_test.n_rows,
+                                        temp_append_vars_test.n_cols*Jtilde.n_cols);
+        //w is used to index the columns of the interaction matrix
+        int wtest=0;
+        //loop over all possible interactions, creating columns
+        for(unsigned int u=0; u<temp_append_vars_test.n_cols; u++){
+          for(unsigned int v=0; v<Jtilde.n_cols; v++){
+            temp_interac_mat_test.col(wtest)=temp_append_vars_test.col(u)%Jtilde.col(v);
+            wtest++;
+          }
+        }
+
+        W_tilde_mu=join_rows(W_tilde_mu,temp_interac_mat_test);
+
+
+        //W_tilde_mu=join_rows(W_tilde_mu,temp_append_vars);
       }
+
+
+
+
+      ////////////////////////////////////////////////////////////////////
+
+      //////////////////////////////////////////////////////////////////////
+
+
 
       //or
       //W_tilde.insert_cols(W_tilde.n_cols,Jtilde);
@@ -38455,7 +38537,24 @@ List BCF_MOTR_IS_cpp(double lambda_mu,
       //double q_temp=uniquesplitvars.n_elem;
 
       arma::mat temp_append_vars = x_moderate_a.cols(uniquesplitvars);
-      Wmat_tau=join_rows(Wmat_tau,temp_append_vars);
+
+
+      arma::mat temp_interac_mat(temp_append_vars.n_rows,
+                                 temp_append_vars.n_cols*Jmat.n_cols);
+      //w is used to index the columns of the interaction matrix
+      int w=0;
+      //loop over all possible interactions, creating columns
+      for(unsigned int u=0; u<temp_append_vars.n_cols; u++){
+        for(unsigned int v=0; v<Jmat.n_cols; v++){
+          temp_interac_mat.col(w)=temp_append_vars.col(u)%Jmat.col(v);
+          w++;
+        }
+      }
+
+
+
+
+      Wmat_tau=join_rows(Wmat_tau,temp_interac_mat);
 
       //or
       //Wmat.insert_cols(Wmat.n_cols,Jmat);
@@ -38473,9 +38572,21 @@ List BCF_MOTR_IS_cpp(double lambda_mu,
         arma::uvec uniquesplitvars=arma::unique(split_var_vectemp)-1;
         //double q_temp=uniquesplitvars.n_elem;
 
-        arma::mat temp_append_vars = x_moderate_test_a.cols(uniquesplitvars);
+        arma::mat temp_append_vars_test = x_moderate_test_a.cols(uniquesplitvars);
 
-        W_tilde_tau=join_rows(W_tilde_tau,temp_append_vars);
+        arma::mat temp_interac_mat_test(temp_append_vars_test.n_rows,
+                                        temp_append_vars_test.n_cols*Jtilde.n_cols);
+        //w is used to index the columns of the interaction matrix
+        int wtest=0;
+        //loop over all possible interactions, creating columns
+        for(unsigned int u=0; u<temp_append_vars_test.n_cols; u++){
+          for(unsigned int v=0; v<Jtilde.n_cols; v++){
+            temp_interac_mat_test.col(wtest)=temp_append_vars_test.col(u)%Jtilde.col(v);
+            wtest++;
+          }
+        }
+
+        W_tilde_tau=join_rows(W_tilde_tau,temp_interac_mat_test);
       }
 
 
