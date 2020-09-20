@@ -147,5 +147,7 @@ train_BART_IS <- function(seed,
                           "xtrain",
                           "model_probs")
 
+  sBARToutput$numvars = ncol(original_datamat)
+
   sBARToutput
 }

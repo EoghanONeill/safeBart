@@ -145,5 +145,7 @@ safeBart_with_intervals <- function(seed,
                           "model_probs",
                           "insamp_preds")
 
+  sBARToutput$numvars = ncol(original_datamat)
+
   sBARToutput
 }
