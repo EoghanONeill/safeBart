@@ -17,6 +17,8 @@
 #' @param alpha_BART The alpha parameter for the standard BART prior.
 #' @param beta_BART The beta parameter for the standard BART prior.
 #' @param fast_approx If equal to 1, use an approximate BIC weighted average and do not invert matrices for each model (should also use SVD).
+#' @param sis_sampling If equal to 1, then initially use probabilities determined by sure independence screening as described by Fan and Lv (JRSSb 2008) instead of uniform probabilities.
+#' @param reweight_splits If equal to 1, multiply the marginal likelihood by the prior splitting probability (1/num_vars) divided by the BAS splitting probability for each splitting point.
 #' @return A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
 #' @useDynLib safeBart, .registration = TRUE
 #' @importFrom Rcpp evalCpp
@@ -95,7 +97,9 @@ train_BART_IS_no_output <- function(seed,
                                     fast_approx=0,
                                     l_quant=0.025,
                                     u_quant=0.975,
-                                    root_alg_precision=0.00001){
+                                    root_alg_precision=0.00001,
+                                    sis_sampling = 0,
+                                    reweight_splits = 0){
 
   if(ncores>num_models ) stop("ncores > num_models")
 
@@ -137,7 +141,9 @@ train_BART_IS_no_output <- function(seed,
                                        fast_approx,
                                        l_quant,
                                        u_quant,
-                                       root_alg_precision)
+                                       root_alg_precision,
+                                       sis_sampling,
+                                       reweight_splits)
 
   names(sBARToutput) <- c("model_probs",
                           "sumoftrees",

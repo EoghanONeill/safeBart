@@ -16,7 +16,14 @@
 #' @param imp_sampler Importance sampler for trees. 1 = BART prior, 2= spike-and-tree, otherwise default prior by Novi and Quandrianto
 #' @param alpha_BART The alpha parameter for the standard BART prior.
 #' @param beta_BART The beta parameter for the standard BART prior.
+#' @param s_t_hyperprior If equals 1, then a beta distribution hyperprior is placed on the variable inclusion probabilities for the spike and tree prior. The hyperprior parameters are a_s_t and b_s_t.
+#' @param p_s_t If s_t_hyperprior=0, then p_s_t is the prior variable inclusion probability.
+#' @param a_s_t If s_t_hyperprior=1, then a_s_t is a parameter of a beta distribution hyperprior.
+#' @param b_s_t If s_t_hyperprior=1, then b_s_t is a parameter of a beta distribution hyperprior.
+#' @param lambda_poisson This is a parameter for the Spike-and-Tree prior. It is the parameter for the (truncated and conditional on the number of splitting variables) Poisson prior on the number of terminal nodes.
 #' @param fast_approx If equal to 1, use an approximate BIC weighted average and do not invert matrices for each model (should also use SVD).
+#' @param sis_sampling If equal to 1, then initially use probabilities determined by sure independence screening as described by Fan and Lv (JRSSb 2008) instead of uniform probabilities.
+#' @param reweight_splits If equal to 1, multiply the marginal likelihood by the prior splitting probability (1/num_vars) divided by the BAS splitting probability for each splitting point.
 #' @return A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
 #' @useDynLib safeBart, .registration = TRUE
 #' @importFrom Rcpp evalCpp
@@ -95,7 +102,9 @@ safeBart_with_intervals <- function(seed,
                               fast_approx=0,
                               l_quant=0.025,
                               u_quant=0.975,
-                              root_alg_precision=0.00001){
+                              root_alg_precision=0.00001,
+                              sis_sampling = 0,
+                              reweight_splits = 0){
 
   if(ncores>num_models ) stop("ncores > num_models")
 
@@ -138,7 +147,9 @@ safeBart_with_intervals <- function(seed,
                                      fast_approx,
                                      l_quant,
                                      u_quant,
-                                     root_alg_precision)
+                                     root_alg_precision,
+                                     sis_sampling,
+                                     reweight_splits)
 
   names(sBARToutput) <- c("Predictions",
                           "Intervals",

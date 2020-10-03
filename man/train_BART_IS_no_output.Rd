@@ -30,7 +30,9 @@ train_BART_IS_no_output(
   fast_approx = 0,
   l_quant = 0.025,
   u_quant = 0.975,
-  root_alg_precision = 1e-05
+  root_alg_precision = 1e-05,
+  sis_sampling = 0,
+  reweight_splits = 0
 )
 }
 \arguments{
@@ -59,6 +61,10 @@ train_BART_IS_no_output(
 \item{beta_BART}{The beta parameter for the standard BART prior.}
 
 \item{fast_approx}{If equal to 1, use an approximate BIC weighted average and do not invert matrices for each model (should also use SVD).}
+
+\item{sis_sampling}{If equal to 1, then initially use probabilities determined by sure independence screening as described by Fan and Lv (JRSSb 2008) instead of uniform probabilities.}
+
+\item{reweight_splits}{If equal to 1, multiply the marginal likelihood by the prior splitting probability (1/num_vars) divided by the BAS splitting probability for each splitting point.}
 
 \item{num_cats}{The number of possible values for the outcome variable.}
 

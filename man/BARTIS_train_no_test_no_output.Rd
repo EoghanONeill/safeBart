@@ -30,7 +30,9 @@ BARTIS_train_no_test_no_output(
   fast_approx,
   lower_prob,
   upper_prob,
-  root_alg_precision
+  root_alg_precision,
+  sis_sampling,
+  reweight_splits
 )
 }
 \arguments{

@@ -1,6 +1,6 @@
 #' @title Parallel Safe Bayesian Additive Regression Trees
 #'
-#' @description A parallelized implementation of safeBART
+#' @description A parallelized implementation of BART-IS with Bayesian Adaptive Sampling (BAS) of splitting variables.
 #' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
 #' @param num_trees The number of trees to be sampled.
 #' @param seed The seed for random number generation.
@@ -17,6 +17,7 @@
 #' @param alpha_BART The alpha parameter for the standard BART prior.
 #' @param beta_BART The beta parameter for the standard BART prior.
 #' @param fast_approx If equal to 1, use an approximate BIC weighted average and do not invert matrices for each model (should also use SVD).
+#' @param num_update_models The number of models to be drawn before updating the sampling probabilities. Must be a divisor of num_models.
 #' @param sis_sampling If equal to 1, then initially use probabilities determined by sure independence screening as described by Fan and Lv (JRSSb 2008) instead of uniform probabilities.
 #' @param reweight_splits If equal to 1, multiply the marginal likelihood by the prior splitting probability (1/num_vars) divided by the BAS splitting probability for each splitting point.
 #' @return A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
@@ -72,36 +73,42 @@
 #' cbind(examplepreds1,ytest )
 #' @export
 
-train_BART_IS <- function(seed,
-                                    y,
-                                    original_datamat,test_datamat,
-                                    lambda=0.45,
-                                    num_models=1000,
-                                    num_trees=5,
-                                    beta_par=1,
-                                    ncores=1,
-                                    outsamppreds=1,
-                                    nu=3,
-                                    a=3,
-                                    sigquant=0.9,
-                                    valid_trees=1,
-                                    tree_prior=1,
-                                    imp_sampler=1,
-                                    alpha_BART=0.95,
-                                    beta_BART=2,
-                                    s_t_hyperprior=1,
-                                    p_s_t=0.5,
-                                    a_s_t=1,
-                                    b_s_t=3,
-                                    lambda_poisson=10,
-                                    fast_approx=0,
-                                    l_quant=0.025,
-                                    u_quant=0.975,
-                                    root_alg_precision=0.00001,
-                          sis_sampling = 0,
-                          reweight_splits = 0){
+BART_BAS <- function(seed,
+                          y,
+                          original_datamat,test_datamat,
+                          lambda=0.45,
+                          num_models=1000,
+                          num_trees=5,
+                          beta_par=1,
+                          ncores=1,
+                          outsamppreds=1,
+                          nu=3,
+                          a=3,
+                          sigquant=0.9,
+                          valid_trees=1,
+                          tree_prior=1,
+                          imp_sampler=1,
+                          alpha_BART=0.95,
+                          beta_BART=2,
+                          s_t_hyperprior=1,
+                          p_s_t=0.5,
+                          a_s_t=1,
+                          b_s_t=3,
+                          lambda_poisson=10,
+                          fast_approx=0,
+                          l_quant=0.025,
+                          u_quant=0.975,
+                          root_alg_precision=0.00001,
+                          num_update_models=200,
+                     sis_sampling=0,
+                     reweight_splits=0){
 
   if(ncores>num_models ) stop("ncores > num_models")
+  if((num_models/num_update_models)%%1!=0 ){
+    #print(num_models/num_update_models)
+    stop("num_models divided by num_update_models must be an integer.")
+  }
+
 
   sigma=sd(y)/(max(y)-min(y))
   qchi = qchisq(1.0-sigquant,nu,1,0);
@@ -116,33 +123,34 @@ train_BART_IS <- function(seed,
   if(nrow(original_datamat) != length(y)) stop("number of rows in x.train must equal length of y.train")
   if((ncol(test_datamat)!=ncol(original_datamat))) stop("input x.test must have the same number of columns as x.train")
 
-  sBARToutput=BARTIS_train(lambda,
-                                       num_models,
-                                       num_trees,
-                                       seed,
-                                       y,
-                                       original_datamat,
-                                       beta_par,
-                                       test_datamat,
-                                       ncores,
-                                       outsamppreds,
-                                       nu,
-                                       a,
-                                       lambdaBART,
-                                       valid_trees,
-                                       tree_prior,
-                                       imp_sampler,
-                                       alpha_BART,
-                                       beta_BART,
-                                       s_t_hyperprior,
-                                       p_s_t,
-                                       a_s_t,
-                                       b_s_t,
-                                       lambda_poisson,
-                                       fast_approx,
-                                       l_quant,
-                                       u_quant,
-                                       root_alg_precision,
+  sBARToutput=BART_BAS_cpp(lambda,
+                           num_models,
+                           num_trees,
+                           seed,
+                           y,
+                           original_datamat,
+                           beta_par,
+                           test_datamat,
+                           ncores,
+                           outsamppreds,
+                           nu,
+                           a,
+                           lambdaBART,
+                           valid_trees,
+                           tree_prior,
+                           imp_sampler,
+                           alpha_BART,
+                           beta_BART,
+                           s_t_hyperprior,
+                           p_s_t,
+                           a_s_t,
+                           b_s_t,
+                           lambda_poisson,
+                           fast_approx,
+                           l_quant,
+                           u_quant,
+                           root_alg_precision,
+                           num_update_models,
                            sis_sampling,
                            reweight_splits)
 

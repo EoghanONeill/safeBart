@@ -62,8 +62,8 @@ sBCF_onefunc_parallel <- function(lambda_mu, lambda_tau, num_models, num_trees_m
 #' @param ncores The number of cores to be used in parallelization.
 #' @return A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.
 #' @export
-sBART_with_ints_parallel <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision) {
-    .Call(`_safeBart_sBART_with_ints_parallel`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision)
+sBART_with_ints_parallel <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits) {
+    .Call(`_safeBart_sBART_with_ints_parallel`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits)
 }
 
 #' @title Parallel Safe-BART with prediction intervals
@@ -81,8 +81,8 @@ sBART_with_ints_parallel <- function(lambda, num_models, num_trees, seed, ytrain
 #' @param ncores The number of cores to be used in parallelization.
 #' @return A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.
 #' @export
-BARTIS_train <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision) {
-    .Call(`_safeBart_BARTIS_train`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision)
+BARTIS_train <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits) {
+    .Call(`_safeBart_BARTIS_train`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits)
 }
 
 #' @title Parallel Safe-BART with prediction intervals
@@ -100,8 +100,27 @@ BARTIS_train <- function(lambda, num_models, num_trees, seed, ytrain, original_d
 #' @param ncores The number of cores to be used in parallelization.
 #' @return A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.
 #' @export
-BARTIS_train_no_test_no_output <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision) {
-    .Call(`_safeBart_BARTIS_train_no_test_no_output`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision)
+BARTIS_train_no_test_no_output <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits) {
+    .Call(`_safeBart_BARTIS_train_no_test_no_output`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits)
+}
+
+#' @title Parallel Safe-BART with prediction intervals
+#'
+#' @description A parallelized implementation of safe-Bayesian Additive Regression Trees.
+#' @param lambda A real number between 0 and 1 that determines the splitting probability in the prior (which is used as the importance sampler of tree models). Quadrianto and Ghahramani (2015) recommend a value less than 0.5 .
+#' @param num_trees The number of trees to be sampled.
+#' @param seed The seed for random number generation.
+#' @param num_cats The number of possible values for the outcome variable.
+#' @param y The training data vector of outcomes. This must be a vector of integers between 1 and num_cats.
+#' @param original_datamat The original training data. Currently all variables must be continuous. The training data does not need to be transformed before being entered to this function.
+#' @param alpha_parameters Vector of prior parameters.
+#' @param beta_par The power to which the likelihood is to be raised. For BMA, set beta_par=1.
+#' @param original_datamat The original test data. This matrix must have the same number of columns (variables) as the training data. Currently all variables must be continuous. The test data does not need to be transformed before being entered to this function.
+#' @param ncores The number of cores to be used in parallelization.
+#' @return A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.
+#' @export
+BART_BAS_cpp <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, num_update_models, sis_sampling, reweight_splits) {
+    .Call(`_safeBart_BART_BAS_cpp`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, num_update_models, sis_sampling, reweight_splits)
 }
 
 get_termobs_test_data_fields <- function(test_data, tree_data) {

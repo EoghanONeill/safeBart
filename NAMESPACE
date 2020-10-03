@@ -2,6 +2,8 @@
 
 export(BARTIS_train)
 export(BARTIS_train_no_test_no_output)
+export(BART_BAS)
+export(BART_BAS_cpp)
 export(BART_IS_MOTR)
 export(BART_MOTR_IS_cpp)
 export(BCF_MOTR_IS)
