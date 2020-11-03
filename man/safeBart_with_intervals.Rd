@@ -33,7 +33,8 @@ safeBart_with_intervals(
   u_quant = 0.975,
   root_alg_precision = 1e-05,
   sis_sampling = 0,
-  reweight_splits = 0
+  reweight_splits = 0,
+  kernelize = 0
 )
 }
 \arguments{

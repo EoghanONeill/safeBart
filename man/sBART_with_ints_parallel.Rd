@@ -33,7 +33,8 @@ sBART_with_ints_parallel(
   upper_prob,
   root_alg_precision,
   sis_sampling,
-  reweight_splits
+  reweight_splits,
+  kernelize
 )
 }
 \arguments{

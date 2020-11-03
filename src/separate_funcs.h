@@ -1608,6 +1608,9 @@ double rootmixt(double d_o_f, double a, double b,
   assert(fa * fb < 0); // 8.- macro assert from header cassert.
 
 
+  //int i=0;
+  //double fmid = 0;
+
   do {
     // calculate fun at the midpoint of a,b
     // if that's the root, we're done
@@ -1632,7 +1635,14 @@ double rootmixt(double d_o_f, double a, double b,
       fa = fmid;
       a = midpt;
     }
+
+    //i++;
+  //} while (std::abs(fmid) > EPS); // only loop while
   } while (b-a > EPS); // only loop while
+
+
+  //Rcout << "number of rootmixt rounds = " << i << ".\n";
+
   // a and b are sufficiently far
   // apart
   //Rcout << "a = " << a << ".\n";

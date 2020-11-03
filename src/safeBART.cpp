@@ -5138,7 +5138,8 @@ List sBART_with_ints_parallel(double lambda,
                                 double upper_prob,
                                 double root_alg_precision,
                                 int sis_sampling,
-                                int reweight_splits){
+                                int reweight_splits,
+                                int kernelize){
 
 
   //Rcout << "imp_sampler = " << imp_sampler << ".\n";
@@ -7036,6 +7037,7 @@ List sBART_with_ints_parallel(double lambda,
     // }else{
 
 
+    if( (kernelize == 0) | ((kernelize ==2)&(num_obs >4*b))){
 
       // ///////////////////////////////////
       //get t(y)inv(psi)J
@@ -7232,6 +7234,60 @@ List sBART_with_ints_parallel(double lambda,
       t_vars_arma.col(j)=temp_scal*(1+
         (arma::sum((W_tilde*sec_term_inv).t() % W_tilde.t(), 0)).t());
 
+    }else{//code for kernelized scenario
+
+      arma::mat WWt= Wmat*Wmat.t();
+
+      //get jpsij +aI
+      //arma::mat aI(b,b);
+      arma::mat aI(num_obs,num_obs);
+      aI=a*aI.eye();
+      arma::mat sec_term=WWt+aI;
+      //arma::mat sec_term_inv=sec_term.i();
+      arma::mat sec_term_inv=inv_sympd(sec_term);
+      //get t(J)inv(psi)y
+      //arma::mat third_term=Wmat.t()*y;
+      //get m^TV^{-1}m
+      //arma::mat mvm= ytW*sec_term_inv*third_term;
+
+      arma::mat Qinv_y = sec_term_inv*y;
+
+      arma::mat W_tildeWt= W_tilde*Wmat.t();
+      //arma::mat W_tildeW_tilde= W_tilde*W_tilde.t();
+      arma::mat W_tildeW_tilde_diag= arma::sum (W_tilde % W_tilde ,1)   ;
+
+
+      double  temp_calc = arma::as_scalar(nu*lambdaBART - y.t()*WWt*Qinv_y +yty );
+
+      double templik0=arma::as_scalar((num_obs*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-
+                                      expon*log(temp_calc));
+
+      double templik = beta_par*templik0;
+
+      if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
+        //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
+        //templik=templik*sum_prior_over_samp_prob;
+        templik=templik+log(sum_prior_over_samp_prob);
+
+      }
+      overall_liks(j)= templik;
+
+      arma::vec preds_temp_arma= W_tildeWt * Qinv_y;
+      overall_preds.col(j)=preds_temp_arma;
+
+      arma::vec preds_temp_arma2=  WWt * Qinv_y;
+      overall_preds2.col(j)= preds_temp_arma2;
+
+
+      double temp_scal= (temp_calc)/(nu+num_obs);
+
+
+      t_vars_arma.col(j)=temp_scal*(1+
+        +(1/a)*num_trees
+        -(1/a)*(arma::sum((W_tildeWt*sec_term_inv).t() % W_tildeWt.t(), 0)).t());
+
+
+    }
 
       //Rcout << "Line 3985, j= " << j << ". \n";
 
@@ -25505,7 +25561,8 @@ List sBART_ITEs_with_ints(double lambda,
                               int PIT_propensity,
                               double lower_prob,
                               double upper_prob,
-                              double root_alg_precision){
+                              double root_alg_precision,
+                              int approx_intervals){
 
 
   //Rcout << "imp_sampler = " << imp_sampler << ".\n";
@@ -27796,20 +27853,35 @@ List sBART_ITEs_with_ints(double lambda,
 
     // ///////////////////////////////////
     //get t(y)inv(psi)J
-    arma::mat ytW=y.t()*Wmat;
+    //arma::mat ytW=y.t()*Wmat;
+
     //get t(J)inv(psi)J
-    arma::mat WtW=Wmat.t()*Wmat;
+    //arma::mat WtW=Wmat.t()*Wmat;
     //get jpsij +aI
-    arma::mat aI(b,b);
-    aI=a*aI.eye();
-    arma::mat sec_term=WtW+aI;
+
+    //arma::mat aI(b,b);
+    //aI=a*aI.eye();
+
+    //arma::mat sec_term=Wmat.t()*Wmat+aI;
+    arma::mat sec_term=Wmat.t()*Wmat;
+    sec_term.diag() += a;
+
     //arma::mat sec_term_inv=sec_term.i();
     arma::mat sec_term_inv=inv_sympd(sec_term);
     //get t(J)inv(psi)y
     arma::mat third_term=Wmat.t()*y;
     //get m^TV^{-1}m
-    arma::mat mvm= ytW*sec_term_inv*third_term;
+
+    //arma::mat mvm= ytW*sec_term_inv*third_term;
+
     //arma::mat rel=(b/2)*log(a)-(1/2)*log(det(sec_term))-expon*log(nu*lambdaBART - mvm +yty);
+
+    arma::mat mvm= third_term.t()*sec_term_inv*third_term;
+
+    //arma::mat mvm= third_term.t()*(third_term.each_col() % sec_term_inv);
+
+
+
     // /////////////////////////////////////////////
 
 
@@ -27957,11 +28029,17 @@ List sBART_ITEs_with_ints(double lambda,
       double temp_scal= as_scalar(temp_for_scal) ;
       //Rcout << "Line 4156";
       //arma::mat covar_t=temp_scal*(I_test+w_tilde_M_inv*(W_tilde.t()));
-      arma::mat covar_t=temp_scal*(w_tilde_M_inv*(Treat_diff.t()));
+
+      //arma::mat covar_t=temp_scal*(w_tilde_M_inv*(Treat_diff.t()));
 
       arma::mat catevartemp=temp_scal*(averagingvec.t()*w_tilde_M_inv*(Treat_diff.t())*averagingvec);
 
-      t_vars_arma.col(j)=covar_t.diag();
+      //t_vars_arma.col(j)=covar_t.diag();
+
+      t_vars_arma.col(j)=temp_scal*(
+        (arma::sum((Treat_diff*sec_term_inv).t() % Treat_diff.t(), 0)).t());
+
+
       cate_means_arma(j)=as_scalar(averagingvec.t()*preds_temp_arma);
       cate_vars_arma(j)=as_scalar(catevartemp);
 
@@ -27979,12 +28057,18 @@ List sBART_ITEs_with_ints(double lambda,
       double temp_scal= as_scalar(temp_for_scal) ;
       //Rcout << "Line 4156";
       //arma::mat covar_t=temp_scal*(I_test+w_tilde_M_inv*(W_tilde.t()));
-      arma::mat covar_t=temp_scal*(w_tilde_M_inv*(Treat_diff.t()));
+
+      //arma::mat covar_t=temp_scal*w_tilde_M_inv*Treat_diff.t();
 
       arma::mat catevartemp=temp_scal*(averagingvec.t()*w_tilde_M_inv*(Treat_diff.t())*averagingvec);
 
       // Rcout << "Line 16626";
-      t_vars_arma.col(j)=covar_t.diag();
+      //t_vars_arma.col(j)=covar_t.diag();
+
+      t_vars_arma.col(j)=temp_scal*(
+        (arma::sum((Treat_diff*sec_term_inv).t() % Treat_diff.t(), 0)).t());
+
+
       cate_means_arma(j)=as_scalar(averagingvec.t()*preds_temp_arma);
       cate_vars_arma(j)=as_scalar(catevartemp);
       // Rcout << "Line 16630";
@@ -28276,32 +28360,58 @@ if(weights_vec.size()==1){
 
     std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
 
-    output(0,i)=rootmixt(nu+num_obs,
-           bounds_lQ[0]-0.0001,
-           bounds_lQ[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, lower_prob,root_alg_precision);
-
+    if((approx_intervals==1) & (nu+num_obs>200)){
+      output(0,i)=rootmixnorm(bounds_lQ[0]-0.0001,
+             bounds_lQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, lower_prob,root_alg_precision);
+    }else{
+      output(0,i)=rootmixt(nu+num_obs,
+             bounds_lQ[0]-0.0001,
+             bounds_lQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, lower_prob,root_alg_precision);
+    }
 
     std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
 
-    output(1,i)=rootmixt(nu+num_obs,
-           bounds_med[0]-0.0001,
-           bounds_med[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, 0.5,root_alg_precision);
+    if((approx_intervals==1) & (nu+num_obs>200)){
+      output(1,i)=rootmixnorm(
+             bounds_med[0]-0.0001,
+             bounds_med[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, 0.5,root_alg_precision);
+    }else{
+      output(1,i)=rootmixt(nu+num_obs,
+             bounds_med[0]-0.0001,
+             bounds_med[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, 0.5,root_alg_precision);
+    }
+
 
     std::vector<double> bounds_uQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, uq_tstandard);
 
-    output(2,i)=rootmixt(nu+num_obs,
-           bounds_uQ[0]-0.0001,
-           bounds_uQ[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, upper_prob,root_alg_precision);
+    if((approx_intervals==1) & (nu+num_obs>200)){
+      output(2,i)=rootmixnorm(
+             bounds_uQ[0]-0.0001,
+             bounds_uQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, upper_prob,root_alg_precision);
 
+    }else{
+      output(2,i)=rootmixt(nu+num_obs,
+             bounds_uQ[0]-0.0001,
+             bounds_uQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, upper_prob,root_alg_precision);
+    }
 
   }
 #pragma omp barrier
