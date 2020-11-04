@@ -36,7 +36,8 @@ sBCF_with_ints_parallel(
   PIT_propensity,
   lower_prob,
   upper_prob,
-  root_alg_precision
+  root_alg_precision,
+  kernelize
 )
 }
 \arguments{

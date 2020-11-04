@@ -36,7 +36,8 @@ train_BCF_IS(
   PIT_propensity = 0,
   l_quant = 0.025,
   u_quant = 0.975,
-  root_alg_precision = 1e-05
+  root_alg_precision = 1e-05,
+  kernelize = 0
 )
 }
 \arguments{

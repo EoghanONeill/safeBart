@@ -36,7 +36,8 @@ sBART_ITEs_with_ints(
   lower_prob,
   upper_prob,
   root_alg_precision,
-  approx_intervals
+  approx_intervals,
+  kernelize
 )
 }
 \arguments{

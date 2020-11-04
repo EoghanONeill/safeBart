@@ -101,7 +101,8 @@ BART_BAS <- function(seed,
                           root_alg_precision=0.00001,
                           num_update_models=200,
                      sis_sampling=0,
-                     reweight_splits=0){
+                     reweight_splits=0,
+                     kernelize = 0){
 
   if(ncores>num_models ) stop("ncores > num_models")
   if((num_models/num_update_models)%%1!=0 ){
@@ -152,7 +153,8 @@ BART_BAS <- function(seed,
                            root_alg_precision,
                            num_update_models,
                            sis_sampling,
-                           reweight_splits)
+                           reweight_splits,
+                           kernelize)
 
   names(sBARToutput) <- c("Predictions",
                           "Intervals",

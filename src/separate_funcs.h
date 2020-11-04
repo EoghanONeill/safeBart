@@ -1591,6 +1591,8 @@ double rootmixt(double d_o_f, double a, double b,
 
   static const double EPS = root_alg_precision;//1e-15; // 1×10^(-15)
 
+  //Rcout << "Rootmixt Line 1593 .\n";
+
   double fa = mixt_eval_cdf(a, d_o_f, mean_vec, var_vec, weights_vec,quant_val), fb = mixt_eval_cdf(b, d_o_f, mean_vec, var_vec, weights_vec,quant_val);
 
   // if either f(a) or f(b) are the root, return that
@@ -1599,6 +1601,7 @@ double rootmixt(double d_o_f, double a, double b,
   if (fb == 0) return b;
 
   //Rcout << "quant_val = " << quant_val << ".\n";
+  //Rcout << "Rootmixt Line 1602 .\n";
 
   //Rcout << "fa = " << fa << ".\n";
   //Rcout << "fb = " << fb << ".\n";
@@ -1642,6 +1645,7 @@ double rootmixt(double d_o_f, double a, double b,
 
 
   //Rcout << "number of rootmixt rounds = " << i << ".\n";
+  //Rcout << "Rootmixt Line 1648 .\n";
 
   // a and b are sufficiently far
   // apart
@@ -1659,12 +1663,18 @@ double rootmixnorm(double a, double b,
 
   static const double EPS = root_alg_precision;//1e-15; // 1×10^(-15)
 
+  //Rcout << "Rootmixnorm Line 1666 .\n";
+
   double fa = mixnorm_eval_cdf(a, mean_vec, var_vec, weights_vec,quant_val), fb = mixnorm_eval_cdf(b, mean_vec, var_vec, weights_vec,quant_val);
+
+  //Rcout << "Rootmixnorm Line 1670 .\n";
 
   // if either f(a) or f(b) are the root, return that
   // nothing else to do
   if (fa == 0) return a;
   if (fb == 0) return b;
+
+  //Rcout << "Rootmixnorm Line 1677 .\n";
 
   //Rcout << "quant_val = " << quant_val << ".\n";
 
@@ -1674,6 +1684,8 @@ double rootmixnorm(double a, double b,
   // this method only works if the signs of f(a) and f(b)
   // are different. so just assert that
   assert(fa * fb < 0); // 8.- macro assert from header cassert.
+
+  //Rcout << "Rootmixnorm Line 1677 .\n";
 
 
   do {
@@ -1705,6 +1717,9 @@ double rootmixnorm(double a, double b,
   // apart
   //Rcout << "a = " << a << ".\n";
   //Rcout << "b = " << b << ".\n";
+
+  //Rcout << "Rootmixnorm Line 1717 .\n";
+
   return (a + b) / 2;  // approximation
 }
 

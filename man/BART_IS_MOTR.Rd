@@ -31,7 +31,8 @@ BART_IS_MOTR(
   fast_approx = 0,
   l_quant = 0.025,
   u_quant = 0.975,
-  root_alg_precision = 1e-05
+  root_alg_precision = 1e-05,
+  kernelize = 0
 )
 }
 \arguments{

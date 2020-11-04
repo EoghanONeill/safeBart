@@ -31,7 +31,8 @@ BART_MOTR_IS_cpp(
   fast_approx,
   lower_prob,
   upper_prob,
-  root_alg_precision
+  root_alg_precision,
+  kernelize
 )
 }
 \arguments{

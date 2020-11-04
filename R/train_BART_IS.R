@@ -99,7 +99,8 @@ train_BART_IS <- function(seed,
                                     u_quant=0.975,
                                     root_alg_precision=0.00001,
                           sis_sampling = 0,
-                          reweight_splits = 0){
+                          reweight_splits = 0,
+                          kernelize = 0){
 
   if(ncores>num_models ) stop("ncores > num_models")
 
@@ -144,7 +145,8 @@ train_BART_IS <- function(seed,
                                        u_quant,
                                        root_alg_precision,
                            sis_sampling,
-                           reweight_splits)
+                           reweight_splits,
+                           kernelize)
 
   names(sBARToutput) <- c("Predictions",
                           "Intervals",

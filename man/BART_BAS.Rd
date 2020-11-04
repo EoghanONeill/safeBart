@@ -34,7 +34,8 @@ BART_BAS(
   root_alg_precision = 1e-05,
   num_update_models = 200,
   sis_sampling = 0,
-  reweight_splits = 0
+  reweight_splits = 0,
+  kernelize = 0
 )
 }
 \arguments{

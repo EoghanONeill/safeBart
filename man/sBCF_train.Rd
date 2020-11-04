@@ -36,7 +36,8 @@ sBCF_train(
   PIT_propensity,
   lower_prob,
   upper_prob,
-  root_alg_precision
+  root_alg_precision,
+  kernelize
 )
 }
 \arguments{

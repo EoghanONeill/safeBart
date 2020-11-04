@@ -100,7 +100,8 @@ safeBCF_with_intervals <- function(seed,
                                    PIT_propensity=0,
                                    l_quant=0.025,
                                    u_quant=0.975,
-                                   root_alg_precision=0.00001){
+                                   root_alg_precision=0.00001,
+                                   kernelized=0){
 
 
   if(fast_approx== 1) stop('Code for fast approximation not written for safeBCF_with_intervals(). Set fast_approx==0.')
@@ -166,7 +167,8 @@ safeBCF_with_intervals <- function(seed,
                                      PIT_propensity,
                                      l_quant,
                                      u_quant,
-                                     root_alg_precision)
+                                     root_alg_precision,
+                                     kernelized)
 
 
   names(sBCFoutput) <- c("ITEests",

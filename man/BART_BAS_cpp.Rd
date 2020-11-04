@@ -34,7 +34,8 @@ BART_BAS_cpp(
   root_alg_precision,
   num_update_models,
   sis_sampling,
-  reweight_splits
+  reweight_splits,
+  kernelize
 )
 }
 \arguments{
