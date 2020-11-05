@@ -96,6 +96,7 @@ BART_IS_MOTR <- function(seed,
                                     l_quant=0.025,
                                     u_quant=0.975,
                                     root_alg_precision=0.00001,
+                         approx_intervals = 0,
                          kernelize=0){
 
   if(ncores>num_models ) stop("ncores > num_models")
@@ -140,6 +141,7 @@ BART_IS_MOTR <- function(seed,
                                        l_quant,
                                        u_quant,
                                        root_alg_precision,
+                                  approx_intervals,
                                   kernelize)
 
   names(sBART_M_output) <- c("Predictions",

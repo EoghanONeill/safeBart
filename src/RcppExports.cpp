@@ -107,8 +107,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // sBART_with_ints_parallel
-List sBART_with_ints_parallel(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, double beta_par, NumericMatrix test_datamat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART, int s_t_hyperprior, double p_s_t, double a_s_t, double b_s_t, double lambda_poisson, int fast_approx, double lower_prob, double upper_prob, double root_alg_precision, int sis_sampling, int reweight_splits, int kernelize);
-RcppExport SEXP _safeBart_sBART_with_ints_parallel(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP, SEXP s_t_hyperpriorSEXP, SEXP p_s_tSEXP, SEXP a_s_tSEXP, SEXP b_s_tSEXP, SEXP lambda_poissonSEXP, SEXP fast_approxSEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP sis_samplingSEXP, SEXP reweight_splitsSEXP, SEXP kernelizeSEXP) {
+List sBART_with_ints_parallel(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, double beta_par, NumericMatrix test_datamat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART, int s_t_hyperprior, double p_s_t, double a_s_t, double b_s_t, double lambda_poisson, int fast_approx, double lower_prob, double upper_prob, double root_alg_precision, int sis_sampling, int reweight_splits, int approx_intervals, int kernelize);
+RcppExport SEXP _safeBart_sBART_with_ints_parallel(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP, SEXP s_t_hyperpriorSEXP, SEXP p_s_tSEXP, SEXP a_s_tSEXP, SEXP b_s_tSEXP, SEXP lambda_poissonSEXP, SEXP fast_approxSEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP sis_samplingSEXP, SEXP reweight_splitsSEXP, SEXP approx_intervalsSEXP, SEXP kernelizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -141,14 +141,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type root_alg_precision(root_alg_precisionSEXP);
     Rcpp::traits::input_parameter< int >::type sis_sampling(sis_samplingSEXP);
     Rcpp::traits::input_parameter< int >::type reweight_splits(reweight_splitsSEXP);
+    Rcpp::traits::input_parameter< int >::type approx_intervals(approx_intervalsSEXP);
     Rcpp::traits::input_parameter< int >::type kernelize(kernelizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(sBART_with_ints_parallel(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits, kernelize));
+    rcpp_result_gen = Rcpp::wrap(sBART_with_ints_parallel(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits, approx_intervals, kernelize));
     return rcpp_result_gen;
 END_RCPP
 }
 // BARTIS_train
-List BARTIS_train(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, double beta_par, NumericMatrix test_datamat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART, int s_t_hyperprior, double p_s_t, double a_s_t, double b_s_t, double lambda_poisson, int fast_approx, double lower_prob, double upper_prob, double root_alg_precision, int sis_sampling, int reweight_splits, int kernelize);
-RcppExport SEXP _safeBart_BARTIS_train(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP, SEXP s_t_hyperpriorSEXP, SEXP p_s_tSEXP, SEXP a_s_tSEXP, SEXP b_s_tSEXP, SEXP lambda_poissonSEXP, SEXP fast_approxSEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP sis_samplingSEXP, SEXP reweight_splitsSEXP, SEXP kernelizeSEXP) {
+List BARTIS_train(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, double beta_par, NumericMatrix test_datamat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART, int s_t_hyperprior, double p_s_t, double a_s_t, double b_s_t, double lambda_poisson, int fast_approx, double lower_prob, double upper_prob, double root_alg_precision, int sis_sampling, int reweight_splits, int approx_intervals, int kernelize);
+RcppExport SEXP _safeBart_BARTIS_train(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP, SEXP s_t_hyperpriorSEXP, SEXP p_s_tSEXP, SEXP a_s_tSEXP, SEXP b_s_tSEXP, SEXP lambda_poissonSEXP, SEXP fast_approxSEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP sis_samplingSEXP, SEXP reweight_splitsSEXP, SEXP approx_intervalsSEXP, SEXP kernelizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -181,8 +182,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type root_alg_precision(root_alg_precisionSEXP);
     Rcpp::traits::input_parameter< int >::type sis_sampling(sis_samplingSEXP);
     Rcpp::traits::input_parameter< int >::type reweight_splits(reweight_splitsSEXP);
+    Rcpp::traits::input_parameter< int >::type approx_intervals(approx_intervalsSEXP);
     Rcpp::traits::input_parameter< int >::type kernelize(kernelizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(BARTIS_train(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits, kernelize));
+    rcpp_result_gen = Rcpp::wrap(BARTIS_train(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits, approx_intervals, kernelize));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -226,8 +228,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // BART_BAS_cpp
-List BART_BAS_cpp(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, double beta_par, NumericMatrix test_datamat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART, int s_t_hyperprior, double p_s_t, double a_s_t, double b_s_t, double lambda_poisson, int fast_approx, double lower_prob, double upper_prob, double root_alg_precision, int num_update_models, int sis_sampling, int reweight_splits, int kernelize);
-RcppExport SEXP _safeBart_BART_BAS_cpp(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP, SEXP s_t_hyperpriorSEXP, SEXP p_s_tSEXP, SEXP a_s_tSEXP, SEXP b_s_tSEXP, SEXP lambda_poissonSEXP, SEXP fast_approxSEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP num_update_modelsSEXP, SEXP sis_samplingSEXP, SEXP reweight_splitsSEXP, SEXP kernelizeSEXP) {
+List BART_BAS_cpp(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, double beta_par, NumericMatrix test_datamat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART, int s_t_hyperprior, double p_s_t, double a_s_t, double b_s_t, double lambda_poisson, int fast_approx, double lower_prob, double upper_prob, double root_alg_precision, int num_update_models, int sis_sampling, int reweight_splits, int approx_intervals, int kernelize);
+RcppExport SEXP _safeBart_BART_BAS_cpp(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP, SEXP s_t_hyperpriorSEXP, SEXP p_s_tSEXP, SEXP a_s_tSEXP, SEXP b_s_tSEXP, SEXP lambda_poissonSEXP, SEXP fast_approxSEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP num_update_modelsSEXP, SEXP sis_samplingSEXP, SEXP reweight_splitsSEXP, SEXP approx_intervalsSEXP, SEXP kernelizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -261,8 +263,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type num_update_models(num_update_modelsSEXP);
     Rcpp::traits::input_parameter< int >::type sis_sampling(sis_samplingSEXP);
     Rcpp::traits::input_parameter< int >::type reweight_splits(reweight_splitsSEXP);
+    Rcpp::traits::input_parameter< int >::type approx_intervals(approx_intervalsSEXP);
     Rcpp::traits::input_parameter< int >::type kernelize(kernelizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(BART_BAS_cpp(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, num_update_models, sis_sampling, reweight_splits, kernelize));
+    rcpp_result_gen = Rcpp::wrap(BART_BAS_cpp(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, num_update_models, sis_sampling, reweight_splits, approx_intervals, kernelize));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -305,8 +308,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // sBCF_with_ints_parallel
-List sBCF_with_ints_parallel(double lambda_mu, double lambda_tau, int num_models, int num_trees_mu, int num_trees_tau, int seed, NumericVector ytrain, NumericMatrix original_datamat, NumericVector ztrain, NumericMatrix pihat_train, double beta_par, NumericMatrix test_datamat, NumericMatrix test_pihat, int ncores, int outsamppreds, double nu, double a_mu, double a_tau, double lambdaBCF, int valid_trees, int tree_prior, int imp_sampler, double alpha_BCF_mu, double beta_BCF_mu, double alpha_BCF_tau, double beta_BCF_tau, int include_pi2, int fast_approx, int PIT_propensity, double lower_prob, double upper_prob, double root_alg_precision, int kernelize);
-RcppExport SEXP _safeBart_sBCF_with_ints_parallel(SEXP lambda_muSEXP, SEXP lambda_tauSEXP, SEXP num_modelsSEXP, SEXP num_trees_muSEXP, SEXP num_trees_tauSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP ztrainSEXP, SEXP pihat_trainSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP test_pihatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP a_muSEXP, SEXP a_tauSEXP, SEXP lambdaBCFSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BCF_muSEXP, SEXP beta_BCF_muSEXP, SEXP alpha_BCF_tauSEXP, SEXP beta_BCF_tauSEXP, SEXP include_pi2SEXP, SEXP fast_approxSEXP, SEXP PIT_propensitySEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP kernelizeSEXP) {
+List sBCF_with_ints_parallel(double lambda_mu, double lambda_tau, int num_models, int num_trees_mu, int num_trees_tau, int seed, NumericVector ytrain, NumericMatrix original_datamat, NumericVector ztrain, NumericMatrix pihat_train, double beta_par, NumericMatrix test_datamat, NumericMatrix test_pihat, int ncores, int outsamppreds, double nu, double a_mu, double a_tau, double lambdaBCF, int valid_trees, int tree_prior, int imp_sampler, double alpha_BCF_mu, double beta_BCF_mu, double alpha_BCF_tau, double beta_BCF_tau, int include_pi2, int fast_approx, int PIT_propensity, double lower_prob, double upper_prob, double root_alg_precision, int approx_intervals, int kernelize);
+RcppExport SEXP _safeBart_sBCF_with_ints_parallel(SEXP lambda_muSEXP, SEXP lambda_tauSEXP, SEXP num_modelsSEXP, SEXP num_trees_muSEXP, SEXP num_trees_tauSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP ztrainSEXP, SEXP pihat_trainSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP test_pihatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP a_muSEXP, SEXP a_tauSEXP, SEXP lambdaBCFSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BCF_muSEXP, SEXP beta_BCF_muSEXP, SEXP alpha_BCF_tauSEXP, SEXP beta_BCF_tauSEXP, SEXP include_pi2SEXP, SEXP fast_approxSEXP, SEXP PIT_propensitySEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP approx_intervalsSEXP, SEXP kernelizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -342,14 +345,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type lower_prob(lower_probSEXP);
     Rcpp::traits::input_parameter< double >::type upper_prob(upper_probSEXP);
     Rcpp::traits::input_parameter< double >::type root_alg_precision(root_alg_precisionSEXP);
+    Rcpp::traits::input_parameter< int >::type approx_intervals(approx_intervalsSEXP);
     Rcpp::traits::input_parameter< int >::type kernelize(kernelizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(sBCF_with_ints_parallel(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, kernelize));
+    rcpp_result_gen = Rcpp::wrap(sBCF_with_ints_parallel(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, approx_intervals, kernelize));
     return rcpp_result_gen;
 END_RCPP
 }
 // sBCF_train
-List sBCF_train(double lambda_mu, double lambda_tau, int num_models, int num_trees_mu, int num_trees_tau, int seed, NumericVector ytrain, NumericMatrix original_datamat, NumericVector ztrain, NumericMatrix pihat_train, double beta_par, NumericMatrix test_datamat, NumericMatrix test_pihat, int ncores, int outsamppreds, double nu, double a_mu, double a_tau, double lambdaBCF, int valid_trees, int tree_prior, int imp_sampler, double alpha_BCF_mu, double beta_BCF_mu, double alpha_BCF_tau, double beta_BCF_tau, int include_pi2, int fast_approx, int PIT_propensity, double lower_prob, double upper_prob, double root_alg_precision, int kernelize);
-RcppExport SEXP _safeBart_sBCF_train(SEXP lambda_muSEXP, SEXP lambda_tauSEXP, SEXP num_modelsSEXP, SEXP num_trees_muSEXP, SEXP num_trees_tauSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP ztrainSEXP, SEXP pihat_trainSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP test_pihatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP a_muSEXP, SEXP a_tauSEXP, SEXP lambdaBCFSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BCF_muSEXP, SEXP beta_BCF_muSEXP, SEXP alpha_BCF_tauSEXP, SEXP beta_BCF_tauSEXP, SEXP include_pi2SEXP, SEXP fast_approxSEXP, SEXP PIT_propensitySEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP kernelizeSEXP) {
+List sBCF_train(double lambda_mu, double lambda_tau, int num_models, int num_trees_mu, int num_trees_tau, int seed, NumericVector ytrain, NumericMatrix original_datamat, NumericVector ztrain, NumericMatrix pihat_train, double beta_par, NumericMatrix test_datamat, NumericMatrix test_pihat, int ncores, int outsamppreds, double nu, double a_mu, double a_tau, double lambdaBCF, int valid_trees, int tree_prior, int imp_sampler, double alpha_BCF_mu, double beta_BCF_mu, double alpha_BCF_tau, double beta_BCF_tau, int include_pi2, int fast_approx, int PIT_propensity, double lower_prob, double upper_prob, double root_alg_precision, int approx_intervals, int kernelize);
+RcppExport SEXP _safeBart_sBCF_train(SEXP lambda_muSEXP, SEXP lambda_tauSEXP, SEXP num_modelsSEXP, SEXP num_trees_muSEXP, SEXP num_trees_tauSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP ztrainSEXP, SEXP pihat_trainSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP test_pihatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP a_muSEXP, SEXP a_tauSEXP, SEXP lambdaBCFSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BCF_muSEXP, SEXP beta_BCF_muSEXP, SEXP alpha_BCF_tauSEXP, SEXP beta_BCF_tauSEXP, SEXP include_pi2SEXP, SEXP fast_approxSEXP, SEXP PIT_propensitySEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP approx_intervalsSEXP, SEXP kernelizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -385,14 +389,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type lower_prob(lower_probSEXP);
     Rcpp::traits::input_parameter< double >::type upper_prob(upper_probSEXP);
     Rcpp::traits::input_parameter< double >::type root_alg_precision(root_alg_precisionSEXP);
+    Rcpp::traits::input_parameter< int >::type approx_intervals(approx_intervalsSEXP);
     Rcpp::traits::input_parameter< int >::type kernelize(kernelizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(sBCF_train(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, kernelize));
+    rcpp_result_gen = Rcpp::wrap(sBCF_train(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, approx_intervals, kernelize));
     return rcpp_result_gen;
 END_RCPP
 }
 // sBCF_train_no_test_no_output
-List sBCF_train_no_test_no_output(double lambda_mu, double lambda_tau, int num_models, int num_trees_mu, int num_trees_tau, int seed, NumericVector ytrain, NumericMatrix original_datamat, NumericVector ztrain, NumericMatrix pihat_train, double beta_par, int ncores, int outsamppreds, double nu, double a_mu, double a_tau, double lambdaBCF, int valid_trees, int tree_prior, int imp_sampler, double alpha_BCF_mu, double beta_BCF_mu, double alpha_BCF_tau, double beta_BCF_tau, int include_pi2, int fast_approx, int PIT_propensity, double lower_prob, double upper_prob, double root_alg_precision, int kernelize);
-RcppExport SEXP _safeBart_sBCF_train_no_test_no_output(SEXP lambda_muSEXP, SEXP lambda_tauSEXP, SEXP num_modelsSEXP, SEXP num_trees_muSEXP, SEXP num_trees_tauSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP ztrainSEXP, SEXP pihat_trainSEXP, SEXP beta_parSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP a_muSEXP, SEXP a_tauSEXP, SEXP lambdaBCFSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BCF_muSEXP, SEXP beta_BCF_muSEXP, SEXP alpha_BCF_tauSEXP, SEXP beta_BCF_tauSEXP, SEXP include_pi2SEXP, SEXP fast_approxSEXP, SEXP PIT_propensitySEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP kernelizeSEXP) {
+List sBCF_train_no_test_no_output(double lambda_mu, double lambda_tau, int num_models, int num_trees_mu, int num_trees_tau, int seed, NumericVector ytrain, NumericMatrix original_datamat, NumericVector ztrain, NumericMatrix pihat_train, double beta_par, int ncores, int outsamppreds, double nu, double a_mu, double a_tau, double lambdaBCF, int valid_trees, int tree_prior, int imp_sampler, double alpha_BCF_mu, double beta_BCF_mu, double alpha_BCF_tau, double beta_BCF_tau, int include_pi2, int fast_approx, int PIT_propensity, double lower_prob, double upper_prob, double root_alg_precision, int approx_intervals, int kernelize);
+RcppExport SEXP _safeBart_sBCF_train_no_test_no_output(SEXP lambda_muSEXP, SEXP lambda_tauSEXP, SEXP num_modelsSEXP, SEXP num_trees_muSEXP, SEXP num_trees_tauSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP ztrainSEXP, SEXP pihat_trainSEXP, SEXP beta_parSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP a_muSEXP, SEXP a_tauSEXP, SEXP lambdaBCFSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BCF_muSEXP, SEXP beta_BCF_muSEXP, SEXP alpha_BCF_tauSEXP, SEXP beta_BCF_tauSEXP, SEXP include_pi2SEXP, SEXP fast_approxSEXP, SEXP PIT_propensitySEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP approx_intervalsSEXP, SEXP kernelizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -426,8 +431,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type lower_prob(lower_probSEXP);
     Rcpp::traits::input_parameter< double >::type upper_prob(upper_probSEXP);
     Rcpp::traits::input_parameter< double >::type root_alg_precision(root_alg_precisionSEXP);
+    Rcpp::traits::input_parameter< int >::type approx_intervals(approx_intervalsSEXP);
     Rcpp::traits::input_parameter< int >::type kernelize(kernelizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(sBCF_train_no_test_no_output(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, kernelize));
+    rcpp_result_gen = Rcpp::wrap(sBCF_train_no_test_no_output(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, approx_intervals, kernelize));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -608,8 +614,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // BART_MOTR_IS_cpp
-List BART_MOTR_IS_cpp(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, double beta_par, NumericMatrix test_datamat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART, int s_t_hyperprior, double p_s_t, double a_s_t, double b_s_t, double lambda_poisson, int fast_approx, double lower_prob, double upper_prob, double root_alg_precision, int kernelize);
-RcppExport SEXP _safeBart_BART_MOTR_IS_cpp(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP, SEXP s_t_hyperpriorSEXP, SEXP p_s_tSEXP, SEXP a_s_tSEXP, SEXP b_s_tSEXP, SEXP lambda_poissonSEXP, SEXP fast_approxSEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP kernelizeSEXP) {
+List BART_MOTR_IS_cpp(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, double beta_par, NumericMatrix test_datamat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART, int s_t_hyperprior, double p_s_t, double a_s_t, double b_s_t, double lambda_poisson, int fast_approx, double lower_prob, double upper_prob, double root_alg_precision, int approx_intervals, int kernelize);
+RcppExport SEXP _safeBart_BART_MOTR_IS_cpp(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP, SEXP s_t_hyperpriorSEXP, SEXP p_s_tSEXP, SEXP a_s_tSEXP, SEXP b_s_tSEXP, SEXP lambda_poissonSEXP, SEXP fast_approxSEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP approx_intervalsSEXP, SEXP kernelizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -640,14 +646,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type lower_prob(lower_probSEXP);
     Rcpp::traits::input_parameter< double >::type upper_prob(upper_probSEXP);
     Rcpp::traits::input_parameter< double >::type root_alg_precision(root_alg_precisionSEXP);
+    Rcpp::traits::input_parameter< int >::type approx_intervals(approx_intervalsSEXP);
     Rcpp::traits::input_parameter< int >::type kernelize(kernelizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(BART_MOTR_IS_cpp(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, kernelize));
+    rcpp_result_gen = Rcpp::wrap(BART_MOTR_IS_cpp(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, approx_intervals, kernelize));
     return rcpp_result_gen;
 END_RCPP
 }
 // BCF_MOTR_IS_cpp
-List BCF_MOTR_IS_cpp(double lambda_mu, double lambda_tau, int num_models, int num_trees_mu, int num_trees_tau, int seed, NumericVector ytrain, NumericMatrix original_datamat, NumericVector ztrain, NumericMatrix pihat_train, double beta_par, NumericMatrix test_datamat, NumericMatrix test_pihat, int ncores, int outsamppreds, double nu, double a_mu, double a_tau, double lambdaBCF, int valid_trees, int tree_prior, int imp_sampler, double alpha_BCF_mu, double beta_BCF_mu, double alpha_BCF_tau, double beta_BCF_tau, int include_pi2, int fast_approx, int PIT_propensity, double lower_prob, double upper_prob, double root_alg_precision);
-RcppExport SEXP _safeBart_BCF_MOTR_IS_cpp(SEXP lambda_muSEXP, SEXP lambda_tauSEXP, SEXP num_modelsSEXP, SEXP num_trees_muSEXP, SEXP num_trees_tauSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP ztrainSEXP, SEXP pihat_trainSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP test_pihatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP a_muSEXP, SEXP a_tauSEXP, SEXP lambdaBCFSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BCF_muSEXP, SEXP beta_BCF_muSEXP, SEXP alpha_BCF_tauSEXP, SEXP beta_BCF_tauSEXP, SEXP include_pi2SEXP, SEXP fast_approxSEXP, SEXP PIT_propensitySEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP) {
+List BCF_MOTR_IS_cpp(double lambda_mu, double lambda_tau, int num_models, int num_trees_mu, int num_trees_tau, int seed, NumericVector ytrain, NumericMatrix original_datamat, NumericVector ztrain, NumericMatrix pihat_train, double beta_par, NumericMatrix test_datamat, NumericMatrix test_pihat, int ncores, int outsamppreds, double nu, double a_mu, double a_tau, double lambdaBCF, int valid_trees, int tree_prior, int imp_sampler, double alpha_BCF_mu, double beta_BCF_mu, double alpha_BCF_tau, double beta_BCF_tau, int include_pi2, int fast_approx, int PIT_propensity, double lower_prob, double upper_prob, double root_alg_precision, int approx_intervals);
+RcppExport SEXP _safeBart_BCF_MOTR_IS_cpp(SEXP lambda_muSEXP, SEXP lambda_tauSEXP, SEXP num_modelsSEXP, SEXP num_trees_muSEXP, SEXP num_trees_tauSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP ztrainSEXP, SEXP pihat_trainSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP test_pihatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP a_muSEXP, SEXP a_tauSEXP, SEXP lambdaBCFSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BCF_muSEXP, SEXP beta_BCF_muSEXP, SEXP alpha_BCF_tauSEXP, SEXP beta_BCF_tauSEXP, SEXP include_pi2SEXP, SEXP fast_approxSEXP, SEXP PIT_propensitySEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP approx_intervalsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -683,7 +690,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type lower_prob(lower_probSEXP);
     Rcpp::traits::input_parameter< double >::type upper_prob(upper_probSEXP);
     Rcpp::traits::input_parameter< double >::type root_alg_precision(root_alg_precisionSEXP);
-    rcpp_result_gen = Rcpp::wrap(BCF_MOTR_IS_cpp(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision));
+    Rcpp::traits::input_parameter< int >::type approx_intervals(approx_intervalsSEXP);
+    rcpp_result_gen = Rcpp::wrap(BCF_MOTR_IS_cpp(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, approx_intervals));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -924,21 +932,21 @@ static const R_CallMethodDef CallEntries[] = {
     {"_safeBart_get_weighted_var_imp", (DL_FUNC) &_safeBart_get_weighted_var_imp, 3},
     {"_safeBart_sBART_onefunc_parallel", (DL_FUNC) &_safeBart_sBART_onefunc_parallel, 24},
     {"_safeBart_sBCF_onefunc_parallel", (DL_FUNC) &_safeBart_sBCF_onefunc_parallel, 29},
-    {"_safeBart_sBART_with_ints_parallel", (DL_FUNC) &_safeBart_sBART_with_ints_parallel, 30},
-    {"_safeBart_BARTIS_train", (DL_FUNC) &_safeBart_BARTIS_train, 30},
+    {"_safeBart_sBART_with_ints_parallel", (DL_FUNC) &_safeBart_sBART_with_ints_parallel, 31},
+    {"_safeBart_BARTIS_train", (DL_FUNC) &_safeBart_BARTIS_train, 31},
     {"_safeBart_BARTIS_train_no_test_no_output", (DL_FUNC) &_safeBart_BARTIS_train_no_test_no_output, 29},
-    {"_safeBart_BART_BAS_cpp", (DL_FUNC) &_safeBart_BART_BAS_cpp, 31},
+    {"_safeBart_BART_BAS_cpp", (DL_FUNC) &_safeBart_BART_BAS_cpp, 32},
     {"_safeBart_get_termobs_test_data_fields", (DL_FUNC) &_safeBart_get_termobs_test_data_fields, 2},
     {"_safeBart_pred_ints_exact_outsamp_par", (DL_FUNC) &_safeBart_pred_ints_exact_outsamp_par, 16},
-    {"_safeBart_sBCF_with_ints_parallel", (DL_FUNC) &_safeBart_sBCF_with_ints_parallel, 33},
-    {"_safeBart_sBCF_train", (DL_FUNC) &_safeBart_sBCF_train, 33},
-    {"_safeBart_sBCF_train_no_test_no_output", (DL_FUNC) &_safeBart_sBCF_train_no_test_no_output, 31},
+    {"_safeBart_sBCF_with_ints_parallel", (DL_FUNC) &_safeBart_sBCF_with_ints_parallel, 34},
+    {"_safeBart_sBCF_train", (DL_FUNC) &_safeBart_sBCF_train, 34},
+    {"_safeBart_sBCF_train_no_test_no_output", (DL_FUNC) &_safeBart_sBCF_train_no_test_no_output, 32},
     {"_safeBart_sBART_ITEs_with_ints", (DL_FUNC) &_safeBart_sBART_ITEs_with_ints, 33},
     {"_safeBart_LBART_IS", (DL_FUNC) &_safeBart_LBART_IS, 30},
     {"_safeBart_LBART_IS_ITEs", (DL_FUNC) &_safeBart_LBART_IS_ITEs, 36},
     {"_safeBart_LBCF_IS", (DL_FUNC) &_safeBart_LBCF_IS, 37},
-    {"_safeBart_BART_MOTR_IS_cpp", (DL_FUNC) &_safeBart_BART_MOTR_IS_cpp, 28},
-    {"_safeBart_BCF_MOTR_IS_cpp", (DL_FUNC) &_safeBart_BCF_MOTR_IS_cpp, 32},
+    {"_safeBart_BART_MOTR_IS_cpp", (DL_FUNC) &_safeBart_BART_MOTR_IS_cpp, 29},
+    {"_safeBart_BCF_MOTR_IS_cpp", (DL_FUNC) &_safeBart_BCF_MOTR_IS_cpp, 33},
     {"_safeBart_scale_response", (DL_FUNC) &_safeBart_scale_response, 5},
     {"_safeBart_get_original", (DL_FUNC) &_safeBart_get_original, 5},
     {"_safeBart_get_original_arma", (DL_FUNC) &_safeBart_get_original_arma, 5},

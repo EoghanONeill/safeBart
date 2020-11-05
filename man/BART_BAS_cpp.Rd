@@ -35,6 +35,7 @@ BART_BAS_cpp(
   num_update_models,
   sis_sampling,
   reweight_splits,
+  approx_intervals,
   kernelize
 )
 }

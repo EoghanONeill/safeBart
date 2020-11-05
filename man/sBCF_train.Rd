@@ -37,6 +37,7 @@ sBCF_train(
   lower_prob,
   upper_prob,
   root_alg_precision,
+  approx_intervals,
   kernelize
 )
 }

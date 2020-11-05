@@ -35,6 +35,7 @@ BART_BAS(
   num_update_models = 200,
   sis_sampling = 0,
   reweight_splits = 0,
+  approx_intervals = 0,
   kernelize = 0
 )
 }

@@ -100,6 +100,7 @@ train_BART_IS_no_output <- function(seed,
                                     root_alg_precision=0.00001,
                                     sis_sampling = 0,
                                     reweight_splits = 0,
+                                    approx_intervals = 0,
                                     kernelize = 0){
 
   if(ncores>num_models ) stop("ncores > num_models")
@@ -145,6 +146,7 @@ train_BART_IS_no_output <- function(seed,
                                        root_alg_precision,
                                        sis_sampling,
                                        reweight_splits,
+                                       approx_intervals,
                                        kernelize)
 
   names(sBARToutput) <- c("model_probs",

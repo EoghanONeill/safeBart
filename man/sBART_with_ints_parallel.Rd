@@ -34,6 +34,7 @@ sBART_with_ints_parallel(
   root_alg_precision,
   sis_sampling,
   reweight_splits,
+  approx_intervals,
   kernelize
 )
 }

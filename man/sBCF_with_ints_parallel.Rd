@@ -37,6 +37,7 @@ sBCF_with_ints_parallel(
   lower_prob,
   upper_prob,
   root_alg_precision,
+  approx_intervals,
   kernelize
 )
 }

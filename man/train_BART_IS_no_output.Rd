@@ -33,6 +33,7 @@ train_BART_IS_no_output(
   root_alg_precision = 1e-05,
   sis_sampling = 0,
   reweight_splits = 0,
+  approx_intervals = 0,
   kernelize = 0
 )
 }

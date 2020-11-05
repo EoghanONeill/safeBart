@@ -32,6 +32,7 @@ BART_MOTR_IS_cpp(
   lower_prob,
   upper_prob,
   root_alg_precision,
+  approx_intervals,
   kernelize
 )
 }

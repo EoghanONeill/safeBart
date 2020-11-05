@@ -5139,6 +5139,7 @@ List sBART_with_ints_parallel(double lambda,
                                 double root_alg_precision,
                                 int sis_sampling,
                                 int reweight_splits,
+                                int approx_intervals,
                                 int kernelize){
 
 
@@ -7440,6 +7441,21 @@ double med_tstandard= boost::math::quantile(dist2,0.5); //This is just 0 ??
 double uq_tstandard= boost::math::quantile(dist2,upper_prob);
 
 
+double lq_normstd =1;
+double med_normstd =1; //This is just 0 ??
+double uq_normstd =1;
+
+if((approx_intervals==1) & (nu+num_obs>75)){
+  // boost::math::normal_distribution dist3norm(RealType mean = 0, RealType sd = 1);
+  boost::math::normal dist3norm(0.0, 1.0);
+
+  lq_normstd= boost::math::quantile(dist3norm,lower_prob);
+  med_normstd= boost::math::quantile(dist3norm,0.5); //This is just 0 ??
+  uq_normstd= boost::math::quantile(dist3norm,upper_prob);
+
+}
+
+
 if(weights_vec.size()==1){
 #pragma omp parallel num_threads(ncores)
 #pragma omp for
@@ -7466,34 +7482,71 @@ if(weights_vec.size()==1){
     std::vector<double> tempvars= arma::conv_to<stdvec>::from(t_vars_arma.row(i));
 
 
-    std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
+    if((approx_intervals==1) & (nu+num_obs>75)){
+      std::vector<double> bounds_lQ = norm_find_boundsQ( tempmeans, tempvars, lq_normstd);
 
-    output(0,i)=rootmixt(nu+num_obs,
-           bounds_lQ[0]-0.0001,
-           bounds_lQ[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, lower_prob,root_alg_precision);
+      output(0,i)=rootmixnorm(bounds_lQ[0]-0.0001,
+             bounds_lQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, lower_prob,root_alg_precision);
+    }else{
+
+      std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
+
+      output(0,i)=rootmixt(nu+num_obs,
+             bounds_lQ[0]-0.0001,
+             bounds_lQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, lower_prob,root_alg_precision);
+    }
 
 
-    std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
+    if((approx_intervals==1) & (nu+num_obs>75)){
 
-    output(1,i)=rootmixt(nu+num_obs,
-           bounds_med[0]-0.0001,
-           bounds_med[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, 0.5,root_alg_precision);
+      std::vector<double> bounds_med = norm_find_boundsQ( tempmeans, tempvars, med_normstd);
 
-    std::vector<double> bounds_uQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, uq_tstandard);
+      output(1,i)=rootmixnorm(
+        bounds_med[0]-0.0001,
+        bounds_med[1]+0.0001,
+        tempmeans,
+        tempvars,
+        weights_vec, 0.5,root_alg_precision);
+    }else{
 
-    output(2,i)=rootmixt(nu+num_obs,
-           bounds_uQ[0]-0.0001,
-           bounds_uQ[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, upper_prob,root_alg_precision);
+      std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
 
+      output(1,i)=rootmixt(nu+num_obs,
+             bounds_med[0]-0.0001,
+             bounds_med[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, 0.5,root_alg_precision);
+
+    }
+
+
+    if((approx_intervals==1) & (nu+num_obs>75)){
+      std::vector<double> bounds_uQ = norm_find_boundsQ( tempmeans, tempvars, uq_normstd);
+
+      output(2,i)=rootmixnorm(
+        bounds_uQ[0]-0.0001,
+        bounds_uQ[1]+0.0001,
+        tempmeans,
+        tempvars,
+        weights_vec, upper_prob,root_alg_precision);
+
+    }else{
+      std::vector<double> bounds_uQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, uq_tstandard);
+
+      output(2,i)=rootmixt(nu+num_obs,
+             bounds_uQ[0]-0.0001,
+             bounds_uQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, upper_prob,root_alg_precision);
+    }
 
   }
 #pragma omp barrier
@@ -7607,6 +7660,7 @@ List BARTIS_train(double lambda,
                               double root_alg_precision,
                               int sis_sampling,
                               int reweight_splits,
+                              int approx_intervals,
                               int kernelize){
 
 
@@ -9917,6 +9971,21 @@ double lq_tstandard= boost::math::quantile(dist2,lower_prob);
 double med_tstandard= boost::math::quantile(dist2,0.5); //This is just 0 ??
 double uq_tstandard= boost::math::quantile(dist2,upper_prob);
 
+double lq_normstd =1;
+double med_normstd =1; //This is just 0 ??
+double uq_normstd =1;
+
+if((approx_intervals==1) & (nu+num_obs>75)){
+  // boost::math::normal_distribution dist3norm(RealType mean = 0, RealType sd = 1);
+  boost::math::normal dist3norm(0.0, 1.0);
+
+  lq_normstd= boost::math::quantile(dist3norm,lower_prob);
+  med_normstd= boost::math::quantile(dist3norm,0.5); //This is just 0 ??
+  uq_normstd= boost::math::quantile(dist3norm,upper_prob);
+
+}
+
+
 
 if(weights_vec.size()==1){
 #pragma omp parallel num_threads(ncores)
@@ -9944,24 +10013,62 @@ if(weights_vec.size()==1){
     std::vector<double> tempvars= arma::conv_to<stdvec>::from(t_vars_arma.row(i));
 
 
-    std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
+    if((approx_intervals==1) & (nu+num_obs>75)){
+      std::vector<double> bounds_lQ = norm_find_boundsQ( tempmeans, tempvars, lq_normstd);
 
-    output(0,i)=rootmixt(nu+num_obs,
-           bounds_lQ[0]-0.0001,
-           bounds_lQ[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, lower_prob,root_alg_precision);
+      output(0,i)=rootmixnorm(bounds_lQ[0]-0.0001,
+             bounds_lQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, lower_prob,root_alg_precision);
+    }else{
+
+      std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
+
+      output(0,i)=rootmixt(nu+num_obs,
+             bounds_lQ[0]-0.0001,
+             bounds_lQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, lower_prob,root_alg_precision);
+
+    }
 
 
-    std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
+    if((approx_intervals==1) & (nu+num_obs>75)){
 
-    output(1,i)=rootmixt(nu+num_obs,
-           bounds_med[0]-0.0001,
-           bounds_med[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, 0.5,root_alg_precision);
+      std::vector<double> bounds_med = norm_find_boundsQ( tempmeans, tempvars, med_normstd);
+
+      output(1,i)=rootmixnorm(
+        bounds_med[0]-0.0001,
+        bounds_med[1]+0.0001,
+        tempmeans,
+        tempvars,
+        weights_vec, 0.5,root_alg_precision);
+    }else{
+
+      std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
+
+      output(1,i)=rootmixt(nu+num_obs,
+             bounds_med[0]-0.0001,
+             bounds_med[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, 0.5,root_alg_precision);
+
+    }
+
+    if((approx_intervals==1) & (nu+num_obs>75)){
+      std::vector<double> bounds_uQ = norm_find_boundsQ( tempmeans, tempvars, uq_normstd);
+
+      output(2,i)=rootmixnorm(
+        bounds_uQ[0]-0.0001,
+        bounds_uQ[1]+0.0001,
+        tempmeans,
+        tempvars,
+        weights_vec, upper_prob,root_alg_precision);
+
+    }else{
 
     std::vector<double> bounds_uQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, uq_tstandard);
 
@@ -9971,6 +10078,8 @@ if(weights_vec.size()==1){
            tempmeans,
            tempvars,
            weights_vec, upper_prob,root_alg_precision);
+
+    }
 
 
   }
@@ -12634,6 +12743,7 @@ List BART_BAS_cpp(double lambda,
                   int num_update_models,
                   int sis_sampling,
                   int reweight_splits,
+                  int approx_intervals,
                   int kernelize){
 
   int num_updates = num_models/num_update_models;
@@ -15130,6 +15240,20 @@ double lq_tstandard= boost::math::quantile(dist2,lower_prob);
 double med_tstandard= boost::math::quantile(dist2,0.5); //This is just 0 ??
 double uq_tstandard= boost::math::quantile(dist2,upper_prob);
 
+double lq_normstd =1;
+double med_normstd =1; //This is just 0 ??
+double uq_normstd =1;
+
+if((approx_intervals==1) & (nu+num_obs>75)){
+  // boost::math::normal_distribution dist3norm(RealType mean = 0, RealType sd = 1);
+  boost::math::normal dist3norm(0.0, 1.0);
+
+  lq_normstd= boost::math::quantile(dist3norm,lower_prob);
+  med_normstd= boost::math::quantile(dist3norm,0.5); //This is just 0 ??
+  uq_normstd= boost::math::quantile(dist3norm,upper_prob);
+
+}
+
 
 if(weights_vec.size()==1){
 #pragma omp parallel num_threads(ncores)
@@ -15157,34 +15281,69 @@ if(weights_vec.size()==1){
     std::vector<double> tempvars= arma::conv_to<stdvec>::from(t_vars_arma.row(i));
 
 
-    std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
+    if((approx_intervals==1) & (nu+num_obs>75)){
+      std::vector<double> bounds_lQ = norm_find_boundsQ( tempmeans, tempvars, lq_normstd);
 
-    output(0,i)=rootmixt(nu+num_obs,
-           bounds_lQ[0]-0.0001,
-           bounds_lQ[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, lower_prob,root_alg_precision);
+      output(0,i)=rootmixnorm(bounds_lQ[0]-0.0001,
+             bounds_lQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, lower_prob,root_alg_precision);
+    }else{
+
+      std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
+
+      output(0,i)=rootmixt(nu+num_obs,
+             bounds_lQ[0]-0.0001,
+             bounds_lQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, lower_prob,root_alg_precision);
+
+    }
+
+    if((approx_intervals==1) & (nu+num_obs>75)){
+
+      std::vector<double> bounds_med = norm_find_boundsQ( tempmeans, tempvars, med_normstd);
+
+      output(1,i)=rootmixnorm(
+        bounds_med[0]-0.0001,
+        bounds_med[1]+0.0001,
+        tempmeans,
+        tempvars,
+        weights_vec, 0.5,root_alg_precision);
+    }else{
+      std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
+
+      output(1,i)=rootmixt(nu+num_obs,
+             bounds_med[0]-0.0001,
+             bounds_med[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, 0.5,root_alg_precision);
+    }
 
 
-    std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
+    if((approx_intervals==1) & (nu+num_obs>75)){
+      std::vector<double> bounds_uQ = norm_find_boundsQ( tempmeans, tempvars, uq_normstd);
 
-    output(1,i)=rootmixt(nu+num_obs,
-           bounds_med[0]-0.0001,
-           bounds_med[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, 0.5,root_alg_precision);
+      output(2,i)=rootmixnorm(
+        bounds_uQ[0]-0.0001,
+        bounds_uQ[1]+0.0001,
+        tempmeans,
+        tempvars,
+        weights_vec, upper_prob,root_alg_precision);
 
-    std::vector<double> bounds_uQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, uq_tstandard);
+    }else{
+      std::vector<double> bounds_uQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, uq_tstandard);
 
-    output(2,i)=rootmixt(nu+num_obs,
-           bounds_uQ[0]-0.0001,
-           bounds_uQ[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, upper_prob,root_alg_precision);
-
+      output(2,i)=rootmixt(nu+num_obs,
+             bounds_uQ[0]-0.0001,
+             bounds_uQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, upper_prob,root_alg_precision);
+    }
 
   }
 #pragma omp barrier
@@ -16087,6 +16246,7 @@ List sBCF_with_ints_parallel(double lambda_mu,
                                     double lower_prob,
                                     double upper_prob,
                                     double root_alg_precision,
+                                    int approx_intervals,
                                     int kernelize){
 
 
@@ -19152,6 +19312,19 @@ if(fast_approx==1){
   double uq_tstandard= boost::math::quantile(dist2,upper_prob);
 
 
+  double lq_normstd =1;
+  double med_normstd =1; //This is just 0 ??
+  double uq_normstd =1;
+
+  if((approx_intervals==1) & (nu+num_obs>75)){
+    // boost::math::normal_distribution dist3norm(RealType mean = 0, RealType sd = 1);
+    boost::math::normal dist3norm(0.0, 1.0);
+
+    lq_normstd= boost::math::quantile(dist3norm,lower_prob);
+    med_normstd= boost::math::quantile(dist3norm,0.5); //This is just 0 ??
+    uq_normstd= boost::math::quantile(dist3norm,upper_prob);
+
+  }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -19332,34 +19505,73 @@ if(fast_approx==1){
       //Rcout << "Line 13859. tempvars" << t_vars_arma.row(i) << ".\n";
       //Rcout << "tempmeans" << overall_preds.row(i) << ".\n";
 
-      std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
-
-      output(0,i)=rootmixt(nu+num_obs,
-             bounds_lQ[0]-0.0001,
-             bounds_lQ[1]+0.0001,
-             tempmeans,
-             tempvars,
-             weights_vec, lower_prob,root_alg_precision);
 
 
-      std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
+      if((approx_intervals==1) & (nu+num_obs>75)){
+        std::vector<double> bounds_lQ = norm_find_boundsQ( tempmeans, tempvars, lq_normstd);
 
-      output(1,i)=rootmixt(nu+num_obs,
-             bounds_med[0]-0.0001,
-             bounds_med[1]+0.0001,
-             tempmeans,
-             tempvars,
-             weights_vec, 0.5,root_alg_precision);
+        output(0,i)=rootmixnorm(bounds_lQ[0]-0.0001,
+               bounds_lQ[1]+0.0001,
+               tempmeans,
+               tempvars,
+               weights_vec, lower_prob,root_alg_precision);
+      }else{
 
-      std::vector<double> bounds_uQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, uq_tstandard);
+        std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
 
-      output(2,i)=rootmixt(nu+num_obs,
-             bounds_uQ[0]-0.0001,
-             bounds_uQ[1]+0.0001,
-             tempmeans,
-             tempvars,
-             weights_vec, upper_prob,root_alg_precision);
+        output(0,i)=rootmixt(nu+num_obs,
+               bounds_lQ[0]-0.0001,
+               bounds_lQ[1]+0.0001,
+               tempmeans,
+               tempvars,
+               weights_vec, lower_prob,root_alg_precision);
 
+      }
+
+
+      if((approx_intervals==1) & (nu+num_obs>75)){
+
+        std::vector<double> bounds_med = norm_find_boundsQ( tempmeans, tempvars, med_normstd);
+
+        output(1,i)=rootmixnorm(
+          bounds_med[0]-0.0001,
+          bounds_med[1]+0.0001,
+          tempmeans,
+          tempvars,
+          weights_vec, 0.5,root_alg_precision);
+      }else{
+        std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
+
+        output(1,i)=rootmixt(nu+num_obs,
+               bounds_med[0]-0.0001,
+               bounds_med[1]+0.0001,
+               tempmeans,
+               tempvars,
+               weights_vec, 0.5,root_alg_precision);
+
+      }
+
+
+      if((approx_intervals==1) & (nu+num_obs>75)){
+        std::vector<double> bounds_uQ = norm_find_boundsQ( tempmeans, tempvars, uq_normstd);
+
+        output(2,i)=rootmixnorm(
+          bounds_uQ[0]-0.0001,
+          bounds_uQ[1]+0.0001,
+          tempmeans,
+          tempvars,
+          weights_vec, upper_prob,root_alg_precision);
+
+      }else{
+        std::vector<double> bounds_uQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, uq_tstandard);
+
+        output(2,i)=rootmixt(nu+num_obs,
+               bounds_uQ[0]-0.0001,
+               bounds_uQ[1]+0.0001,
+               tempmeans,
+               tempvars,
+               weights_vec, upper_prob,root_alg_precision);
+      }
 
     }
 #pragma omp barrier
@@ -19507,6 +19719,7 @@ List sBCF_train(double lambda_mu,
                              double lower_prob,
                              double upper_prob,
                              double root_alg_precision,
+                             int approx_intervals,
                              int kernelize){
 
 
@@ -22516,6 +22729,19 @@ double med_tstandard= boost::math::quantile(dist2,0.5); //This is just 0 ??
 double uq_tstandard= boost::math::quantile(dist2,upper_prob);
 
 
+double lq_normstd =1;
+double med_normstd =1; //This is just 0 ??
+double uq_normstd =1;
+
+if((approx_intervals==1) & (nu+num_obs>75)){
+  // boost::math::normal_distribution dist3norm(RealType mean = 0, RealType sd = 1);
+  boost::math::normal dist3norm(0.0, 1.0);
+
+  lq_normstd= boost::math::quantile(dist3norm,lower_prob);
+  med_normstd= boost::math::quantile(dist3norm,0.5); //This is just 0 ??
+  uq_normstd= boost::math::quantile(dist3norm,upper_prob);
+
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -22696,34 +22922,70 @@ if(weights_vec.size()==1){
     //Rcout << "Line 13859. tempvars" << t_vars_arma.row(i) << ".\n";
     //Rcout << "tempmeans" << overall_preds.row(i) << ".\n";
 
-    std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
+    if((approx_intervals==1) & (nu+num_obs>75)){
+      std::vector<double> bounds_lQ = norm_find_boundsQ( tempmeans, tempvars, lq_normstd);
 
-    output(0,i)=rootmixt(nu+num_obs,
-           bounds_lQ[0]-0.0001,
-           bounds_lQ[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, lower_prob,root_alg_precision);
+      output(0,i)=rootmixnorm(bounds_lQ[0]-0.0001,
+             bounds_lQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, lower_prob,root_alg_precision);
+    }else{
+
+      std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
+
+      output(0,i)=rootmixt(nu+num_obs,
+             bounds_lQ[0]-0.0001,
+             bounds_lQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, lower_prob,root_alg_precision);
+
+    }
 
 
-    std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
+    if((approx_intervals==1) & (nu+num_obs>75)){
 
-    output(1,i)=rootmixt(nu+num_obs,
-           bounds_med[0]-0.0001,
-           bounds_med[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, 0.5,root_alg_precision);
+      std::vector<double> bounds_med = norm_find_boundsQ( tempmeans, tempvars, med_normstd);
 
-    std::vector<double> bounds_uQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, uq_tstandard);
+      output(1,i)=rootmixnorm(
+        bounds_med[0]-0.0001,
+        bounds_med[1]+0.0001,
+        tempmeans,
+        tempvars,
+        weights_vec, 0.5,root_alg_precision);
+    }else{
+      std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
 
-    output(2,i)=rootmixt(nu+num_obs,
-           bounds_uQ[0]-0.0001,
-           bounds_uQ[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, upper_prob,root_alg_precision);
+      output(1,i)=rootmixt(nu+num_obs,
+             bounds_med[0]-0.0001,
+             bounds_med[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, 0.5,root_alg_precision);
+    }
 
+
+    if((approx_intervals==1) & (nu+num_obs>75)){
+      std::vector<double> bounds_uQ = norm_find_boundsQ( tempmeans, tempvars, uq_normstd);
+
+      output(2,i)=rootmixnorm(
+        bounds_uQ[0]-0.0001,
+        bounds_uQ[1]+0.0001,
+        tempmeans,
+        tempvars,
+        weights_vec, upper_prob,root_alg_precision);
+
+    }else{
+      std::vector<double> bounds_uQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, uq_tstandard);
+
+      output(2,i)=rootmixt(nu+num_obs,
+             bounds_uQ[0]-0.0001,
+             bounds_uQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, upper_prob,root_alg_precision);
+    }
 
   }
 #pragma omp barrier
@@ -22905,6 +23167,7 @@ List sBCF_train_no_test_no_output(double lambda_mu,
                 double lower_prob,
                 double upper_prob,
                 double root_alg_precision,
+                int approx_intervals,
                 int kernelize){
 
 
@@ -29098,7 +29361,7 @@ double lq_normstd =1;
 double med_normstd =1; //This is just 0 ??
 double uq_normstd =1;
 
-if((approx_intervals==1) & (nu+num_obs>200)){
+if((approx_intervals==1) & (nu+num_obs>75)){
  // boost::math::normal_distribution dist3norm(RealType mean = 0, RealType sd = 1);
   boost::math::normal dist3norm(0.0, 1.0);
 
@@ -29192,7 +29455,7 @@ if(weights_vec.size()==1){
 
     //Rcout << "Line 29174 .\n";
 
-    if((approx_intervals==1) & (nu+num_obs>200)){
+    if((approx_intervals==1) & (nu+num_obs>75)){
       std::vector<double> bounds_lQ = norm_find_boundsQ( tempmeans, tempvars, lq_normstd);
 
       output(0,i)=rootmixnorm(bounds_lQ[0]-0.0001,
@@ -29215,9 +29478,9 @@ if(weights_vec.size()==1){
 
     //Rcout << "Line 29188 .\n";
 
-    std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
+    //std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
 
-    if((approx_intervals==1) & (nu+num_obs>200)){
+    if((approx_intervals==1) & (nu+num_obs>75)){
 
       std::vector<double> bounds_med = norm_find_boundsQ( tempmeans, tempvars, med_normstd);
 
@@ -29241,7 +29504,7 @@ if(weights_vec.size()==1){
     //Rcout << "Line 29208 .\n";
 
 
-    if((approx_intervals==1) & (nu+num_obs>200)){
+    if((approx_intervals==1) & (nu+num_obs>75)){
       std::vector<double> bounds_uQ = norm_find_boundsQ( tempmeans, tempvars, uq_normstd);
 
       output(2,i)=rootmixnorm(
@@ -37664,6 +37927,7 @@ List BART_MOTR_IS_cpp(double lambda,
                       double lower_prob,
                       double upper_prob,
                       double root_alg_precision,
+                      int approx_intervals,
                       int kernelize){
 
 
@@ -39989,6 +40253,22 @@ double med_tstandard= boost::math::quantile(dist2,0.5); //This is just 0 ??
 double uq_tstandard= boost::math::quantile(dist2,upper_prob);
 
 
+double lq_normstd =1;
+double med_normstd =1; //This is just 0 ??
+double uq_normstd =1;
+
+if((approx_intervals==1) & (nu+num_obs>75)){
+  // boost::math::normal_distribution dist3norm(RealType mean = 0, RealType sd = 1);
+  boost::math::normal dist3norm(0.0, 1.0);
+
+  lq_normstd= boost::math::quantile(dist3norm,lower_prob);
+  med_normstd= boost::math::quantile(dist3norm,0.5); //This is just 0 ??
+  uq_normstd= boost::math::quantile(dist3norm,upper_prob);
+
+}
+
+
+
 if(weights_vec.size()==1){
 #pragma omp parallel num_threads(ncores)
 #pragma omp for
@@ -40015,34 +40295,73 @@ if(weights_vec.size()==1){
     std::vector<double> tempvars= arma::conv_to<stdvec>::from(t_vars_arma.row(i));
 
 
-    std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
+    if((approx_intervals==1) & (nu+num_obs>75)){
+      std::vector<double> bounds_lQ = norm_find_boundsQ( tempmeans, tempvars, lq_normstd);
 
-    output(0,i)=rootmixt(nu+num_obs,
-           bounds_lQ[0]-0.0001,
-           bounds_lQ[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, lower_prob,root_alg_precision);
+      output(0,i)=rootmixnorm(bounds_lQ[0]-0.0001,
+             bounds_lQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, lower_prob,root_alg_precision);
+    }else{
+      std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
+
+      output(0,i)=rootmixt(nu+num_obs,
+             bounds_lQ[0]-0.0001,
+             bounds_lQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, lower_prob,root_alg_precision);
+    }
 
 
-    std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
+    if((approx_intervals==1) & (nu+num_obs>75)){
 
-    output(1,i)=rootmixt(nu+num_obs,
-           bounds_med[0]-0.0001,
-           bounds_med[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, 0.5,root_alg_precision);
+      std::vector<double> bounds_med = norm_find_boundsQ( tempmeans, tempvars, med_normstd);
 
-    std::vector<double> bounds_uQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, uq_tstandard);
+      output(1,i)=rootmixnorm(
+        bounds_med[0]-0.0001,
+        bounds_med[1]+0.0001,
+        tempmeans,
+        tempvars,
+        weights_vec, 0.5,root_alg_precision);
 
-    output(2,i)=rootmixt(nu+num_obs,
-           bounds_uQ[0]-0.0001,
-           bounds_uQ[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, upper_prob,root_alg_precision);
+    }else{
 
+      std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
+
+      output(1,i)=rootmixt(nu+num_obs,
+             bounds_med[0]-0.0001,
+             bounds_med[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, 0.5,root_alg_precision);
+
+    }
+
+
+    if((approx_intervals==1) & (nu+num_obs>75)){
+      std::vector<double> bounds_uQ = norm_find_boundsQ( tempmeans, tempvars, uq_normstd);
+
+      output(2,i)=rootmixnorm(
+        bounds_uQ[0]-0.0001,
+        bounds_uQ[1]+0.0001,
+        tempmeans,
+        tempvars,
+        weights_vec, upper_prob,root_alg_precision);
+
+    }else{
+
+      std::vector<double> bounds_uQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, uq_tstandard);
+
+      output(2,i)=rootmixt(nu+num_obs,
+             bounds_uQ[0]-0.0001,
+             bounds_uQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, upper_prob,root_alg_precision);
+
+    }
 
   }
 #pragma omp barrier
@@ -40159,7 +40478,9 @@ List BCF_MOTR_IS_cpp(double lambda_mu,
                      int PIT_propensity,
                      double lower_prob,
                      double upper_prob,
-                     double root_alg_precision){
+                     double root_alg_precision,
+                     int approx_intervals
+){
 
 
   //Check that various input vectors and matrices have consistent dimensions
@@ -43097,6 +43418,19 @@ double med_tstandard= boost::math::quantile(dist2,0.5); //This is just 0 ??
 double uq_tstandard= boost::math::quantile(dist2,upper_prob);
 
 
+double lq_normstd =1;
+double med_normstd =1; //This is just 0 ??
+double uq_normstd =1;
+
+if((approx_intervals==1) & (nu+num_obs>75)){
+  // boost::math::normal_distribution dist3norm(RealType mean = 0, RealType sd = 1);
+  boost::math::normal dist3norm(0.0, 1.0);
+
+  lq_normstd= boost::math::quantile(dist3norm,lower_prob);
+  med_normstd= boost::math::quantile(dist3norm,0.5); //This is just 0 ??
+  uq_normstd= boost::math::quantile(dist3norm,upper_prob);
+
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -43277,33 +43611,72 @@ if(weights_vec.size()==1){
     //Rcout << "Line 13859. tempvars" << t_vars_arma.row(i) << ".\n";
     //Rcout << "tempmeans" << overall_preds.row(i) << ".\n";
 
-    std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
 
-    output(0,i)=rootmixt(nu+num_obs,
-           bounds_lQ[0]-0.0001,
-           bounds_lQ[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, lower_prob,root_alg_precision);
+    if((approx_intervals==1) & (nu+num_obs>75)){
+      std::vector<double> bounds_lQ = norm_find_boundsQ( tempmeans, tempvars, lq_normstd);
+
+      output(0,i)=rootmixnorm(bounds_lQ[0]-0.0001,
+             bounds_lQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, lower_prob,root_alg_precision);
+    }else{
+      std::vector<double> bounds_lQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, lq_tstandard);
+
+      output(0,i)=rootmixt(nu+num_obs,
+             bounds_lQ[0]-0.0001,
+             bounds_lQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, lower_prob,root_alg_precision);
+    }
 
 
-    std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
+    if((approx_intervals==1) & (nu+num_obs>75)){
 
-    output(1,i)=rootmixt(nu+num_obs,
-           bounds_med[0]-0.0001,
-           bounds_med[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, 0.5,root_alg_precision);
+      std::vector<double> bounds_med = norm_find_boundsQ( tempmeans, tempvars, med_normstd);
 
-    std::vector<double> bounds_uQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, uq_tstandard);
+      output(1,i)=rootmixnorm(
+        bounds_med[0]-0.0001,
+        bounds_med[1]+0.0001,
+        tempmeans,
+        tempvars,
+        weights_vec, 0.5,root_alg_precision);
 
-    output(2,i)=rootmixt(nu+num_obs,
-           bounds_uQ[0]-0.0001,
-           bounds_uQ[1]+0.0001,
-           tempmeans,
-           tempvars,
-           weights_vec, upper_prob,root_alg_precision);
+    }else{
+      std::vector<double> bounds_med = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, med_tstandard);
+
+      output(1,i)=rootmixt(nu+num_obs,
+             bounds_med[0]-0.0001,
+             bounds_med[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, 0.5,root_alg_precision);
+
+    }
+
+
+    if((approx_intervals==1) & (nu+num_obs>75)){
+      std::vector<double> bounds_uQ = norm_find_boundsQ( tempmeans, tempvars, uq_normstd);
+
+      output(2,i)=rootmixnorm(
+        bounds_uQ[0]-0.0001,
+        bounds_uQ[1]+0.0001,
+        tempmeans,
+        tempvars,
+        weights_vec, upper_prob,root_alg_precision);
+
+    }else{
+      std::vector<double> bounds_uQ = mixt_find_boundsQ( nu+num_obs, tempmeans, tempvars, uq_tstandard);
+
+      output(2,i)=rootmixt(nu+num_obs,
+             bounds_uQ[0]-0.0001,
+             bounds_uQ[1]+0.0001,
+             tempmeans,
+             tempvars,
+             weights_vec, upper_prob,root_alg_precision);
+
+    }
 
 
   }

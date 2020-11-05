@@ -62,8 +62,8 @@ sBCF_onefunc_parallel <- function(lambda_mu, lambda_tau, num_models, num_trees_m
 #' @param ncores The number of cores to be used in parallelization.
 #' @return A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.
 #' @export
-sBART_with_ints_parallel <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits, kernelize) {
-    .Call(`_safeBart_sBART_with_ints_parallel`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits, kernelize)
+sBART_with_ints_parallel <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits, approx_intervals, kernelize) {
+    .Call(`_safeBart_sBART_with_ints_parallel`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits, approx_intervals, kernelize)
 }
 
 #' @title Parallel Safe-BART with prediction intervals
@@ -81,8 +81,8 @@ sBART_with_ints_parallel <- function(lambda, num_models, num_trees, seed, ytrain
 #' @param ncores The number of cores to be used in parallelization.
 #' @return A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.
 #' @export
-BARTIS_train <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits, kernelize) {
-    .Call(`_safeBart_BARTIS_train`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits, kernelize)
+BARTIS_train <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits, approx_intervals, kernelize) {
+    .Call(`_safeBart_BARTIS_train`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits, approx_intervals, kernelize)
 }
 
 #' @title Parallel Safe-BART with prediction intervals
@@ -119,8 +119,8 @@ BARTIS_train_no_test_no_output <- function(lambda, num_models, num_trees, seed, 
 #' @param ncores The number of cores to be used in parallelization.
 #' @return A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.
 #' @export
-BART_BAS_cpp <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, num_update_models, sis_sampling, reweight_splits, kernelize) {
-    .Call(`_safeBart_BART_BAS_cpp`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, num_update_models, sis_sampling, reweight_splits, kernelize)
+BART_BAS_cpp <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, num_update_models, sis_sampling, reweight_splits, approx_intervals, kernelize) {
+    .Call(`_safeBart_BART_BAS_cpp`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, num_update_models, sis_sampling, reweight_splits, approx_intervals, kernelize)
 }
 
 get_termobs_test_data_fields <- function(test_data, tree_data) {
@@ -146,8 +146,8 @@ pred_ints_exact_outsamp_par <- function(overall_sum_trees, ytrain, post_weights,
 #' @param ncores The number of cores to be used in parallelization.
 #' @return A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
 #' @export
-sBCF_with_ints_parallel <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, kernelize) {
-    .Call(`_safeBart_sBCF_with_ints_parallel`, lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, kernelize)
+sBCF_with_ints_parallel <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, approx_intervals, kernelize) {
+    .Call(`_safeBart_sBCF_with_ints_parallel`, lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, approx_intervals, kernelize)
 }
 
 #' @title Parallel Safe-Bayesian Causal Forest
@@ -165,8 +165,8 @@ sBCF_with_ints_parallel <- function(lambda_mu, lambda_tau, num_models, num_trees
 #' @param ncores The number of cores to be used in parallelization.
 #' @return A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
 #' @export
-sBCF_train <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, kernelize) {
-    .Call(`_safeBart_sBCF_train`, lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, kernelize)
+sBCF_train <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, approx_intervals, kernelize) {
+    .Call(`_safeBart_sBCF_train`, lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, approx_intervals, kernelize)
 }
 
 #' @title Parallel Safe-Bayesian Causal Forest
@@ -184,8 +184,8 @@ sBCF_train <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_tree
 #' @param ncores The number of cores to be used in parallelization.
 #' @return A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
 #' @export
-sBCF_train_no_test_no_output <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, kernelize) {
-    .Call(`_safeBart_sBCF_train_no_test_no_output`, lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, kernelize)
+sBCF_train_no_test_no_output <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, approx_intervals, kernelize) {
+    .Call(`_safeBart_sBCF_train_no_test_no_output`, lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, approx_intervals, kernelize)
 }
 
 #' @title Parallel Safe-BART with prediction intervals
@@ -288,8 +288,8 @@ LBCF_IS <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_t
 #' @param ncores The number of cores to be used in parallelization.
 #' @return A List containing 1. A vector of predictions, and 2. A matrix of prediction intervals, the first row corresponds to the lower quantile, the second row is the median, and the third row is the upper quantile.
 #' @export
-BART_MOTR_IS_cpp <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, kernelize) {
-    .Call(`_safeBart_BART_MOTR_IS_cpp`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, kernelize)
+BART_MOTR_IS_cpp <- function(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, approx_intervals, kernelize) {
+    .Call(`_safeBart_BART_MOTR_IS_cpp`, lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, approx_intervals, kernelize)
 }
 
 #' @title Parallel BCF_MOTR_IS
@@ -307,8 +307,8 @@ BART_MOTR_IS_cpp <- function(lambda, num_models, num_trees, seed, ytrain, origin
 #' @param ncores The number of cores to be used in parallelization.
 #' @return A matrix of probabilities with the number of rows equl to the number of test observations and the number of columns equal to the number of possible outcome categories.
 #' @export
-BCF_MOTR_IS_cpp <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision) {
-    .Call(`_safeBart_BCF_MOTR_IS_cpp`, lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision)
+BCF_MOTR_IS_cpp <- function(lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, approx_intervals) {
+    .Call(`_safeBart_BCF_MOTR_IS_cpp`, lambda_mu, lambda_tau, num_models, num_trees_mu, num_trees_tau, seed, ytrain, original_datamat, ztrain, pihat_train, beta_par, test_datamat, test_pihat, ncores, outsamppreds, nu, a_mu, a_tau, lambdaBCF, valid_trees, tree_prior, imp_sampler, alpha_BCF_mu, beta_BCF_mu, alpha_BCF_tau, beta_BCF_tau, include_pi2, fast_approx, PIT_propensity, lower_prob, upper_prob, root_alg_precision, approx_intervals)
 }
 
 scale_response <- function(a, b, c, d, y) {
