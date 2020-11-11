@@ -41643,6 +41643,9 @@ List BCF_MOTR_IS_cpp(double lambda_mu,
 
       //Obtain test W_tilde, i.e. W matrix for test data
       if(is_test_data==1){
+
+        W_tilde_mu=join_rows(W_tilde_mu,Jtilde);
+
         arma::uvec split_var_vectemp=split_var_vec_arma(arma::find(treenodes_bin_arma==1));
         arma::uvec uniquesplitvars=arma::unique(split_var_vectemp)-1;
         //double q_temp=uniquesplitvars.n_elem;
