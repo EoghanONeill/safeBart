@@ -5390,6 +5390,22 @@ List sBART_with_ints_parallel(double lambda,
   //Rcout << "Line 3338. \n";
 
 
+  int n_obs_forwmat = 0;
+  int n_obs_forwmat_tilde = 0;
+  int n_obs_wwt = 0;
+  int n_obs_wwt_tilde = 0;
+
+  if(kernelize == 3){
+    n_obs_wwt=num_obs;
+    n_obs_wwt_tilde=num_test_obs;
+
+  }else{
+    n_obs_forwmat=num_obs;
+    n_obs_forwmat_tilde=num_test_obs;
+
+  }
+
+
 #pragma omp parallel num_threads(ncores)
 {//start of pragma omp code
   dqrng::xoshiro256plus lgen(gen);      // make thread local copy of rng
@@ -5398,12 +5414,18 @@ List sBART_with_ints_parallel(double lambda,
 #pragma omp for
   for(int j=0; j<num_models;j++){
 
-    arma::mat Wmat(num_obs,0);
+    arma::mat Wmat(n_obs_forwmat,0);
 
     //maybe use line below, depends how Jmat joined to Wmat
     //int upsilon=0;
 
-    arma::mat W_tilde(num_test_obs,0);
+    arma::mat W_tilde(n_obs_forwmat_tilde,0);
+
+    arma::mat WWt_trick(n_obs_wwt, n_obs_wwt, arma::fill::zeros);
+    arma::mat W_tilde_Wt_trick(n_obs_wwt_tilde, n_obs_wwt, arma::fill::zeros);
+    //arma::mat W_tilde_Wt_tilde_trick(num_test_obs, num_test_obs, arma::fill::zeros);
+
+
 
     //maybe use line below, depends how Jmat joined to Wmat
     //int upsilon2=0;
@@ -6054,9 +6076,14 @@ List sBART_with_ints_parallel(double lambda,
 
 
       //GET J MATRIX
+      int n_J_cols= 0;
+      if(kernelize==3){
 
-      arma::mat Jmat(num_obs,term_nodes.n_elem);
-      arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+      }else{
+        n_J_cols = term_nodes.n_elem;
+      }
+      arma::mat Jmat(num_obs,n_J_cols);
+      arma::mat Jtilde(num_test_obs,n_J_cols);
 
       //arma::vec arma_terminal_nodes=Rcpp::as<arma::vec>(terminal_nodes);
       //NumericVector tree_predictions;
@@ -6082,9 +6109,16 @@ List sBART_with_ints_parallel(double lambda,
         //double num_prod=1;
         //double num_sum=0;
         //Rcout << "Line 129.\n";
-        Jmat.col(0) = arma::ones<arma::vec>(num_obs);
-        Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
 
+        if(kernelize==3){
+          WWt_trick += 1;
+          W_tilde_Wt_trick += 1;
+          //W_tilde_Wt_tilde_trick += 1;
+
+        }else{
+          Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+          Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        }
         //for(int k=0; k<num_cats; k++){
         //assuming categories of y are from 1 to num_cats
         //arma::uvec cat_inds= arma::find(orig_y_arma==k+1);
@@ -6244,15 +6278,24 @@ List sBART_with_ints_parallel(double lambda,
           }
           //Rcout << "Line 199. i = " << i <<  ".\n";
 
-          //There is probably a more efficient way of doing this
-          //e.g. initialize J matrix so that all elements are equal to zero
-          arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
-          tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
-          Jmat.col(i) = tempcol_J;
+          if(kernelize ==3){
 
-          arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
-          tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
-          Jtilde.col(i) = tempcol_Jtilde;
+            WWt_trick(pred_indices, pred_indices) += 1;
+            W_tilde_Wt_trick(pred_test_indices, pred_indices) += 1;
+            //W_tilde_Wt_tilde_trick(pred_test_indices, pred_test_indices) += 1;
+
+          }else{
+            //There is probably a more efficient way of doing this
+            //e.g. initialize J matrix so that all elements are equal to zero
+            arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+            tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+            Jmat.col(i) = tempcol_J;
+
+            arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+            tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+            Jtilde.col(i) = tempcol_Jtilde;
+          }
+
 
           //double nodemean=tree_data(terminal_nodes[i]-1,5);
           //IntegerVector predind=as<IntegerVector>(wrap(pred_indices));
@@ -6289,18 +6332,22 @@ List sBART_with_ints_parallel(double lambda,
 
       //Rcout << "Line 4530 .\n";
 
-      Wmat=join_rows(Wmat,Jmat);
-      //or
-      //Wmat.insert_cols(Wmat.n_cols,Jmat);
-      //or
-      //int b_j=term_nodes.n_elem;
-      //Wmat.insert_cols(upsilon,Jmat);
-      //upsilon+=b_j;
+      if(kernelize==3){
+
+      }else{
+        Wmat=join_rows(Wmat,Jmat);
+        //or
+        //Wmat.insert_cols(Wmat.n_cols,Jmat);
+        //or
+        //int b_j=term_nodes.n_elem;
+        //Wmat.insert_cols(upsilon,Jmat);
+        //upsilon+=b_j;
 
 
-      //Obtain test W_tilde, i.e. W matrix for test data
+        //Obtain test W_tilde, i.e. W matrix for test data
 
-      W_tilde=join_rows(W_tilde,Jtilde);
+        W_tilde=join_rows(W_tilde,Jtilde);
+      }
       //or
       //W_tilde.insert_cols(W_tilde.n_cols,Jtilde);
       //or
@@ -6980,7 +7027,6 @@ List sBART_with_ints_parallel(double lambda,
 
     //Rcout << "Line 5186 .\n";
 
-    double b=Wmat.n_cols;
 
 
     // CURRENTLY CAN'T OBTAIN COVARIANCE MATRIX WITH FAST APPROXIMATION APPROACH
@@ -7038,212 +7084,14 @@ List sBART_with_ints_parallel(double lambda,
     // }else{
 
 
-    if( (kernelize == 0) | ((kernelize ==2)&(num_obs >4*b))){
-
-      // ///////////////////////////////////
-      //get t(y)inv(psi)J
-      arma::mat ytW=y.t()*Wmat;
-      //get t(J)inv(psi)J
-      arma::mat WtW=Wmat.t()*Wmat;
-      //get jpsij +aI
-      arma::mat aI(b,b);
-      aI=a*aI.eye();
-      arma::mat sec_term=WtW+aI;
-      //arma::mat sec_term_inv=sec_term.i();
-      arma::mat sec_term_inv=inv_sympd(sec_term);
-      //get t(J)inv(psi)y
-      arma::mat third_term=Wmat.t()*y;
-      //get m^TV^{-1}m
-      arma::mat mvm= ytW*sec_term_inv*third_term;
-      //arma::mat rel=(b/2)*log(a)-(1/2)*log(det(sec_term))-expon*log(nu*lambdaBART - mvm +yty);
-      // /////////////////////////////////////////////
-
-
-      //
-      // Rcout << "-b*0.5*log(num_obs)= " << -b*0.5*log(num_obs) << ". \n";
-      // Rcout << "log(temp_sse)*(-num_obs)*0.5= " << log(temp_sse)*(-num_obs)*0.5 << ". \n";
-      //
-
-      //double templik0=pow(num_obs, -b*0.5)*pow(temp_sse,-num_obs*0.5);
-
-      //
-      //     arma::vec temppred1=Wmat*sec_term_inv*third_term;
-      //     arma::vec temperrors= y-temppred1;
-      //     arma::vec tempcoeffs= sec_term_inv*third_term;
-      //
-      //     double new_penalty= as_scalar(b*temppred1.t()*temppred1/(tempcoeffs.t()*tempcoeffs*(double(num_obs)-b)));
-      //
-      //     Rcout << " new_penalty =" << new_penalty << ".\n";
-
-
-      //double val1;
-      //double sign1;
-
-      //log_det(val1, sign1, sec_term);
-      //double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*val1-expon*log(nu*lambdaBART - mvm +yty)));
-
-
-      ////////////////////
-      //double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)));
-      //////////////
-      double templik0=arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-expon*log(nu*lambdaBART - mvm +yty));
-
-
-
-      //double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*log(det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)));
-
-
-
-
-
-      //
-      //
-      //     arma::mat aI2(b,b);
-      //     aI2=new_penalty*aI2.eye();
-      //     arma::mat sec_term2=WtW+aI2;
-      //     //arma::mat sec_term_inv=sec_term.i();
-      //     arma::mat sec_term_inv2=inv_sympd(sec_term2);
-      //     //get t(J)inv(psi)y
-      //     //arma::mat third_term=Wmat.t()*y;
-      //     //get m^TV^{-1}m
-      //     arma::mat mvm2= ytW*sec_term_inv2*third_term;
-      //
-      //
-      //     double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term2))-expon*log(nu*lambdaBART - mvm2 +yty)));
-      //
-
-
-
-
-
-      // Rcout << "log(temp_sse)= " << log(temp_sse) << ". \n";
-      //
-      //
-      // Rcout << "temp_sse= " << temp_sse << ". \n";
-      //
-
-
-
-      // Rcout << "templik0= " << templik0 << ". \n";
-      //
-      //       Rcout << "b= " << b << ". \n";
-      //       Rcout << "(b*0.5)*log(a)= " << (b*0.5)*log(a) << ". \n";
-      //
-      //       Rcout << "-0.5*log(det(sec_term))= " << -0.5*log(det(sec_term)) << ". \n";
-      //       Rcout << "det(sec_term)= " << det(sec_term) << ". \n";
-      //       Rcout << "arma::det(sec_term)= " << arma::det(sec_term) << ". \n";
-      //       Rcout << "arma::log_det(sec_term)= " << arma::log_det(sec_term) << ". \n";
-      //       Rcout << "real(arma::log_det(sec_term))= " << real(arma::log_det(sec_term)) << ". \n";
-      //       Rcout << "log(det(sec_term))= " << log(det(sec_term)) << ". \n";
-      //       Rcout << "log(arma::det(sec_term))= " << log(arma::det(sec_term)) << ". \n";
-      //
-      //       Rcout << "-expon*log(nu*lambdaBART - mvm +yty)= " << -expon*log(nu*lambdaBART - mvm +yty) << ". \n";
-      //
-      //
-      //       // Rcout << "val= " << val << ". \n";
-      //
-      // Rcout << "arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)) .\n" << arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)) << ".\n";
-      //       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      //overall_treetables[j]= wrap(tree_table1);
-
-
-      //double templik = as<double>(treepred_output[1]);
-
-      //double templik = pow(templik0,beta_par);
-
-      double templik = beta_par*templik0;
-
-      if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
-        //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
-        //templik=templik*sum_prior_over_samp_prob;
-        templik=templik+log(sum_prior_over_samp_prob);
-
-      }
-      overall_liks(j)= templik;
-
-      // if(std::isnan(templik)){
-      // Rcout << "Line 3943, j= " << j << ". \n";
-      // Rcout << "templik= " << templik << ". \n";
-      // Rcout << "sum_tree_prior_prob= " << sum_tree_prior_prob << ". \n";
-      // Rcout << "sum_tree_samp_prob= " << sum_tree_samp_prob << ". \n";
-      // }
-
-
-      //now fill in the predictions
-
-      //If want tree tables with predictions filled in, use
-      // arma::vec term_node_par_means = sec_term_inv*third_term;
-      // //and would need to save a field of tree tables,
-      // //add add a column, or begin with one more column
-      // //then the first treetableF[0].n_rows elements of term_node_par_means
-      // //give the first
-      // int row_count1=0;
-      // for(int tree_i=0; tree_i < treetableF.n_elem; tree_i++){
-      //   tabletemp= treetableF(i);
-      //   tabletemp.col(5) = term_node_par_means(arma::span(row_count1,tabletemp.n_rows));
-      //   treetableF(i)=tabletemp;
-      //   row_count1+=tabletemp.n_rows;
-      // }
-      //This would give an alternative method for obtaining test data predictions
-      //Look up the terminal nodes and add the relevant terminal node parameters
-
-
-
-
-      //arma::vec pred_vec(testdata_arma.n_rows);
-
-      ////////////
-      arma::vec preds_temp_arma= W_tilde*sec_term_inv*third_term;
-
-      ////////////////////
-
-
-
-
-
-      //arma::vec preds_temp_arma= W_tilde*sec_term_inv2*third_term;
-
-
-
-      //THIS SHOULD BE DIFFERENT IF THE CODE IS TO BE PARALLELIZED
-      //EACH THREAD SHOULD OUTPUT ITS OWN MATRIX AND SUM OF LIKELIHOODS
-      //THEN ADD THE MATRICES TOGETHER AND DIVIDE BY THE TOTAL SUM OF LIKELIHOODS
-      //OR JUST SAVE ALL MATRICES TO ONE LIST
-
-
-      //pred_mat_overall = pred_mat_overall + templik*pred_mat;
-      //overall_treetables(j)= pred_mat*templik;
-
-
-      //overall_preds(j)=preds_temp_arma*templik;
-
-      overall_preds.col(j)=preds_temp_arma;
-
-      arma::vec preds_temp_arma2= Wmat*sec_term_inv*third_term;
-      overall_preds2.col(j)=preds_temp_arma2;
-
-
-      arma::mat temp_for_scal = ((nu*lambdaBART+yty-mvm)/(nu+num_obs));
-      double temp_scal= as_scalar(temp_for_scal) ;
-      //Rcout << "Line 4156";
-      //arma::mat covar_t=temp_scal*(I_test+w_tilde_M_inv*(W_tilde.t()));
-      //arma::mat covar_t=temp_scal*(I_test+W_tilde*sec_term_inv*(W_tilde.t()));
-      //arma::mat covar_t=temp_scal*(I_test+
-      //  (arma::sum((W_tilde*sec_term_inv).t() % W_tilde.t(), 0)).t());
-      t_vars_arma.col(j)=temp_scal*(1+
-        (arma::sum((W_tilde*sec_term_inv).t() % W_tilde.t(), 0)).t());
-
-    }else{//code for kernelized scenario
-
-      arma::mat WWt= Wmat*Wmat.t();
+    if(kernelize==3){
+      //arma::mat WWt= Wmat*Wmat.t();
 
       //get jpsij +aI
       //arma::mat aI(b,b);
       arma::mat aI(num_obs,num_obs);
       aI=a*aI.eye();
-      arma::mat sec_term=WWt+aI;
+      arma::mat sec_term=WWt_trick+aI;
       //arma::mat sec_term_inv=sec_term.i();
       arma::mat sec_term_inv=inv_sympd(sec_term);
       //get t(J)inv(psi)y
@@ -7253,12 +7101,12 @@ List sBART_with_ints_parallel(double lambda,
 
       arma::mat Qinv_y = sec_term_inv*y;
 
-      arma::mat W_tildeWt= W_tilde*Wmat.t();
+      //arma::mat W_tildeWt= W_tilde*Wmat.t();
       //arma::mat W_tildeW_tilde= W_tilde*W_tilde.t();
       //arma::mat W_tildeW_tilde_diag= arma::sum (W_tilde % W_tilde ,1)   ;
 
 
-      double  temp_calc = arma::as_scalar(nu*lambdaBART - y.t()*WWt*Qinv_y +yty );
+      double  temp_calc = arma::as_scalar(nu*lambdaBART - y.t()*WWt_trick*Qinv_y +yty );
 
       double templik0=arma::as_scalar((num_obs*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-
                                       expon*log(temp_calc));
@@ -7273,10 +7121,10 @@ List sBART_with_ints_parallel(double lambda,
       }
       overall_liks(j)= templik;
 
-      arma::vec preds_temp_arma= W_tildeWt * Qinv_y;
+      arma::vec preds_temp_arma= W_tilde_Wt_trick * Qinv_y;
       overall_preds.col(j)=preds_temp_arma;
 
-      arma::vec preds_temp_arma2=  WWt * Qinv_y;
+      arma::vec preds_temp_arma2=  WWt_trick * Qinv_y;
       overall_preds2.col(j)= preds_temp_arma2;
 
 
@@ -7285,33 +7133,291 @@ List sBART_with_ints_parallel(double lambda,
 
       t_vars_arma.col(j)=temp_scal*(1+
         +(1/a)*num_trees
-        -(1/a)*(arma::sum((W_tildeWt*sec_term_inv).t() % W_tildeWt.t(), 0)).t());
+        -(1/a)*(arma::sum((W_tilde_Wt_trick*sec_term_inv).t() % W_tilde_Wt_trick.t(), 0)).t());
 
 
-    }
-
-      //Rcout << "Line 3985, j= " << j << ". \n";
-
-
-      //Rcout << "preds_temp_arma= " << preds_temp_arma << ". \n";
-      //Rcout << "preds_temp_arma*templik= " << preds_temp_arma*templik << ". \n";
-
-      //overall_treetables(j)= pred_mat;
-      //overall_liks(j) =templik;
-
-      //arma::mat treeprob_output = get_test_probs(weights, num_cats,
-      //                                           testdata,
-      //                                           treetable_list[i]  );
-
-      //Rcout << "Line 688. i== " << i << ". \n";
-
-      //double weighttemp = weights[i];
-      //Rcout << "Line 691. i== " << i << ". \n";
-
-      //pred_mat_overall = pred_mat_overall + weighttemp*treeprob_output;
+    }else{ // //kernelize not equal to 3
+      double b=Wmat.n_cols;
 
 
-    //}//end of else statement
+      if( (kernelize == 0) | ((kernelize ==2)&(num_obs >4*b))){
+
+
+
+
+        // ///////////////////////////////////
+        //get t(y)inv(psi)J
+        arma::mat ytW=y.t()*Wmat;
+        //get t(J)inv(psi)J
+        arma::mat WtW=Wmat.t()*Wmat;
+        //get jpsij +aI
+        arma::mat aI(b,b);
+        aI=a*aI.eye();
+        arma::mat sec_term=WtW+aI;
+        //arma::mat sec_term_inv=sec_term.i();
+        arma::mat sec_term_inv=inv_sympd(sec_term);
+        //get t(J)inv(psi)y
+        arma::mat third_term=Wmat.t()*y;
+        //get m^TV^{-1}m
+        arma::mat mvm= ytW*sec_term_inv*third_term;
+        //arma::mat rel=(b/2)*log(a)-(1/2)*log(det(sec_term))-expon*log(nu*lambdaBART - mvm +yty);
+        // /////////////////////////////////////////////
+
+
+        //
+        // Rcout << "-b*0.5*log(num_obs)= " << -b*0.5*log(num_obs) << ". \n";
+        // Rcout << "log(temp_sse)*(-num_obs)*0.5= " << log(temp_sse)*(-num_obs)*0.5 << ". \n";
+        //
+
+        //double templik0=pow(num_obs, -b*0.5)*pow(temp_sse,-num_obs*0.5);
+
+        //
+        //     arma::vec temppred1=Wmat*sec_term_inv*third_term;
+        //     arma::vec temperrors= y-temppred1;
+        //     arma::vec tempcoeffs= sec_term_inv*third_term;
+        //
+        //     double new_penalty= as_scalar(b*temppred1.t()*temppred1/(tempcoeffs.t()*tempcoeffs*(double(num_obs)-b)));
+        //
+        //     Rcout << " new_penalty =" << new_penalty << ".\n";
+
+
+        //double val1;
+        //double sign1;
+
+        //log_det(val1, sign1, sec_term);
+        //double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*val1-expon*log(nu*lambdaBART - mvm +yty)));
+
+
+        ////////////////////
+        //double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)));
+        //////////////
+        double templik0=arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-expon*log(nu*lambdaBART - mvm +yty));
+
+
+
+        //double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*log(det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)));
+
+
+
+
+
+        //
+        //
+        //     arma::mat aI2(b,b);
+        //     aI2=new_penalty*aI2.eye();
+        //     arma::mat sec_term2=WtW+aI2;
+        //     //arma::mat sec_term_inv=sec_term.i();
+        //     arma::mat sec_term_inv2=inv_sympd(sec_term2);
+        //     //get t(J)inv(psi)y
+        //     //arma::mat third_term=Wmat.t()*y;
+        //     //get m^TV^{-1}m
+        //     arma::mat mvm2= ytW*sec_term_inv2*third_term;
+        //
+        //
+        //     double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term2))-expon*log(nu*lambdaBART - mvm2 +yty)));
+        //
+
+
+
+
+
+        // Rcout << "log(temp_sse)= " << log(temp_sse) << ". \n";
+        //
+        //
+        // Rcout << "temp_sse= " << temp_sse << ". \n";
+        //
+
+
+
+        // Rcout << "templik0= " << templik0 << ". \n";
+        //
+        //       Rcout << "b= " << b << ". \n";
+        //       Rcout << "(b*0.5)*log(a)= " << (b*0.5)*log(a) << ". \n";
+        //
+        //       Rcout << "-0.5*log(det(sec_term))= " << -0.5*log(det(sec_term)) << ". \n";
+        //       Rcout << "det(sec_term)= " << det(sec_term) << ". \n";
+        //       Rcout << "arma::det(sec_term)= " << arma::det(sec_term) << ". \n";
+        //       Rcout << "arma::log_det(sec_term)= " << arma::log_det(sec_term) << ". \n";
+        //       Rcout << "real(arma::log_det(sec_term))= " << real(arma::log_det(sec_term)) << ". \n";
+        //       Rcout << "log(det(sec_term))= " << log(det(sec_term)) << ". \n";
+        //       Rcout << "log(arma::det(sec_term))= " << log(arma::det(sec_term)) << ". \n";
+        //
+        //       Rcout << "-expon*log(nu*lambdaBART - mvm +yty)= " << -expon*log(nu*lambdaBART - mvm +yty) << ". \n";
+        //
+        //
+        //       // Rcout << "val= " << val << ". \n";
+        //
+        // Rcout << "arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)) .\n" << arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)) << ".\n";
+        //       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //overall_treetables[j]= wrap(tree_table1);
+
+
+        //double templik = as<double>(treepred_output[1]);
+
+        //double templik = pow(templik0,beta_par);
+
+        double templik = beta_par*templik0;
+
+        if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
+          //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
+          //templik=templik*sum_prior_over_samp_prob;
+          templik=templik+log(sum_prior_over_samp_prob);
+
+        }
+        overall_liks(j)= templik;
+
+        // if(std::isnan(templik)){
+        // Rcout << "Line 3943, j= " << j << ". \n";
+        // Rcout << "templik= " << templik << ". \n";
+        // Rcout << "sum_tree_prior_prob= " << sum_tree_prior_prob << ". \n";
+        // Rcout << "sum_tree_samp_prob= " << sum_tree_samp_prob << ". \n";
+        // }
+
+
+        //now fill in the predictions
+
+        //If want tree tables with predictions filled in, use
+        // arma::vec term_node_par_means = sec_term_inv*third_term;
+        // //and would need to save a field of tree tables,
+        // //add add a column, or begin with one more column
+        // //then the first treetableF[0].n_rows elements of term_node_par_means
+        // //give the first
+        // int row_count1=0;
+        // for(int tree_i=0; tree_i < treetableF.n_elem; tree_i++){
+        //   tabletemp= treetableF(i);
+        //   tabletemp.col(5) = term_node_par_means(arma::span(row_count1,tabletemp.n_rows));
+        //   treetableF(i)=tabletemp;
+        //   row_count1+=tabletemp.n_rows;
+        // }
+        //This would give an alternative method for obtaining test data predictions
+        //Look up the terminal nodes and add the relevant terminal node parameters
+
+
+
+
+        //arma::vec pred_vec(testdata_arma.n_rows);
+
+        ////////////
+        arma::vec preds_temp_arma= W_tilde*sec_term_inv*third_term;
+
+        ////////////////////
+
+
+
+
+
+        //arma::vec preds_temp_arma= W_tilde*sec_term_inv2*third_term;
+
+
+
+        //THIS SHOULD BE DIFFERENT IF THE CODE IS TO BE PARALLELIZED
+        //EACH THREAD SHOULD OUTPUT ITS OWN MATRIX AND SUM OF LIKELIHOODS
+        //THEN ADD THE MATRICES TOGETHER AND DIVIDE BY THE TOTAL SUM OF LIKELIHOODS
+        //OR JUST SAVE ALL MATRICES TO ONE LIST
+
+
+        //pred_mat_overall = pred_mat_overall + templik*pred_mat;
+        //overall_treetables(j)= pred_mat*templik;
+
+
+        //overall_preds(j)=preds_temp_arma*templik;
+
+        overall_preds.col(j)=preds_temp_arma;
+
+        arma::vec preds_temp_arma2= Wmat*sec_term_inv*third_term;
+        overall_preds2.col(j)=preds_temp_arma2;
+
+
+        arma::mat temp_for_scal = ((nu*lambdaBART+yty-mvm)/(nu+num_obs));
+        double temp_scal= as_scalar(temp_for_scal) ;
+        //Rcout << "Line 4156";
+        //arma::mat covar_t=temp_scal*(I_test+w_tilde_M_inv*(W_tilde.t()));
+        //arma::mat covar_t=temp_scal*(I_test+W_tilde*sec_term_inv*(W_tilde.t()));
+        //arma::mat covar_t=temp_scal*(I_test+
+        //  (arma::sum((W_tilde*sec_term_inv).t() % W_tilde.t(), 0)).t());
+        t_vars_arma.col(j)=temp_scal*(1+
+          (arma::sum((W_tilde*sec_term_inv).t() % W_tilde.t(), 0)).t());
+
+      }else{//code for kernelized scenario
+
+        arma::mat WWt= Wmat*Wmat.t();
+
+        //get jpsij +aI
+        //arma::mat aI(b,b);
+        arma::mat aI(num_obs,num_obs);
+        aI=a*aI.eye();
+        arma::mat sec_term=WWt+aI;
+        //arma::mat sec_term_inv=sec_term.i();
+        arma::mat sec_term_inv=inv_sympd(sec_term);
+        //get t(J)inv(psi)y
+        //arma::mat third_term=Wmat.t()*y;
+        //get m^TV^{-1}m
+        //arma::mat mvm= ytW*sec_term_inv*third_term;
+
+        arma::mat Qinv_y = sec_term_inv*y;
+
+        arma::mat W_tildeWt= W_tilde*Wmat.t();
+        //arma::mat W_tildeW_tilde= W_tilde*W_tilde.t();
+        //arma::mat W_tildeW_tilde_diag= arma::sum (W_tilde % W_tilde ,1)   ;
+
+
+        double  temp_calc = arma::as_scalar(nu*lambdaBART - y.t()*WWt*Qinv_y +yty );
+
+        double templik0=arma::as_scalar((num_obs*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-
+                                        expon*log(temp_calc));
+
+        double templik = beta_par*templik0;
+
+        if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
+          //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
+          //templik=templik*sum_prior_over_samp_prob;
+          templik=templik+log(sum_prior_over_samp_prob);
+
+        }
+        overall_liks(j)= templik;
+
+        arma::vec preds_temp_arma= W_tildeWt * Qinv_y;
+        overall_preds.col(j)=preds_temp_arma;
+
+        arma::vec preds_temp_arma2=  WWt * Qinv_y;
+        overall_preds2.col(j)= preds_temp_arma2;
+
+
+        double temp_scal= (temp_calc)/(nu+num_obs);
+
+
+        t_vars_arma.col(j)=temp_scal*(1+
+          +(1/a)*num_trees
+          -(1/a)*(arma::sum((W_tildeWt*sec_term_inv).t() % W_tildeWt.t(), 0)).t());
+
+
+      } //end of kernelize ==1 or 2 and many nodes else statement
+    }//end of kernelize not equal to 3 else statement
+
+        //Rcout << "Line 3985, j= " << j << ". \n";
+
+
+        //Rcout << "preds_temp_arma= " << preds_temp_arma << ". \n";
+        //Rcout << "preds_temp_arma*templik= " << preds_temp_arma*templik << ". \n";
+
+        //overall_treetables(j)= pred_mat;
+        //overall_liks(j) =templik;
+
+        //arma::mat treeprob_output = get_test_probs(weights, num_cats,
+        //                                           testdata,
+        //                                           treetable_list[i]  );
+
+        //Rcout << "Line 688. i== " << i << ". \n";
+
+        //double weighttemp = weights[i];
+        //Rcout << "Line 691. i== " << i << ". \n";
+
+        //pred_mat_overall = pred_mat_overall + weighttemp*treeprob_output;
+
+
+      //}//end of else statement
   }//end of loop over all trees
 
 }//end of pragma omp code
@@ -7912,6 +8018,24 @@ List BARTIS_train(double lambda,
 
 
 
+  int n_obs_forwmat = 0;
+  int n_obs_forwmat_tilde = 0;
+  int n_obs_wwt = 0;
+  int n_obs_wwt_tilde = 0;
+
+  if(kernelize == 3){
+    n_obs_wwt=num_obs;
+    n_obs_wwt_tilde=num_test_obs;
+
+  }else{
+    n_obs_forwmat=num_obs;
+    n_obs_forwmat_tilde=num_test_obs;
+
+  }
+
+
+
+
 
 #pragma omp parallel num_threads(ncores)
 {//start of pragma omp code
@@ -7925,12 +8049,26 @@ List BARTIS_train(double lambda,
     arma::field<arma::mat> table_listF(num_trees);
 
 
-    arma::mat Wmat(num_obs,0);
+    //arma::mat Wmat(num_obs,0);
 
     //maybe use line below, depends how Jmat joined to Wmat
     //int upsilon=0;
 
-    arma::mat W_tilde(num_test_obs,0);
+    //arma::mat W_tilde(num_test_obs,0);
+
+
+    arma::mat Wmat(n_obs_forwmat,0);
+
+    //maybe use line below, depends how Jmat joined to Wmat
+    //int upsilon=0;
+
+    arma::mat W_tilde(n_obs_forwmat_tilde,0);
+
+    arma::mat WWt_trick(n_obs_wwt, n_obs_wwt, arma::fill::zeros);
+    arma::mat W_tilde_Wt_trick(n_obs_wwt_tilde, n_obs_wwt, arma::fill::zeros);
+    //arma::mat W_tilde_Wt_tilde_trick(num_test_obs, num_test_obs, arma::fill::zeros);
+
+
 
     //maybe use line below, depends how Jmat joined to Wmat
     //int upsilon2=0;
@@ -8584,9 +8722,17 @@ List BARTIS_train(double lambda,
 
 
       //GET J MATRIX
+      int n_J_cols= 0;
+      if(kernelize==3){
 
-      arma::mat Jmat(num_obs,term_nodes.n_elem);
-      arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+      }else{
+        n_J_cols = term_nodes.n_elem;
+      }
+      arma::mat Jmat(num_obs,n_J_cols);
+      arma::mat Jtilde(num_test_obs,n_J_cols);
+
+      //arma::mat Jmat(num_obs,term_nodes.n_elem);
+      //arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
 
       //arma::vec arma_terminal_nodes=Rcpp::as<arma::vec>(terminal_nodes);
       //NumericVector tree_predictions;
@@ -8612,9 +8758,15 @@ List BARTIS_train(double lambda,
         //double num_prod=1;
         //double num_sum=0;
         //Rcout << "Line 129.\n";
-        Jmat.col(0) = arma::ones<arma::vec>(num_obs);
-        Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        if(kernelize==3){
+          WWt_trick += 1;
+          W_tilde_Wt_trick += 1;
+          //W_tilde_Wt_tilde_trick += 1;
 
+        }else{
+          Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+          Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        }
         //for(int k=0; k<num_cats; k++){
         //assuming categories of y are from 1 to num_cats
         //arma::uvec cat_inds= arma::find(orig_y_arma==k+1);
@@ -8776,14 +8928,23 @@ List BARTIS_train(double lambda,
 
           //There is probably a more efficient way of doing this
           //e.g. initialize J matrix so that all elements are equal to zero
-          arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
-          tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
-          Jmat.col(i) = tempcol_J;
+          if(kernelize ==3){
 
-          arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
-          tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
-          Jtilde.col(i) = tempcol_Jtilde;
+            WWt_trick(pred_indices, pred_indices) += 1;
+            W_tilde_Wt_trick(pred_test_indices, pred_indices) += 1;
+            //W_tilde_Wt_tilde_trick(pred_test_indices, pred_test_indices) += 1;
 
+          }else{
+            //There is probably a more efficient way of doing this
+            //e.g. initialize J matrix so that all elements are equal to zero
+            arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+            tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+            Jmat.col(i) = tempcol_J;
+
+            arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+            tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+            Jtilde.col(i) = tempcol_Jtilde;
+          }
           //double nodemean=tree_data(terminal_nodes[i]-1,5);
           //IntegerVector predind=as<IntegerVector>(wrap(pred_indices));
           //predictions[predind]= nodemean;
@@ -8826,7 +8987,23 @@ List BARTIS_train(double lambda,
       //tree_table1.col(4)(term_nodes) = -1*arma::ones<arma::ivec>(term_nodes.n_elem);
       table_listF(q) = tree_table1;
 
-      Wmat=join_rows(Wmat,Jmat);
+      if(kernelize==3){
+
+      }else{
+        Wmat=join_rows(Wmat,Jmat);
+        //or
+        //Wmat.insert_cols(Wmat.n_cols,Jmat);
+        //or
+        //int b_j=term_nodes.n_elem;
+        //Wmat.insert_cols(upsilon,Jmat);
+        //upsilon+=b_j;
+
+
+        //Obtain test W_tilde, i.e. W matrix for test data
+
+        W_tilde=join_rows(W_tilde,Jtilde);
+      }
+
       //or
       //Wmat.insert_cols(Wmat.n_cols,Jmat);
       //or
@@ -8837,7 +9014,7 @@ List BARTIS_train(double lambda,
 
       //Obtain test W_tilde, i.e. W matrix for test data
 
-      W_tilde=join_rows(W_tilde,Jtilde);
+      //W_tilde=join_rows(W_tilde,Jtilde);
       //or
       //W_tilde.insert_cols(W_tilde.n_cols,Jtilde);
       //or
@@ -9521,7 +9698,7 @@ List BARTIS_train(double lambda,
 
     //Rcout << "Line 5186 .\n";
 
-    double b=Wmat.n_cols;
+    // double b=Wmat.n_cols;
 
 
     // CURRENTLY CAN'T OBTAIN COVARIANCE MATRIX WITH FAST APPROXIMATION APPROACH
@@ -9577,6 +9754,63 @@ List BARTIS_train(double lambda,
     //   overall_preds(j)=preds_temp_arma;
     //
     // }else{
+
+
+    if(kernelize ==3){
+      //arma::mat WWt= Wmat*Wmat.t();
+
+      //get jpsij +aI
+      //arma::mat aI(b,b);
+      arma::mat aI(num_obs,num_obs);
+      aI=a*aI.eye();
+      arma::mat sec_term=WWt_trick+aI;
+      //arma::mat sec_term_inv=sec_term.i();
+      arma::mat sec_term_inv=inv_sympd(sec_term);
+      //get t(J)inv(psi)y
+      //arma::mat third_term=Wmat.t()*y;
+      //get m^TV^{-1}m
+      //arma::mat mvm= ytW*sec_term_inv*third_term;
+
+      arma::mat Qinv_y = sec_term_inv*y;
+
+      //arma::mat W_tildeWt= W_tilde*Wmat.t();
+      //arma::mat W_tildeW_tilde= W_tilde*W_tilde.t();
+      //arma::mat W_tildeW_tilde_diag= arma::sum (W_tilde % W_tilde ,1)   ;
+
+
+      double  temp_calc = arma::as_scalar(nu*lambdaBART - y.t()*WWt_trick*Qinv_y +yty );
+
+      double templik0=arma::as_scalar((num_obs*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-
+                                      expon*log(temp_calc));
+
+      double templik = beta_par*templik0;
+
+      if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
+        //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
+        //templik=templik*sum_prior_over_samp_prob;
+        templik=templik+log(sum_prior_over_samp_prob);
+
+      }
+      overall_liks(j)= templik;
+
+      arma::vec preds_temp_arma= W_tilde_Wt_trick * Qinv_y;
+      overall_preds.col(j)=preds_temp_arma;
+
+      // arma::vec preds_temp_arma2=  WWt * Qinv_y;
+      // overall_preds2.col(j)= preds_temp_arma2;
+
+
+      double temp_scal= (temp_calc)/(nu+num_obs);
+
+
+      t_vars_arma.col(j)=temp_scal*(1+
+        +(1/a)*num_trees
+        -(1/a)*(arma::sum((W_tilde_Wt_trick*sec_term_inv).t() % W_tilde_Wt_trick.t(), 0)).t());
+
+    }else{
+
+      double b=Wmat.n_cols;
+
 
     if( (kernelize == 0) | ((kernelize ==2)&(num_obs >4*b))){
 
@@ -9835,7 +10069,7 @@ List BARTIS_train(double lambda,
 
     }
 
-
+    }//end else statement kernelize not equal to 3
 
 
     //Rcout << "preds_temp_arma= " << preds_temp_arma << ". \n";
@@ -10462,6 +10696,21 @@ List BARTIS_train_no_test_no_output(double lambda,
 
 
 
+  int n_obs_forwmat = 0;
+  //int n_obs_forwmat_tilde = 0;
+  int n_obs_wwt = 0;
+  //int n_obs_wwt_tilde = 0;
+
+  if(kernelize == 3){
+    n_obs_wwt=num_obs;
+    //n_obs_wwt_tilde=num_test_obs;
+
+  }else{
+    n_obs_forwmat=num_obs;
+   // n_obs_forwmat_tilde=num_test_obs;
+
+  }
+
 
 #pragma omp parallel num_threads(ncores)
 {//start of pragma omp code
@@ -10475,12 +10724,18 @@ List BARTIS_train_no_test_no_output(double lambda,
     arma::field<arma::mat> table_listF(num_trees);
 
 
-    arma::mat Wmat(num_obs,0);
+    arma::mat Wmat(n_obs_forwmat,0);
 
     //maybe use line below, depends how Jmat joined to Wmat
     //int upsilon=0;
 
-    //arma::mat W_tilde(num_test_obs,0);
+    //arma::mat W_tilde(n_obs_forwmat_tilde,0);
+
+    arma::mat WWt_trick(n_obs_wwt, n_obs_wwt, arma::fill::zeros);
+    //arma::mat W_tilde_Wt_trick(n_obs_wwt_tilde, n_obs_wwt, arma::fill::zeros);
+    //arma::mat W_tilde_Wt_tilde_trick(num_test_obs, num_test_obs, arma::fill::zeros);
+
+
 
     //maybe use line below, depends how Jmat joined to Wmat
     //int upsilon2=0;
@@ -11135,8 +11390,20 @@ List BARTIS_train_no_test_no_output(double lambda,
 
       //GET J MATRIX
 
-      arma::mat Jmat(num_obs,term_nodes.n_elem);
+      //arma::mat Jmat(num_obs,term_nodes.n_elem);
       //arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+
+      int n_J_cols= 0;
+      if(kernelize==3){
+
+      }else{
+        n_J_cols = term_nodes.n_elem;
+      }
+      arma::mat Jmat(num_obs,n_J_cols);
+      //arma::mat Jtilde(num_test_obs,n_J_cols);
+
+
+
 
       //arma::vec arma_terminal_nodes=Rcpp::as<arma::vec>(terminal_nodes);
       //NumericVector tree_predictions;
@@ -11162,8 +11429,20 @@ List BARTIS_train_no_test_no_output(double lambda,
         //double num_prod=1;
         //double num_sum=0;
         //Rcout << "Line 129.\n";
-        Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+        //Jmat.col(0) = arma::ones<arma::vec>(num_obs);
         //Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+
+
+        if(kernelize==3){
+          WWt_trick += 1;
+          //W_tilde_Wt_trick += 1;
+          //W_tilde_Wt_tilde_trick += 1;
+
+        }else{
+          Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+          //Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        }
+
 
         //for(int k=0; k<num_cats; k++){
         //assuming categories of y are from 1 to num_cats
@@ -11326,13 +11605,34 @@ List BARTIS_train_no_test_no_output(double lambda,
 
           //There is probably a more efficient way of doing this
           //e.g. initialize J matrix so that all elements are equal to zero
-          arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
-          tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
-          Jmat.col(i) = tempcol_J;
+          // arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+          // tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+          // Jmat.col(i) = tempcol_J;
 
           //arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
           //tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
           //Jtilde.col(i) = tempcol_Jtilde;
+
+
+          if(kernelize ==3){
+
+            WWt_trick(pred_indices, pred_indices) += 1;
+            //W_tilde_Wt_trick(pred_test_indices, pred_indices) += 1;
+            //W_tilde_Wt_tilde_trick(pred_test_indices, pred_test_indices) += 1;
+
+          }else{
+            //There is probably a more efficient way of doing this
+            //e.g. initialize J matrix so that all elements are equal to zero
+            arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+            tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+            Jmat.col(i) = tempcol_J;
+
+            // arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+            // tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+            // Jtilde.col(i) = tempcol_Jtilde;
+          }
+
+
 
           //double nodemean=tree_data(terminal_nodes[i]-1,5);
           //IntegerVector predind=as<IntegerVector>(wrap(pred_indices));
@@ -11376,7 +11676,22 @@ List BARTIS_train_no_test_no_output(double lambda,
       //tree_table1.col(4)(term_nodes) = -1*arma::ones<arma::ivec>(term_nodes.n_elem);
       table_listF(q) = tree_table1;
 
-      Wmat=join_rows(Wmat,Jmat);
+      if(kernelize==3){
+
+      }else{
+        Wmat=join_rows(Wmat,Jmat);
+        //or
+        //Wmat.insert_cols(Wmat.n_cols,Jmat);
+        //or
+        //int b_j=term_nodes.n_elem;
+        //Wmat.insert_cols(upsilon,Jmat);
+        //upsilon+=b_j;
+
+
+        //Obtain test W_tilde, i.e. W matrix for test data
+
+        //W_tilde=join_rows(W_tilde,Jtilde);
+      }
       //or
       //Wmat.insert_cols(Wmat.n_cols,Jmat);
       //or
@@ -12077,7 +12392,6 @@ List BARTIS_train_no_test_no_output(double lambda,
 
     //Rcout << "Line 5186 .\n";
 
-    double b=Wmat.n_cols;
 
 
     // CURRENTLY CAN'T OBTAIN COVARIANCE MATRIX WITH FAST APPROXIMATION APPROACH
@@ -12133,6 +12447,47 @@ List BARTIS_train_no_test_no_output(double lambda,
     //   overall_preds(j)=preds_temp_arma;
     //
     // }else{
+
+    if(kernelize==3){
+
+      //arma::mat WWt= Wmat*Wmat.t();
+
+      //get jpsij +aI
+      //arma::mat aI(b,b);
+      arma::mat aI(num_obs,num_obs);
+      aI=a*aI.eye();
+      arma::mat sec_term=WWt_trick+aI;
+      //arma::mat sec_term_inv=sec_term.i();
+      arma::mat sec_term_inv=inv_sympd(sec_term);
+      //get t(J)inv(psi)y
+      //arma::mat third_term=Wmat.t()*y;
+      //get m^TV^{-1}m
+      //arma::mat mvm= ytW*sec_term_inv*third_term;
+
+      arma::mat Qinv_y = sec_term_inv*y;
+
+      // arma::mat W_tildeWt= W_tilde*Wmat.t();
+      // //arma::mat W_tildeW_tilde= W_tilde*W_tilde.t();
+      // arma::mat W_tildeW_tilde_diag= arma::sum (W_tilde % W_tilde ,1)   ;
+      //
+
+      double  temp_calc = arma::as_scalar(nu*lambdaBART - y.t()*WWt_trick*Qinv_y +yty );
+
+      double templik0=arma::as_scalar((num_obs*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-
+                                      expon*log(temp_calc));
+
+      double templik = beta_par*templik0;
+
+      if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
+        //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
+        //templik=templik*sum_prior_over_samp_prob;
+        templik=templik+log(sum_prior_over_samp_prob);
+
+      }
+      overall_liks(j)= templik;
+
+    }else{
+      double b=Wmat.n_cols;
 
 
     if( (kernelize == 0) | ((kernelize ==2)&(num_obs >4*b))){
@@ -12317,7 +12672,7 @@ List BARTIS_train_no_test_no_output(double lambda,
 
     }
 
-
+    }// end of else statement kernelize not equal to 3
 
 
 
@@ -12993,6 +13348,23 @@ List BART_BAS_cpp(double lambda,
   //Rcout << "Line 12570. \n";
 
 
+  int n_obs_forwmat = 0;
+  int n_obs_forwmat_tilde = 0;
+  int n_obs_wwt = 0;
+  int n_obs_wwt_tilde = 0;
+
+  if(kernelize == 3){
+    n_obs_wwt=num_obs;
+    n_obs_wwt_tilde=num_test_obs;
+
+  }else{
+    n_obs_forwmat=num_obs;
+    n_obs_forwmat_tilde=num_test_obs;
+
+  }
+
+
+
   arma::field<arma::field<arma::mat>> modelsF(num_models);
 
 
@@ -13152,12 +13524,17 @@ List BART_BAS_cpp(double lambda,
     arma::field<arma::mat> table_listF(num_trees);
 
 
-    arma::mat Wmat(num_obs,0);
+    arma::mat Wmat(n_obs_forwmat,0);
 
     //maybe use line below, depends how Jmat joined to Wmat
     //int upsilon=0;
 
-    arma::mat W_tilde(num_test_obs,0);
+    arma::mat W_tilde(n_obs_forwmat_tilde,0);
+
+    arma::mat WWt_trick(n_obs_wwt, n_obs_wwt, arma::fill::zeros);
+    arma::mat W_tilde_Wt_trick(n_obs_wwt_tilde, n_obs_wwt, arma::fill::zeros);
+    //arma::mat W_tilde_Wt_tilde_trick(num_test_obs, num_test_obs, arma::fill::zeros);
+
 
     //maybe use line below, depends how Jmat joined to Wmat
     //int upsilon2=0;
@@ -13818,9 +14195,17 @@ List BART_BAS_cpp(double lambda,
       //Rcout << "Line 13360. \n";
 
       //GET J MATRIX
+      int n_J_cols= 0;
+      if(kernelize==3){
 
-      arma::mat Jmat(num_obs,term_nodes.n_elem);
-      arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+      }else{
+        n_J_cols = term_nodes.n_elem;
+      }
+      arma::mat Jmat(num_obs,n_J_cols);
+      arma::mat Jtilde(num_test_obs,n_J_cols);
+
+      // arma::mat Jmat(num_obs,term_nodes.n_elem);
+      // arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
 
       //arma::vec arma_terminal_nodes=Rcpp::as<arma::vec>(terminal_nodes);
       //NumericVector tree_predictions;
@@ -13846,8 +14231,19 @@ List BART_BAS_cpp(double lambda,
         //double num_prod=1;
         //double num_sum=0;
         //Rcout << "Line 129.\n";
-        Jmat.col(0) = arma::ones<arma::vec>(num_obs);
-        Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        // Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+        // Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        if(kernelize==3){
+          WWt_trick += 1;
+          W_tilde_Wt_trick += 1;
+          //W_tilde_Wt_tilde_trick += 1;
+
+        }else{
+          Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+          Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        }
+
+
 
         //for(int k=0; k<num_cats; k++){
         //assuming categories of y are from 1 to num_cats
@@ -14012,15 +14408,34 @@ List BART_BAS_cpp(double lambda,
           //Rcout << "Line 199. i = " << i <<  ".\n";
           //Rcout << "Line 13552. \n";
 
+
+          if(kernelize ==3){
+
+            WWt_trick(pred_indices, pred_indices) += 1;
+            W_tilde_Wt_trick(pred_test_indices, pred_indices) += 1;
+            //W_tilde_Wt_tilde_trick(pred_test_indices, pred_test_indices) += 1;
+
+          }else{
+            //There is probably a more efficient way of doing this
+            //e.g. initialize J matrix so that all elements are equal to zero
+            arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+            tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+            Jmat.col(i) = tempcol_J;
+
+            arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+            tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+            Jtilde.col(i) = tempcol_Jtilde;
+          }
+
           //There is probably a more efficient way of doing this
           //e.g. initialize J matrix so that all elements are equal to zero
-          arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
-          tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
-          Jmat.col(i) = tempcol_J;
-
-          arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
-          tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
-          Jtilde.col(i) = tempcol_Jtilde;
+          // arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+          // tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+          // Jmat.col(i) = tempcol_J;
+          //
+          // arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+          // tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+          // Jtilde.col(i) = tempcol_Jtilde;
 
           //double nodemean=tree_data(terminal_nodes[i]-1,5);
           //IntegerVector predind=as<IntegerVector>(wrap(pred_indices));
@@ -14065,19 +14480,25 @@ List BART_BAS_cpp(double lambda,
       //tree_table1.col(4)(term_nodes) = -1*arma::ones<arma::ivec>(term_nodes.n_elem);
       table_listF(q) = tree_table1;
 
-      Wmat=join_rows(Wmat,Jmat);
-      //or
-      //Wmat.insert_cols(Wmat.n_cols,Jmat);
-      //or
-      //int b_j=term_nodes.n_elem;
-      //Wmat.insert_cols(upsilon,Jmat);
-      //upsilon+=b_j;
 
-      //Rcout << "Line 13613. \n";
 
-      //Obtain test W_tilde, i.e. W matrix for test data
+      if(kernelize==3){
 
-      W_tilde=join_rows(W_tilde,Jtilde);
+      }else{
+        Wmat=join_rows(Wmat,Jmat);
+        //or
+        //Wmat.insert_cols(Wmat.n_cols,Jmat);
+        //or
+        //int b_j=term_nodes.n_elem;
+        //Wmat.insert_cols(upsilon,Jmat);
+        //upsilon+=b_j;
+
+
+        //Obtain test W_tilde, i.e. W matrix for test data
+
+        W_tilde=join_rows(W_tilde,Jtilde);
+      }
+
       //or
       //W_tilde.insert_cols(W_tilde.n_cols,Jtilde);
       //or
@@ -14762,7 +15183,6 @@ List BART_BAS_cpp(double lambda,
 
     //Rcout << "Line 5186 .\n";
 
-    double b=Wmat.n_cols;
 
     //Rcout << "Line 14304. \n";
 
@@ -14820,6 +15240,68 @@ List BART_BAS_cpp(double lambda,
     //
     // }else{
 
+
+    if(kernelize==3){
+      //arma::mat WWt= Wmat*Wmat.t();
+
+      //get jpsij +aI
+      //arma::mat aI(b,b);
+      arma::mat aI(num_obs,num_obs);
+      aI=a*aI.eye();
+      arma::mat sec_term=WWt_trick+aI;
+      //arma::mat sec_term_inv=sec_term.i();
+      arma::mat sec_term_inv=inv_sympd(sec_term);
+      //get t(J)inv(psi)y
+      //arma::mat third_term=Wmat.t()*y;
+      //get m^TV^{-1}m
+      //arma::mat mvm= ytW*sec_term_inv*third_term;
+
+      arma::mat Qinv_y = sec_term_inv*y;
+
+      //arma::mat W_tildeWt= W_tilde*Wmat.t();
+      //arma::mat W_tildeW_tilde= W_tilde*W_tilde.t();
+      //arma::mat W_tildeW_tilde_diag= arma::sum (W_tilde % W_tilde ,1)   ;
+
+
+      double  temp_calc = arma::as_scalar(nu*lambdaBART - y.t()*W_tilde_Wt_trick*Qinv_y +yty );
+
+      double templik0=arma::as_scalar((num_obs*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-
+                                      expon*log(temp_calc));
+
+      double templik = beta_par*templik0;
+
+      if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
+        //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
+        //templik=templik*sum_prior_over_samp_prob;
+        templik=templik+log(sum_prior_over_samp_prob);
+
+      }
+
+      if(reweight_splits==1){
+        templik = templik + log(split_prior_over_samp);
+      }
+
+
+      overall_liks(jtemp)= templik;
+
+      arma::vec preds_temp_arma= W_tilde_Wt_trick * Qinv_y;
+      overall_preds.col(jtemp)=preds_temp_arma;
+
+      // arma::vec preds_temp_arma2=  WWt * Qinv_y;
+      // overall_preds2.col(jtemp)= preds_temp_arma2;
+      //
+
+      double temp_scal= (temp_calc)/(nu+num_obs);
+
+
+      t_vars_arma.col(jtemp)=temp_scal*(1+
+        +(1/a)*num_trees
+        -(1/a)*(arma::sum((W_tilde_Wt_trick*sec_term_inv).t() % W_tilde_Wt_trick.t(), 0)).t());
+
+
+    }else{ //kernelize not equal to 3
+
+      double b=Wmat.n_cols;
 
     if( (kernelize == 0) | ((kernelize ==2)&(num_obs >4*b))){
 
@@ -15091,7 +15573,7 @@ List BART_BAS_cpp(double lambda,
 
     }
 
-
+    }// end of else statement kernelize not equal to 3
 
 
 
@@ -16660,6 +17142,27 @@ List sBCF_with_ints_parallel(double lambda_mu,
     averagingvec=(1/double(num_obs))*arma::ones<arma::vec>(num_obs);
   }
 
+
+
+  int n_obs_forwmat = 0;
+  int n_obs_forwmat_tilde = 0;
+  int n_obs_wwt = 0;
+  int n_obs_wwt_tilde = 0;
+
+  if(kernelize == 3){
+    n_obs_wwt=num_obs;
+    n_obs_wwt_tilde=num_test_obs;
+
+  }else{
+    n_obs_forwmat=num_obs;
+    n_obs_forwmat_tilde=num_test_obs;
+
+  }
+
+
+
+
+
   //overall_treetables[i]= wrap(tree_table1);
   //double templik = as<double>(treepred_output[1]);
   //overall_liks[i]= pow(lik_prod,beta_pow);
@@ -16676,14 +17179,40 @@ List sBCF_with_ints_parallel(double lambda_mu,
 #pragma omp for
   for(int j=0; j<num_models;j++){
 
-    arma::mat Wmat_mu(num_obs,0);
-    arma::mat Wmat_tau(num_obs,0);
+    // arma::mat Wmat_mu(num_obs,0);
+    // arma::mat Wmat_tau(num_obs,0);
 
     //maybe use line below, depends how Jmat joined to Wmat
     //int upsilon=0;
 
-    arma::mat W_tilde_mu(num_test_obs,0);
-    arma::mat W_tilde_tau(num_test_obs,0);
+    // arma::mat W_tilde_mu(num_test_obs,0);
+    // arma::mat W_tilde_tau(num_test_obs,0);
+
+
+
+    arma::mat Wmat_mu(n_obs_forwmat,0);
+    arma::mat Wmat_tau(n_obs_forwmat,0);
+
+    //maybe use line below, depends how Jmat joined to Wmat
+    //int upsilon=0;
+
+    arma::mat W_tilde_mu(n_obs_forwmat_tilde,0);
+    arma::mat W_tilde_tau(n_obs_forwmat_tilde,0);
+
+    arma::mat WWt_trick_tau(n_obs_wwt, n_obs_wwt, arma::fill::zeros);
+    arma::mat W_tilde_Wt_trick_tau(n_obs_wwt_tilde, n_obs_wwt, arma::fill::zeros);
+    arma::mat W_tilde_Wt_tilde_trick_tau(n_obs_wwt_tilde, n_obs_wwt_tilde, arma::fill::zeros);
+
+    arma::mat WWt_trick_mu(n_obs_wwt, n_obs_wwt, arma::fill::zeros);
+    //arma::mat W_tilde_Wt_trick_mu(n_obs_wwt_tilde, n_obs_wwt, arma::fill::zeros);
+    //arma::mat W_tilde_Wt_tilde_trick_mu(n_obs_wwt_tilde, n_obs_wwt_tilde, arma::fill::zeros);
+
+
+
+
+
+
+
 
     //maybe use line below, depends how Jmat joined to Wmat
     //int upsilon2=0;
@@ -17117,8 +17646,23 @@ List sBCF_with_ints_parallel(double lambda_mu,
 
       //GET J MATRIX
 
-      arma::mat Jmat(num_obs,term_nodes.n_elem);
-      arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+      // arma::mat Jmat(num_obs,term_nodes.n_elem);
+      // arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+
+
+      int n_J_cols= 0;
+      if(kernelize==3){
+
+      }else{
+        n_J_cols = term_nodes.n_elem;
+      }
+      arma::mat Jmat(num_obs,n_J_cols);
+      arma::mat Jtilde(num_test_obs,n_J_cols);
+
+
+
+
+
 
       //arma::vec arma_terminal_nodes=Rcpp::as<arma::vec>(terminal_nodes);
       //NumericVector tree_predictions;
@@ -17142,10 +17686,23 @@ List sBCF_with_ints_parallel(double lambda_mu,
         //double num_prod=1;
         //double num_sum=0;
         //Rcout << "Line 129.\n";
-        Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+        // Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+        //
+        // if(is_test_data==1){
+        //   Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        // }
 
-        if(is_test_data==1){
-          Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        if(kernelize==3){
+          WWt_trick_mu += 1;
+          //W_tilde_Wt_trick_mu += 1;
+          //W_tilde_Wt_tilde_trick_mu += 1;
+
+        }else{
+          Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+
+          if(is_test_data==1){
+            Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+          }
         }
 
         //for(int k=0; k<num_cats; k++){
@@ -17334,15 +17891,37 @@ List sBCF_with_ints_parallel(double lambda_mu,
 
           //There is probably a more efficient way of doing this
           //e.g. initialize J matrix so that all elements are equal to zero
-          arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
-          tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
-          Jmat.col(i) = tempcol_J;
+          // arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+          // tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+          // Jmat.col(i) = tempcol_J;
+          //
+          // if(is_test_data==1){
+          //   arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+          //   tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+          //   Jtilde.col(i) = tempcol_Jtilde;
+          // }
 
-          if(is_test_data==1){
-            arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
-            tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
-            Jtilde.col(i) = tempcol_Jtilde;
+
+          if(kernelize ==3){
+
+            WWt_trick_mu(pred_indices, pred_indices) += 1;
+            //W_tilde_Wt_trick_mu(pred_test_indices, pred_indices) += 1;
+            //W_tilde_Wt_tilde_trick_mu(pred_test_indices, pred_test_indices) += 1;
+
+          }else{
+            //There is probably a more efficient way of doing this
+            //e.g. initialize J matrix so that all elements are equal to zero
+            arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+            tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+            Jmat.col(i) = tempcol_J;
+
+            if(is_test_data==1){
+              arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+              tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+              Jtilde.col(i) = tempcol_Jtilde;
+            }
           }
+
 
           //double nodemean=tree_data(terminal_nodes[i]-1,5);
           //IntegerVector predind=as<IntegerVector>(wrap(pred_indices));
@@ -17377,18 +17956,24 @@ List sBCF_with_ints_parallel(double lambda_mu,
       }// end of else statement (for when more than one terminal node)
       // Now have J matrix
 
-      Wmat_mu=join_rows(Wmat_mu,Jmat);
-      //or
-      //Wmat.insert_cols(Wmat.n_cols,Jmat);
-      //or
-      //int b_j=term_nodes.n_elem;
-      //Wmat.insert_cols(upsilon,Jmat);
-      //upsilon+=b_j;
+
+      if(kernelize==3){
+
+      }else{
+        Wmat_mu=join_rows(Wmat_mu,Jmat);
+        //or
+        //Wmat.insert_cols(Wmat.n_cols,Jmat);
+        //or
+        //int b_j=term_nodes.n_elem;
+        //Wmat.insert_cols(upsilon,Jmat);
+        //upsilon+=b_j;
 
 
-      //Obtain test W_tilde, i.e. W matrix for test data
-      if(is_test_data==1){
-        W_tilde_mu=join_rows(W_tilde_mu,Jtilde);
+        //Obtain test W_tilde, i.e. W matrix for test data
+        if(is_test_data==1){
+          W_tilde_mu=join_rows(W_tilde_mu,Jtilde);
+        }
+
       }
 
       //or
@@ -18045,8 +18630,14 @@ List sBCF_with_ints_parallel(double lambda_mu,
 
       //GET J MATRIX
 
-      arma::mat Jmat(num_obs,term_nodes.n_elem);
-      arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+      int n_J_cols= 0;
+      if(kernelize==3){
+
+      }else{
+        n_J_cols = term_nodes.n_elem;
+      }
+      arma::mat Jmat(num_obs,n_J_cols);
+      arma::mat Jtilde(num_test_obs,n_J_cols);
 
       //arma::vec arma_terminal_nodes=Rcpp::as<arma::vec>(terminal_nodes);
       //NumericVector tree_predictions;
@@ -18070,11 +18661,28 @@ List sBCF_with_ints_parallel(double lambda_mu,
         //double num_prod=1;
         //double num_sum=0;
         //Rcout << "Line 129.\n";
-        Jmat.col(0) = arma::ones<arma::vec>(num_obs);
 
-        if(is_test_data==1){
-          Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        // Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+        //
+        // if(is_test_data==1){
+        //   Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        // }
+
+        if(kernelize==3){
+          WWt_trick_tau += 1;
+          if(is_test_data==1){
+            W_tilde_Wt_trick_tau += 1;
+            W_tilde_Wt_tilde_trick_tau += 1;
+          }
+
+        }else{
+          Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+
+          if(is_test_data==1){
+            Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+          }
         }
+
 
         //for(int k=0; k<num_cats; k++){
         //assuming categories of y are from 1 to num_cats
@@ -18269,15 +18877,42 @@ List sBCF_with_ints_parallel(double lambda_mu,
 
           //There is probably a more efficient way of doing this
           //e.g. initialize J matrix so that all elements are equal to zero
-          arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
-          tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
-          Jmat.col(i) = tempcol_J;
+          // arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+          // tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+          // Jmat.col(i) = tempcol_J;
+          //
+          // if(is_test_data==1){
+          //   arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+          //   tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+          //   Jtilde.col(i) = tempcol_Jtilde;
+          // }
 
-          if(is_test_data==1){
-            arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
-            tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
-            Jtilde.col(i) = tempcol_Jtilde;
+
+          if(kernelize ==3){
+
+            WWt_trick_tau(pred_indices, pred_indices) += 1;
+            if(is_test_data==1){
+              W_tilde_Wt_trick_tau(pred_test_indices, pred_indices) += 1;
+              W_tilde_Wt_tilde_trick_tau(pred_test_indices, pred_test_indices) += 1;
+            }
+
+          }else{
+
+            arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+            tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+            Jmat.col(i) = tempcol_J;
+
+            if(is_test_data==1){
+              arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+              tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+              Jtilde.col(i) = tempcol_Jtilde;
+            }
+
           }
+
+
+
+
 
           //double nodemean=tree_data(terminal_nodes[i]-1,5);
           //IntegerVector predind=as<IntegerVector>(wrap(pred_indices));
@@ -18315,22 +18950,20 @@ List sBCF_with_ints_parallel(double lambda_mu,
 
       //Rcout << "Line 6472.\n";
 
-      Wmat_tau=join_rows(Wmat_tau,Jmat);
 
 
+      if(kernelize==3){
 
-      //or
-      //Wmat.insert_cols(Wmat.n_cols,Jmat);
-      //or
-      //int b_j=term_nodes.n_elem;
-      //Wmat.insert_cols(upsilon,Jmat);
-      //upsilon+=b_j;
+      }else{
+        Wmat_tau=join_rows(Wmat_tau,Jmat);
 
 
-      //Obtain test W_tilde, i.e. W matrix for test data
-      if(is_test_data==1){
-        W_tilde_tau=join_rows(W_tilde_tau,Jtilde);
+        //Obtain test W_tilde, i.e. W matrix for test data
+        if(is_test_data==1){
+          W_tilde_tau=join_rows(W_tilde_tau,Jtilde);
+        }
       }
+
 
       //or
       //W_tilde.insert_cols(W_tilde.n_cols,Jtilde);
@@ -18693,6 +19326,125 @@ List sBCF_with_ints_parallel(double lambda_mu,
     //
     // }else{ // if fast_approx ==0
     //
+
+
+    if( kernelize==3 ){
+
+      // arma::mat WWt_mu= Wmat_mu*Wmat_mu.t();
+      // arma::mat WWt_tau= Wmat_tau*Wmat_tau.t();
+      //
+      arma::mat WWt_tau_diag_Z = WWt_trick_tau.each_row()%z_ar.t();
+      arma::mat Z_WWt_tau_Z = WWt_tau_diag_Z.each_col()%z_ar;
+
+      arma::mat  W_Ainv_Wt = (1/a_mu)*WWt_trick_mu +(1/a_tau)*Z_WWt_tau_Z;
+
+
+      arma::mat aI(num_obs,num_obs);									// create b by b matrix called aI. NOT INIIALIZED.
+      aI=aI.eye();										// a times b by b identity matrix. The .eye() turns aI into an identity matrix.
+
+
+      //arma::mat sec_term=WtW+aI;							//
+      arma::mat sec_term= aI+ W_Ainv_Wt;
+
+      //arma::mat sec_term_inv=sec_term.i();					// matrix inverse expression in middle of eq 5 in the paper. The .i() obtains the matrix inverse.
+      arma::mat sec_term_inv=inv_sympd(sec_term);					// matrix inverse expression in middle of eq 5 in the paper. The .i() obtains the matrix inverse.
+
+      //Rcout << "Line 14724.\n";
+
+      arma::mat sec_term_inv_Y=sec_term_inv*orig_y_arma;					// matrix inverse expression in middle of eq 5 in the paper. The .i() obtains the matrix inverse.
+
+      arma::mat yt_W_Ainv_Wt = orig_y_arma.t()*W_Ainv_Wt;
+
+
+      double temp_scal = arma::as_scalar(nu*lambdaBCF -
+                                         yt_W_Ainv_Wt*sec_term_inv_Y +
+                                         yty  );
+
+      double templik0=arma::as_scalar(-(0.5)*real(arma::log_det(sec_term))-
+                                      expon*log(temp_scal)) ;
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //double templik = pow(templik0,beta_par);
+      double templik = beta_par*templik0;
+
+      if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
+        //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
+        //templik=templik*sum_prior_over_samp_prob;
+        templik=templik+log(sum_prior_over_samp_prob);
+
+      }
+      overall_liks(j)= templik;
+
+      //now get and save predictions
+      if(is_test_data==1){
+
+        //arma::mat Wtilde_Wt_tau= W_tilde_tau*Wmat_tau.t();
+
+        arma::mat Wtilde_Wt_tau_diag_Z = W_tilde_Wt_trick_tau.each_row()%z_ar.t();
+
+        arma::vec preds_temp_arma= (1/a_tau)* Wtilde_Wt_tau_diag_Z* sec_term_inv_Y;
+        overall_preds.col(j)=preds_temp_arma;
+        //////////////
+        //overall_preds(j)=preds_temp_arma*templik;
+        //arma::mat covar_t=as_scalar((1/double(nu+num_obs))*(nu*lambdaBCF+yty-mvm))*(Vmat*sec_term_inv*(Vmat.t()));
+
+        arma::mat covar_t= ((1/double(nu+num_obs))*
+          (temp_scal))*
+          ( (1/a_tau)*W_tilde_Wt_tilde_trick_tau -
+          (1/a_tau)* Wtilde_Wt_tau_diag_Z*sec_term_inv*(1/a_tau)* Wtilde_Wt_tau_diag_Z.t());
+
+        arma::mat catevartemp=averagingvec.t()*covar_t*averagingvec;
+        //arma::mat cattvartemp=catt_averagingvec.t()*covar_t*catt_averagingvec;
+        //arma::mat catntvartemp=catnt_averagingvec.t()*covar_t*catnt_averagingvec;
+
+        // preds_all_models_arma.col(i)=preds_temp_arma;
+        t_vars_arma.col(j)=covar_t.diag();
+        cate_means_arma(j)=as_scalar(averagingvec.t()*preds_temp_arma);
+        // cate_means_weighted_arma(i)=cate_means_arma(i)*post_weights_arma(i);
+        cate_vars_arma(j)=as_scalar(catevartemp);
+        // catt_means_arma(i)=as_scalar(catt_averagingvec.t()*preds_temp_arma);
+        // catt_means_weighted_arma(i)=catt_means_arma(i)*post_weights_arma(i);
+        // catt_vars_arma(i)=as_scalar(cattvartemp);
+        // catnt_means_arma(i)=as_scalar(catnt_averagingvec.t()*preds_temp_arma);
+        // catnt_means_weighted_arma(i)=catnt_means_arma(i)*post_weights_arma(i);
+        // catnt_vars_arma(i)=as_scalar(catntvartemp);
+        //
+
+      }else{
+
+
+        arma::vec preds_temp_arma= (1/a_tau)* WWt_tau_diag_Z* sec_term_inv_Y;
+        overall_preds.col(j)=preds_temp_arma;
+
+
+        arma::mat covar_t= ((1/double(nu+num_obs))*
+          (temp_scal))*
+          ((1/a_tau)*WWt_trick_tau -
+          (1/a_tau)* WWt_tau_diag_Z*sec_term_inv*(1/a_tau)* WWt_tau_diag_Z.t());
+
+        arma::mat catevartemp=averagingvec.t()*covar_t*averagingvec;
+        //arma::mat cattvartemp=catt_averagingvec.t()*covar_t*catt_averagingvec;
+        //arma::mat catntvartemp=catnt_averagingvec.t()*covar_t*catnt_averagingvec;
+
+
+        // preds_all_models_arma.col(i)=preds_temp_arma;
+        t_vars_arma.col(j)=covar_t.diag();
+        cate_means_arma(j)=as_scalar(averagingvec.t()*preds_temp_arma);
+        // cate_means_weighted_arma(i)=cate_means_arma(i)*post_weights_arma(i);
+        cate_vars_arma(j)=as_scalar(catevartemp);
+        // catt_means_arma(i)=as_scalar(catt_averagingvec.t()*preds_temp_arma);
+        // catt_means_weighted_arma(i)=catt_means_arma(i)*post_weights_arma(i);
+        // catt_vars_arma(i)=as_scalar(cattvartemp);
+        // catnt_means_arma(i)=as_scalar(catnt_averagingvec.t()*preds_temp_arma);
+        // catnt_means_weighted_arma(i)=catnt_means_arma(i)*post_weights_arma(i);
+        // catnt_vars_arma(i)=as_scalar(catntvartemp);
+        //
+
+      }//end of else statement (not test data)
+
+
+
+    }else{ // kernelize not equal to 3
 
     double b_mu=Wmat_mu.n_cols;
     double b_tau=Wmat_tau.n_cols;
@@ -19113,6 +19865,9 @@ List sBCF_with_ints_parallel(double lambda_mu,
 
 
     } //end of else statement (kernelized code)
+
+    } //end of else statement kernelize not equal to 3
+
 
     // } // end if statement fast_approx==1
   }//end of loop over all trees
@@ -20147,6 +20902,23 @@ List sBCF_train(double lambda_mu,
 
 
 
+  int n_obs_forwmat = 0;
+  int n_obs_forwmat_tilde = 0;
+  int n_obs_wwt = 0;
+  int n_obs_wwt_tilde = 0;
+
+  if(kernelize == 3){
+    n_obs_wwt=num_obs;
+    n_obs_wwt_tilde=num_test_obs;
+
+  }else{
+    n_obs_forwmat=num_obs;
+    n_obs_forwmat_tilde=num_test_obs;
+
+  }
+
+
+
 
 
 #pragma omp parallel num_threads(ncores)
@@ -20165,14 +20937,35 @@ List sBCF_train(double lambda_mu,
 
 
 
-    arma::mat Wmat_mu(num_obs,0);
-    arma::mat Wmat_tau(num_obs,0);
+    // arma::mat Wmat_mu(num_obs,0);
+    // arma::mat Wmat_tau(num_obs,0);
+    //
+    // //maybe use line below, depends how Jmat joined to Wmat
+    // //int upsilon=0;
+    //
+    // arma::mat W_tilde_mu(num_test_obs,0);
+    // arma::mat W_tilde_tau(num_test_obs,0);
+
+    arma::mat Wmat_mu(n_obs_forwmat,0);
+    arma::mat Wmat_tau(n_obs_forwmat,0);
 
     //maybe use line below, depends how Jmat joined to Wmat
     //int upsilon=0;
 
-    arma::mat W_tilde_mu(num_test_obs,0);
-    arma::mat W_tilde_tau(num_test_obs,0);
+    arma::mat W_tilde_mu(n_obs_forwmat_tilde,0);
+    arma::mat W_tilde_tau(n_obs_forwmat_tilde,0);
+
+    arma::mat WWt_trick_tau(n_obs_wwt, n_obs_wwt, arma::fill::zeros);
+    arma::mat W_tilde_Wt_trick_tau(n_obs_wwt_tilde, n_obs_wwt, arma::fill::zeros);
+    arma::mat W_tilde_Wt_tilde_trick_tau(n_obs_wwt_tilde, n_obs_wwt_tilde, arma::fill::zeros);
+
+    arma::mat WWt_trick_mu(n_obs_wwt, n_obs_wwt, arma::fill::zeros);
+    //arma::mat W_tilde_Wt_trick_mu(n_obs_wwt_tilde, n_obs_wwt, arma::fill::zeros);
+    //arma::mat W_tilde_Wt_tilde_trick_mu(n_obs_wwt_tilde, n_obs_wwt_tilde, arma::fill::zeros);
+
+
+
+
 
     //maybe use line below, depends how Jmat joined to Wmat
     //int upsilon2=0;
@@ -20611,8 +21404,16 @@ List sBCF_train(double lambda_mu,
 
       //GET J MATRIX
 
-      arma::mat Jmat(num_obs,term_nodes.n_elem);
-      arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+      // arma::mat Jmat(num_obs,term_nodes.n_elem);
+      // arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+      int n_J_cols= 0;
+      if(kernelize==3){
+
+      }else{
+        n_J_cols = term_nodes.n_elem;
+      }
+      arma::mat Jmat(num_obs,n_J_cols);
+      arma::mat Jtilde(num_test_obs,n_J_cols);
 
       //arma::vec arma_terminal_nodes=Rcpp::as<arma::vec>(terminal_nodes);
       //NumericVector tree_predictions;
@@ -20636,10 +21437,23 @@ List sBCF_train(double lambda_mu,
         //double num_prod=1;
         //double num_sum=0;
         //Rcout << "Line 129.\n";
-        Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+        // Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+        //
+        // if(is_test_data==1){
+        //   Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        // }
 
-        if(is_test_data==1){
-          Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        if(kernelize==3){
+          WWt_trick_mu += 1;
+          //W_tilde_Wt_trick_mu += 1;
+          //W_tilde_Wt_tilde_trick_mu += 1;
+
+        }else{
+          Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+
+          if(is_test_data==1){
+            Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+          }
         }
 
         //for(int k=0; k<num_cats; k++){
@@ -20828,14 +21642,34 @@ List sBCF_train(double lambda_mu,
 
           //There is probably a more efficient way of doing this
           //e.g. initialize J matrix so that all elements are equal to zero
-          arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
-          tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
-          Jmat.col(i) = tempcol_J;
+          // arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+          // tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+          // Jmat.col(i) = tempcol_J;
+          //
+          // if(is_test_data==1){
+          //   arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+          //   tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+          //   Jtilde.col(i) = tempcol_Jtilde;
+          // }
 
-          if(is_test_data==1){
-            arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
-            tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
-            Jtilde.col(i) = tempcol_Jtilde;
+          if(kernelize ==3){
+
+            WWt_trick_mu(pred_indices, pred_indices) += 1;
+            //W_tilde_Wt_trick_mu(pred_test_indices, pred_indices) += 1;
+            //W_tilde_Wt_tilde_trick_mu(pred_test_indices, pred_test_indices) += 1;
+
+          }else{
+            //There is probably a more efficient way of doing this
+            //e.g. initialize J matrix so that all elements are equal to zero
+            arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+            tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+            Jmat.col(i) = tempcol_J;
+
+            if(is_test_data==1){
+              arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+              tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+              Jtilde.col(i) = tempcol_Jtilde;
+            }
           }
 
           //double nodemean=tree_data(terminal_nodes[i]-1,5);
@@ -20873,27 +21707,33 @@ List sBCF_train(double lambda_mu,
 
       table_listF_mu(q) = tree_table1;
 
-      Wmat_mu=join_rows(Wmat_mu,Jmat);
-      //or
-      //Wmat.insert_cols(Wmat.n_cols,Jmat);
-      //or
-      //int b_j=term_nodes.n_elem;
-      //Wmat.insert_cols(upsilon,Jmat);
-      //upsilon+=b_j;
+      // Wmat_mu=join_rows(Wmat_mu,Jmat);
+      //
+      // //Obtain test W_tilde, i.e. W matrix for test data
+      // if(is_test_data==1){
+      //   W_tilde_mu=join_rows(W_tilde_mu,Jtilde);
+      // }
+
+      if(kernelize==3){
+
+      }else{
+        Wmat_mu=join_rows(Wmat_mu,Jmat);
+        //or
+        //Wmat.insert_cols(Wmat.n_cols,Jmat);
+        //or
+        //int b_j=term_nodes.n_elem;
+        //Wmat.insert_cols(upsilon,Jmat);
+        //upsilon+=b_j;
 
 
-      //Obtain test W_tilde, i.e. W matrix for test data
-      if(is_test_data==1){
-        W_tilde_mu=join_rows(W_tilde_mu,Jtilde);
+        //Obtain test W_tilde, i.e. W matrix for test data
+        if(is_test_data==1){
+          W_tilde_mu=join_rows(W_tilde_mu,Jtilde);
+        }
+
       }
 
-      //or
-      //W_tilde.insert_cols(W_tilde.n_cols,Jtilde);
-      //or
-      //int b_jtest=term_nodes.n_elem;
-      //W_tilde.insert_cols(upsilon2,Jtilde);
-      //upsilon2+=b_jtest;
-      //Rcout << "Line 5566.\n";
+
 
 
       if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
@@ -21547,8 +22387,18 @@ List sBCF_train(double lambda_mu,
 
       //GET J MATRIX
 
-      arma::mat Jmat(num_obs,term_nodes.n_elem);
-      arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+      // arma::mat Jmat(num_obs,term_nodes.n_elem);
+      // arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+      int n_J_cols= 0;
+      if(kernelize==3){
+
+      }else{
+        n_J_cols = term_nodes.n_elem;
+      }
+      arma::mat Jmat(num_obs,n_J_cols);
+      arma::mat Jtilde(num_test_obs,n_J_cols);
+
+
 
       //arma::vec arma_terminal_nodes=Rcpp::as<arma::vec>(terminal_nodes);
       //NumericVector tree_predictions;
@@ -21572,12 +22422,25 @@ List sBCF_train(double lambda_mu,
         //double num_prod=1;
         //double num_sum=0;
         //Rcout << "Line 129.\n";
-        Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+        // Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+        //
+        // if(is_test_data==1){
+        //   Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        // }
+        if(kernelize==3){
+          WWt_trick_tau += 1;
+          if(is_test_data==1){
+            W_tilde_Wt_trick_tau += 1;
+            W_tilde_Wt_tilde_trick_tau += 1;
+          }
 
-        if(is_test_data==1){
-          Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        }else{
+          Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+
+          if(is_test_data==1){
+            Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+          }
         }
-
         //for(int k=0; k<num_cats; k++){
         //assuming categories of y are from 1 to num_cats
         //arma::uvec cat_inds= arma::find(orig_y_arma==k+1);
@@ -21771,15 +22634,37 @@ List sBCF_train(double lambda_mu,
 
           //There is probably a more efficient way of doing this
           //e.g. initialize J matrix so that all elements are equal to zero
-          arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
-          tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
-          Jmat.col(i) = tempcol_J;
+          // arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+          // tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+          // Jmat.col(i) = tempcol_J;
+          //
+          // if(is_test_data==1){
+          //   arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+          //   tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+          //   Jtilde.col(i) = tempcol_Jtilde;
+          // }
 
-          if(is_test_data==1){
-            arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
-            tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
-            Jtilde.col(i) = tempcol_Jtilde;
+          if(kernelize ==3){
+
+            WWt_trick_tau(pred_indices, pred_indices) += 1;
+            if(is_test_data==1){
+              W_tilde_Wt_trick_tau(pred_test_indices, pred_indices) += 1;
+              W_tilde_Wt_tilde_trick_tau(pred_test_indices, pred_test_indices) += 1;
+            }
+          }else{
+
+            arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+            tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+            Jmat.col(i) = tempcol_J;
+
+            if(is_test_data==1){
+              arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+              tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+              Jtilde.col(i) = tempcol_Jtilde;
+            }
+
           }
+
 
           //double nodemean=tree_data(terminal_nodes[i]-1,5);
           //IntegerVector predind=as<IntegerVector>(wrap(pred_indices));
@@ -21819,21 +22704,16 @@ List sBCF_train(double lambda_mu,
 
       table_listF_tau(q) = tree_table1;
 
-      Wmat_tau=join_rows(Wmat_tau,Jmat);
+      if(kernelize==3){
+
+      }else{
+        Wmat_tau=join_rows(Wmat_tau,Jmat);
 
 
-
-      //or
-      //Wmat.insert_cols(Wmat.n_cols,Jmat);
-      //or
-      //int b_j=term_nodes.n_elem;
-      //Wmat.insert_cols(upsilon,Jmat);
-      //upsilon+=b_j;
-
-
-      //Obtain test W_tilde, i.e. W matrix for test data
-      if(is_test_data==1){
-        W_tilde_tau=join_rows(W_tilde_tau,Jtilde);
+        //Obtain test W_tilde, i.e. W matrix for test data
+        if(is_test_data==1){
+          W_tilde_tau=join_rows(W_tilde_tau,Jtilde);
+        }
       }
 
       //or
@@ -22069,6 +22949,114 @@ List sBCF_train(double lambda_mu,
     //Rcout << "Wmat_tau.n_rows = " << Wmat_tau.n_rows << ".\n";
 
     //Rcout << "z_ar.n_elem = " << z_ar.n_elem << ".\n";
+
+    if( kernelize==3 ){
+
+      arma::mat WWt_tau_diag_Z = WWt_trick_tau.each_row()%z_ar.t();
+      arma::mat Z_WWt_tau_Z = WWt_tau_diag_Z.each_col()%z_ar;
+
+
+      arma::mat  W_Ainv_Wt = (1/a_mu)*WWt_trick_mu +(1/a_tau)*Z_WWt_tau_Z;
+
+      //get jpsij +aI
+      arma::mat aI(num_obs,num_obs);									// create b by b matrix called aI. NOT INIIALIZED.
+      aI=aI.eye();										// a times b by b identity matrix. The .eye() turns aI into an identity matrix.
+
+      //arma::mat sec_term=WtW+aI;							//
+      arma::mat sec_term= aI+ W_Ainv_Wt;
+
+      //arma::mat sec_term_inv=sec_term.i();					// matrix inverse expression in middle of eq 5 in the paper. The .i() obtains the matrix inverse.
+      arma::mat sec_term_inv=inv_sympd(sec_term);					// matrix inverse expression in middle of eq 5 in the paper. The .i() obtains the matrix inverse.
+
+      arma::mat sec_term_inv_Y=sec_term_inv*orig_y_arma;					// matrix inverse expression in middle of eq 5 in the paper. The .i() obtains the matrix inverse.
+
+      arma::mat yt_W_Ainv_Wt = orig_y_arma.t()*W_Ainv_Wt;
+
+      double temp_scal = arma::as_scalar(nu*lambdaBCF -
+                                         yt_W_Ainv_Wt*sec_term_inv_Y +
+                                         yty  );
+
+      double templik0=arma::as_scalar(-(0.5)*real(arma::log_det(sec_term))-
+                                      expon*log(temp_scal)) ;
+
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //double templik = pow(templik0,beta_par);
+      double templik = beta_par*templik0;
+
+      if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
+        //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
+        //templik=templik*sum_prior_over_samp_prob;
+        templik=templik+log(sum_prior_over_samp_prob);
+
+      }
+      overall_liks(j)= templik;
+
+
+      //now get and save predictions
+      if(is_test_data==1){
+
+        arma::mat Wtilde_Wt_tau_diag_Z = W_tilde_Wt_trick_tau.each_row()%z_ar.t();
+
+        arma::vec preds_temp_arma= (1/a_tau)* Wtilde_Wt_tau_diag_Z* sec_term_inv_Y;
+        overall_preds.col(j)=preds_temp_arma;
+        //////////////
+
+        arma::mat covar_t= ((1/double(nu+num_obs))*
+          (temp_scal))*
+          ( (1/a_tau)*W_tilde_Wt_tilde_trick_tau -
+          (1/a_tau)* Wtilde_Wt_tau_diag_Z*sec_term_inv*(1/a_tau)* Wtilde_Wt_tau_diag_Z.t());
+
+        arma::mat catevartemp=averagingvec.t()*covar_t*averagingvec;
+        //arma::mat cattvartemp=catt_averagingvec.t()*covar_t*catt_averagingvec;
+        //arma::mat catntvartemp=catnt_averagingvec.t()*covar_t*catnt_averagingvec;
+
+        // preds_all_models_arma.col(i)=preds_temp_arma;
+        t_vars_arma.col(j)=covar_t.diag();
+        cate_means_arma(j)=as_scalar(averagingvec.t()*preds_temp_arma);
+        // cate_means_weighted_arma(i)=cate_means_arma(i)*post_weights_arma(i);
+        cate_vars_arma(j)=as_scalar(catevartemp);
+        // catt_means_arma(i)=as_scalar(catt_averagingvec.t()*preds_temp_arma);
+        // catt_means_weighted_arma(i)=catt_means_arma(i)*post_weights_arma(i);
+        // catt_vars_arma(i)=as_scalar(cattvartemp);
+        // catnt_means_arma(i)=as_scalar(catnt_averagingvec.t()*preds_temp_arma);
+        // catnt_means_weighted_arma(i)=catnt_means_arma(i)*post_weights_arma(i);
+        // catnt_vars_arma(i)=as_scalar(catntvartemp);
+        //
+
+      }else{
+
+        arma::vec preds_temp_arma= (1/a_tau)* WWt_tau_diag_Z* sec_term_inv_Y;
+        overall_preds.col(j)=preds_temp_arma;
+
+        arma::mat covar_t= ((1/double(nu+num_obs))*
+          (temp_scal))*
+          ((1/a_tau)*WWt_trick_tau -
+          (1/a_tau)* WWt_tau_diag_Z*sec_term_inv*(1/a_tau)* WWt_tau_diag_Z.t());
+
+        arma::mat catevartemp=averagingvec.t()*covar_t*averagingvec;
+        //arma::mat cattvartemp=catt_averagingvec.t()*covar_t*catt_averagingvec;
+        //arma::mat catntvartemp=catnt_averagingvec.t()*covar_t*catnt_averagingvec;
+
+
+        // preds_all_models_arma.col(i)=preds_temp_arma;
+        t_vars_arma.col(j)=covar_t.diag();
+        cate_means_arma(j)=as_scalar(averagingvec.t()*preds_temp_arma);
+        // cate_means_weighted_arma(i)=cate_means_arma(i)*post_weights_arma(i);
+        cate_vars_arma(j)=as_scalar(catevartemp);
+        // catt_means_arma(i)=as_scalar(catt_averagingvec.t()*preds_temp_arma);
+        // catt_means_weighted_arma(i)=catt_means_arma(i)*post_weights_arma(i);
+        // catt_vars_arma(i)=as_scalar(cattvartemp);
+        // catnt_means_arma(i)=as_scalar(catnt_averagingvec.t()*preds_temp_arma);
+        // catnt_means_weighted_arma(i)=catnt_means_arma(i)*post_weights_arma(i);
+        // catnt_vars_arma(i)=as_scalar(catntvartemp);
+        //
+
+      }//end of else statement (not test data)
+
+
+    }else{ // kernelize not equal to 3
+
 
     double b_mu=Wmat_mu.n_cols;
     double b_tau=Wmat_tau.n_cols;
@@ -22531,7 +23519,8 @@ List sBCF_train(double lambda_mu,
 
 
     // } // end if statement fast_approx==1
-  }//end of loop over all trees
+    }//end else statement, kernelize not equal to 3
+  }//end of loop over all models
 
 }//end of pragma omp code
 
@@ -23559,6 +24548,24 @@ List sBCF_train_no_test_no_output(double lambda_mu,
 
 
 
+  int n_obs_forwmat = 0;
+  // int n_obs_forwmat_tilde = 0;
+  int n_obs_wwt = 0;
+  // int n_obs_wwt_tilde = 0;
+
+  if(kernelize == 3){
+    n_obs_wwt=num_obs;
+    // n_obs_wwt_tilde=num_test_obs;
+
+  }else{
+    n_obs_forwmat=num_obs;
+    // n_obs_forwmat_tilde=num_test_obs;
+
+  }
+
+
+
+
 
 #pragma omp parallel num_threads(ncores)
 {//start of pragma omp code
@@ -23576,8 +24583,24 @@ List sBCF_train_no_test_no_output(double lambda_mu,
 
 
 
-    arma::mat Wmat_mu(num_obs,0);
-    arma::mat Wmat_tau(num_obs,0);
+    // arma::mat Wmat_mu(num_obs,0);
+    // arma::mat Wmat_tau(num_obs,0);
+    arma::mat Wmat_mu(n_obs_forwmat,0);
+    arma::mat Wmat_tau(n_obs_forwmat,0);
+
+    //maybe use line below, depends how Jmat joined to Wmat
+    //int upsilon=0;
+
+    // arma::mat W_tilde_mu(n_obs_forwmat_tilde,0);
+    // arma::mat W_tilde_tau(n_obs_forwmat_tilde,0);
+    //
+    arma::mat WWt_trick_tau(n_obs_wwt, n_obs_wwt, arma::fill::zeros);
+    // arma::mat W_tilde_Wt_trick_tau(n_obs_wwt_tilde, n_obs_wwt, arma::fill::zeros);
+    // arma::mat W_tilde_Wt_tilde_trick_tau(n_obs_wwt_tilde, n_obs_wwt_tilde, arma::fill::zeros);
+    //
+    arma::mat WWt_trick_mu(n_obs_wwt, n_obs_wwt, arma::fill::zeros);
+    //arma::mat W_tilde_Wt_trick_mu(n_obs_wwt_tilde, n_obs_wwt, arma::fill::zeros);
+    //arma::mat W_tilde_Wt_tilde_trick_mu(n_obs_wwt_tilde, n_obs_wwt_tilde, arma::fill::zeros);
 
     //maybe use line below, depends how Jmat joined to Wmat
     //int upsilon=0;
@@ -24022,8 +25045,18 @@ List sBCF_train_no_test_no_output(double lambda_mu,
 
       //GET J MATRIX
 
-      arma::mat Jmat(num_obs,term_nodes.n_elem);
+      // arma::mat Jmat(num_obs,term_nodes.n_elem);
       //arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+      int n_J_cols= 0;
+      if(kernelize==3){
+
+      }else{
+        n_J_cols = term_nodes.n_elem;
+      }
+      arma::mat Jmat(num_obs,n_J_cols);
+      // arma::mat Jtilde(num_test_obs,n_J_cols);
+
+
 
       //arma::vec arma_terminal_nodes=Rcpp::as<arma::vec>(terminal_nodes);
       //NumericVector tree_predictions;
@@ -24047,7 +25080,21 @@ List sBCF_train_no_test_no_output(double lambda_mu,
         //double num_prod=1;
         //double num_sum=0;
         //Rcout << "Line 129.\n";
-        Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+
+        // Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+
+        if(kernelize==3){
+          WWt_trick_mu += 1;
+          //W_tilde_Wt_trick_mu += 1;
+          //W_tilde_Wt_tilde_trick_mu += 1;
+
+        }else{
+          Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+
+          // if(is_test_data==1){
+          //   Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+          // }
+        }
 
         // if(is_test_data==1){
         //   Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
@@ -24239,9 +25286,34 @@ List sBCF_train_no_test_no_output(double lambda_mu,
 
           //There is probably a more efficient way of doing this
           //e.g. initialize J matrix so that all elements are equal to zero
-          arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
-          tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
-          Jmat.col(i) = tempcol_J;
+
+
+          // arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+          // tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+          // Jmat.col(i) = tempcol_J;
+          //
+
+          if(kernelize ==3){
+
+            WWt_trick_mu(pred_indices, pred_indices) += 1;
+            //W_tilde_Wt_trick_mu(pred_test_indices, pred_indices) += 1;
+            //W_tilde_Wt_tilde_trick_mu(pred_test_indices, pred_test_indices) += 1;
+
+          }else{
+            //There is probably a more efficient way of doing this
+            //e.g. initialize J matrix so that all elements are equal to zero
+            arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+            tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+            Jmat.col(i) = tempcol_J;
+
+            // if(is_test_data==1){
+            //   arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+            //   tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+            //   Jtilde.col(i) = tempcol_Jtilde;
+            // }
+          }
+
+
 
           // if(is_test_data==1){
           //   arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
@@ -24284,13 +25356,28 @@ List sBCF_train_no_test_no_output(double lambda_mu,
 
       table_listF_mu(q) = tree_table1;
 
-      Wmat_mu=join_rows(Wmat_mu,Jmat);
-      //or
-      //Wmat.insert_cols(Wmat.n_cols,Jmat);
-      //or
-      //int b_j=term_nodes.n_elem;
-      //Wmat.insert_cols(upsilon,Jmat);
-      //upsilon+=b_j;
+
+      if(kernelize==3){
+
+      }else{
+        Wmat_mu=join_rows(Wmat_mu,Jmat);
+        //or
+        //Wmat.insert_cols(Wmat.n_cols,Jmat);
+        //or
+        //int b_j=term_nodes.n_elem;
+        //Wmat.insert_cols(upsilon,Jmat);
+        //upsilon+=b_j;
+
+
+        //Obtain test W_tilde, i.e. W matrix for test data
+        // if(is_test_data==1){
+        //   W_tilde_mu=join_rows(W_tilde_mu,Jtilde);
+        // }
+
+      }
+
+
+      //Wmat_mu=join_rows(Wmat_mu,Jmat);
 
 
       //Obtain test W_tilde, i.e. W matrix for test data
@@ -24958,8 +26045,20 @@ List sBCF_train_no_test_no_output(double lambda_mu,
 
       //GET J MATRIX
 
-      arma::mat Jmat(num_obs,term_nodes.n_elem);
+      // arma::mat Jmat(num_obs,term_nodes.n_elem);
       //arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+
+      int n_J_cols= 0;
+      if(kernelize==3){
+
+      }else{
+        n_J_cols = term_nodes.n_elem;
+      }
+      arma::mat Jmat(num_obs,n_J_cols);
+      // arma::mat Jtilde(num_test_obs,n_J_cols);
+
+
+
 
       //arma::vec arma_terminal_nodes=Rcpp::as<arma::vec>(terminal_nodes);
       //NumericVector tree_predictions;
@@ -24983,11 +26082,31 @@ List sBCF_train_no_test_no_output(double lambda_mu,
         //double num_prod=1;
         //double num_sum=0;
         //Rcout << "Line 129.\n";
-        Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+        // Jmat.col(0) = arma::ones<arma::vec>(num_obs);
 
         // if(is_test_data==1){
         //   Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
         // }
+
+
+
+        if(kernelize==3){
+          WWt_trick_tau += 1;
+          // if(is_test_data==1){
+          //   W_tilde_Wt_trick_tau += 1;
+          //   W_tilde_Wt_tilde_trick_tau += 1;
+          // }
+
+        }else{
+          Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+
+          // if(is_test_data==1){
+          //   Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+          // }
+        }
+
+
+
 
         //for(int k=0; k<num_cats; k++){
         //assuming categories of y are from 1 to num_cats
@@ -25182,15 +26301,40 @@ List sBCF_train_no_test_no_output(double lambda_mu,
 
           //There is probably a more efficient way of doing this
           //e.g. initialize J matrix so that all elements are equal to zero
-          arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
-          tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
-          Jmat.col(i) = tempcol_J;
+          // arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+          // tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+          // Jmat.col(i) = tempcol_J;
 
           // if(is_test_data==1){
           //   arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
           //   tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
           //   Jtilde.col(i) = tempcol_Jtilde;
           // }
+
+
+          if(kernelize ==3){
+
+            WWt_trick_tau(pred_indices, pred_indices) += 1;
+
+            // if(is_test_data==1){
+            //
+            //   W_tilde_Wt_trick_tau(pred_test_indices, pred_indices) += 1;
+            //   W_tilde_Wt_tilde_trick_tau(pred_test_indices, pred_test_indices) += 1;
+            // }
+
+          }else{
+
+            arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+            tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+            Jmat.col(i) = tempcol_J;
+
+            // if(is_test_data==1){
+            //   arma::vec tempcol_Jtilde=arma::zeros<arma::vec>(num_test_obs);
+            //   tempcol_Jtilde(pred_test_indices) = arma::ones<arma::vec>(pred_test_indices.size());
+            //   Jtilde.col(i) = tempcol_Jtilde;
+            // }
+
+          }
 
           //double nodemean=tree_data(terminal_nodes[i]-1,5);
           //IntegerVector predind=as<IntegerVector>(wrap(pred_indices));
@@ -25230,9 +26374,18 @@ List sBCF_train_no_test_no_output(double lambda_mu,
 
       table_listF_tau(q) = tree_table1;
 
-      Wmat_tau=join_rows(Wmat_tau,Jmat);
+      // Wmat_tau=join_rows(Wmat_tau,Jmat);
 
+      if(kernelize==3){
 
+      }else{
+        Wmat_tau=join_rows(Wmat_tau,Jmat);
+
+        //Obtain test W_tilde, i.e. W matrix for test data
+        // if(is_test_data==1){
+        //   W_tilde_tau=join_rows(W_tilde_tau,Jtilde);
+        // }
+      }
 
       //or
       //Wmat.insert_cols(Wmat.n_cols,Jmat);
@@ -25480,6 +26633,66 @@ List sBCF_train_no_test_no_output(double lambda_mu,
     //Rcout << "Wmat_tau.n_rows = " << Wmat_tau.n_rows << ".\n";
 
     //Rcout << "z_ar.n_elem = " << z_ar.n_elem << ".\n";
+
+
+    if( kernelize==3 ){
+
+      // arma::mat WWt_mu= Wmat_mu*Wmat_mu.t();
+      // arma::mat WWt_tau= Wmat_tau*Wmat_tau.t();
+      //
+      arma::mat WWt_tau_diag_Z = WWt_trick_tau.each_row()%z_ar.t();
+      arma::mat Z_WWt_tau_Z = WWt_tau_diag_Z.each_col()%z_ar;
+
+
+
+      arma::mat  W_Ainv_Wt = (1/a_mu)*WWt_trick_mu +(1/a_tau)*Z_WWt_tau_Z;
+
+      //get jpsij +aI
+      arma::mat aI(num_obs,num_obs);									// create b by b matrix called aI. NOT INIIALIZED.
+      aI=aI.eye();										// a times b by b identity matrix. The .eye() turns aI into an identity matrix.
+
+
+
+      //arma::mat sec_term=WtW+aI;							//
+      arma::mat sec_term= aI+ W_Ainv_Wt;
+
+
+      //arma::mat sec_term_inv=sec_term.i();					// matrix inverse expression in middle of eq 5 in the paper. The .i() obtains the matrix inverse.
+      arma::mat sec_term_inv=inv_sympd(sec_term);					// matrix inverse expression in middle of eq 5 in the paper. The .i() obtains the matrix inverse.
+
+
+
+      arma::mat sec_term_inv_Y=sec_term_inv*orig_y_arma;					// matrix inverse expression in middle of eq 5 in the paper. The .i() obtains the matrix inverse.
+
+      arma::mat yt_W_Ainv_Wt = orig_y_arma.t()*W_Ainv_Wt;
+
+
+
+
+      double temp_scal = arma::as_scalar(nu*lambdaBCF -
+                                         yt_W_Ainv_Wt*sec_term_inv_Y +
+                                         yty  );
+
+      double templik0=arma::as_scalar(-(0.5)*real(arma::log_det(sec_term))-
+                                      expon*log(temp_scal)) ;
+
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //double templik = pow(templik0,beta_par);
+      double templik = beta_par*templik0;
+
+      if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
+        //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
+        //templik=templik*sum_prior_over_samp_prob;
+        templik=templik+log(sum_prior_over_samp_prob);
+
+      }
+      overall_liks(j)= templik;
+
+
+
+    }else{
+
 
     double b_mu=Wmat_mu.n_cols;
     double b_tau=Wmat_tau.n_cols;
@@ -25839,6 +27052,9 @@ List sBCF_train_no_test_no_output(double lambda_mu,
 
 
     }
+
+    } // end of else statement kernelize not equal to 3
+
 
 
     // //now get and save predictions
@@ -27060,6 +28276,24 @@ List sBART_ITEs_with_ints(double lambda,
   //Rcout << "Line 14670. \n";
 
 
+  int n_obs_forwmat = 0;
+  int n_obs_forwmat_tilde = 0;
+  int n_obs_wwt = 0;
+  int n_obs_wwt_tilde = 0;
+
+  if(kernelize == 3){
+    n_obs_wwt=num_obs;
+    n_obs_wwt_tilde=num_test_obs;
+
+  }else{
+    n_obs_forwmat=num_obs;
+    n_obs_forwmat_tilde=num_test_obs;
+
+  }
+
+
+
+
 #pragma omp parallel num_threads(ncores)
 {//start of pragma omp code
   dqrng::xoshiro256plus lgen(gen);      // make thread local copy of rng
@@ -27071,19 +28305,37 @@ List sBART_ITEs_with_ints(double lambda,
     // Rcout << "Line 26807 .\n";
     // Rcout << "j = " << j << ".\n";
 
-    arma::mat Wmat(num_obs,0);
-    arma::mat Wmat1(num_obs,0);
-    arma::mat Wmat0(num_obs,0);
-
-    //maybe use line below, depends how Jmat joined to Wmat
-    //int upsilon=0;
-
-    //arma::mat W_tilde(num_test_obs,0);
-    arma::mat W_tilde1(num_test_obs,0);
-    arma::mat W_tilde0(num_test_obs,0);
+    // arma::mat Wmat(num_obs,0);
+    // arma::mat Wmat1(num_obs,0);
+    // arma::mat Wmat0(num_obs,0);
+    //
+    // //maybe use line below, depends how Jmat joined to Wmat
+    // //int upsilon=0;
+    //
+    // //arma::mat W_tilde(num_test_obs,0);
+    // arma::mat W_tilde1(num_test_obs,0);
+    // arma::mat W_tilde0(num_test_obs,0);
 
     //maybe use line below, depends how Jmat joined to Wmat
     //int upsilon2=0;
+
+    arma::mat Wmat(n_obs_forwmat,0);
+    arma::mat Wmat1(n_obs_forwmat,0);
+    arma::mat Wmat0(n_obs_forwmat,0);
+
+    //arma::mat W_tilde(n_obs_forwmat_tilde,0);
+    arma::mat W_tilde1(n_obs_forwmat_tilde,0);
+    arma::mat W_tilde0(n_obs_forwmat_tilde,0);
+
+    arma::mat WWt_trick(n_obs_wwt, n_obs_wwt, arma::fill::zeros);
+    arma::mat Wdiff_Wt_trick(n_obs_wwt, n_obs_wwt, arma::fill::zeros);
+    arma::mat Wdiff_Wdifft_trick(n_obs_wwt, n_obs_wwt, arma::fill::zeros);
+
+    arma::mat Wdiff_tilde_Wt_trick(n_obs_wwt_tilde, n_obs_wwt, arma::fill::zeros);
+    arma::mat Wdiff_Wdifft_trick_tilde(n_obs_wwt_tilde, n_obs_wwt_tilde, arma::fill::zeros);
+
+
+
 
     //double sum_tree_samp_prob=1;
     //double sum_tree_prior_prob=1;
@@ -27723,14 +28975,32 @@ List sBART_ITEs_with_ints(double lambda,
 
       //GET J MATRIX
 
-      arma::mat Jmat(num_obs,term_nodes.n_elem);
-      //arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+      // arma::mat Jmat(num_obs,term_nodes.n_elem);
+      // //arma::mat Jtilde(num_test_obs,term_nodes.n_elem);
+      //
+      // arma::mat Jmat1(num_obs,term_nodes.n_elem);
+      // arma::mat Jtilde1(num_test_obs,term_nodes.n_elem);
+      //
+      // arma::mat Jmat0(num_obs,term_nodes.n_elem);
+      // arma::mat Jtilde0(num_test_obs,term_nodes.n_elem);
 
-      arma::mat Jmat1(num_obs,term_nodes.n_elem);
-      arma::mat Jtilde1(num_test_obs,term_nodes.n_elem);
 
-      arma::mat Jmat0(num_obs,term_nodes.n_elem);
-      arma::mat Jtilde0(num_test_obs,term_nodes.n_elem);
+      int n_J_cols= 0;
+      if(kernelize==3){
+
+      }else{
+        n_J_cols = term_nodes.n_elem;
+      }
+      arma::mat Jmat(num_obs,n_J_cols);
+      //arma::mat Jtilde(num_test_obs,n_J_cols);
+
+      arma::mat Jmat1(num_obs,n_J_cols);
+      arma::mat Jtilde1(num_test_obs,n_J_cols);
+
+      arma::mat Jmat0(num_obs,n_J_cols);
+      arma::mat Jtilde0(num_test_obs,n_J_cols);
+
+
 
       //arma::vec arma_terminal_nodes=Rcpp::as<arma::vec>(terminal_nodes);
       //NumericVector tree_predictions;
@@ -27756,18 +29026,40 @@ List sBART_ITEs_with_ints(double lambda,
         //double num_prod=1;
         //double num_sum=0;
         //Rcout << "Line 129.\n";
-        Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+        // Jmat.col(0) = arma::ones<arma::vec>(num_obs);
+        //
+        // if(is_test_data==1){
+        //   //Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+        //   Jtilde1.col(0) = arma::ones<arma::vec>(num_test_obs);
+        //   Jtilde0.col(0) = arma::ones<arma::vec>(num_test_obs);
+        // }else{
+        //   Jmat1.col(0) = arma::ones<arma::vec>(num_obs);
+        //   Jmat0.col(0) = arma::ones<arma::vec>(num_obs);
+        //
+        // }
 
 
-        if(is_test_data==1){
-          //Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
-          Jtilde1.col(0) = arma::ones<arma::vec>(num_test_obs);
-          Jtilde0.col(0) = arma::ones<arma::vec>(num_test_obs);
+        if(kernelize==3){
+          WWt_trick += 1;
+          //no change to W_diffWt because difference in treated and untreated is zero.
+          //similar for WdiffWdiff
+
+          //also no change to test data matrices
+
         }else{
-          Jmat1.col(0) = arma::ones<arma::vec>(num_obs);
-          Jmat0.col(0) = arma::ones<arma::vec>(num_obs);
+          Jmat.col(0) = arma::ones<arma::vec>(num_obs);
 
+          if(is_test_data==1){
+            //Jtilde.col(0) = arma::ones<arma::vec>(num_test_obs);
+            Jtilde1.col(0) = arma::ones<arma::vec>(num_test_obs);
+            Jtilde0.col(0) = arma::ones<arma::vec>(num_test_obs);
+          }else{
+            Jmat1.col(0) = arma::ones<arma::vec>(num_obs);
+            Jmat0.col(0) = arma::ones<arma::vec>(num_obs);
+
+          }
         }
+
 
         //for(int k=0; k<num_cats; k++){
         //assuming categories of y are from 1 to num_cats
@@ -28024,30 +29316,82 @@ List sBART_ITEs_with_ints(double lambda,
 
           //There is probably a more efficient way of doing this
           //e.g. initialize J matrix so that all elements are equal to zero
-          arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
-          tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
-          Jmat.col(i) = tempcol_J;
 
-          if(is_test_data==1){
-            arma::vec tempcol_Jtilde1=arma::zeros<arma::vec>(num_test_obs);
-            tempcol_Jtilde1(pred_test_indices1) = arma::ones<arma::vec>(pred_test_indices1.size());
-            Jtilde1.col(i) = tempcol_Jtilde1;
+          if(kernelize==3){
+            WWt_trick(pred_indices, pred_indices) += 1;
 
-            arma::vec tempcol_Jtilde0=arma::zeros<arma::vec>(num_test_obs);
-            tempcol_Jtilde0(pred_test_indices0) = arma::ones<arma::vec>(pred_test_indices0.size());
-            Jtilde0.col(i) = tempcol_Jtilde0;
+            if(is_test_data==1){
+              Wdiff_tilde_Wt_trick(pred_test_indices1 , pred_indices) += 1 ;
+              Wdiff_tilde_Wt_trick(pred_test_indices0 , pred_indices) -= 1 ;
+
+              Wdiff_Wdifft_trick_tilde(pred_test_indices1 , pred_test_indices1) += 1 ;
+              Wdiff_Wdifft_trick_tilde(pred_test_indices1 , pred_test_indices0) -= 1 ;
+              Wdiff_Wdifft_trick_tilde(pred_test_indices0 , pred_test_indices1) -= 1 ;
+              Wdiff_Wdifft_trick_tilde(pred_test_indices0 , pred_test_indices0) += 1 ;
+
+            }else{
+              Wdiff_Wt_trick(pred_indices1 , pred_indices) += 1 ;
+              Wdiff_Wt_trick(pred_indices0 , pred_indices) -= 1 ;
+
+              Wdiff_Wdifft_trick(pred_indices1 , pred_indices1) += 1 ;
+              Wdiff_Wdifft_trick(pred_indices1 , pred_indices0) -= 1 ;
+              Wdiff_Wdifft_trick(pred_indices0 , pred_indices1) -= 1 ;
+              Wdiff_Wdifft_trick(pred_indices0 , pred_indices0) += 1 ;
+
+
+            }
 
 
           }else{
-            arma::vec tempcol_J1=arma::zeros<arma::vec>(num_obs);
-            tempcol_J1(pred_indices1) = arma::ones<arma::vec>(pred_indices1.size());
-            Jmat1.col(i) = tempcol_J1;
+            arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+            tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+            Jmat.col(i) = tempcol_J;
 
-            arma::vec tempcol_J0=arma::zeros<arma::vec>(num_obs);
-            tempcol_J0(pred_indices0) = arma::ones<arma::vec>(pred_indices0.size());
-            Jmat0.col(i) = tempcol_J0;
+            if(is_test_data==1){
+              arma::vec tempcol_Jtilde1=arma::zeros<arma::vec>(num_test_obs);
+              tempcol_Jtilde1(pred_test_indices1) = arma::ones<arma::vec>(pred_test_indices1.size());
+              Jtilde1.col(i) = tempcol_Jtilde1;
 
+              arma::vec tempcol_Jtilde0=arma::zeros<arma::vec>(num_test_obs);
+              tempcol_Jtilde0(pred_test_indices0) = arma::ones<arma::vec>(pred_test_indices0.size());
+              Jtilde0.col(i) = tempcol_Jtilde0;
+
+
+            }else{
+              arma::vec tempcol_J1=arma::zeros<arma::vec>(num_obs);
+              tempcol_J1(pred_indices1) = arma::ones<arma::vec>(pred_indices1.size());
+              Jmat1.col(i) = tempcol_J1;
+
+              arma::vec tempcol_J0=arma::zeros<arma::vec>(num_obs);
+              tempcol_J0(pred_indices0) = arma::ones<arma::vec>(pred_indices0.size());
+              Jmat0.col(i) = tempcol_J0;
+
+            }
           }
+          // arma::vec tempcol_J=arma::zeros<arma::vec>(num_obs);
+          // tempcol_J(pred_indices) = arma::ones<arma::vec>(pred_indices.size());
+          // Jmat.col(i) = tempcol_J;
+          //
+          // if(is_test_data==1){
+          //   arma::vec tempcol_Jtilde1=arma::zeros<arma::vec>(num_test_obs);
+          //   tempcol_Jtilde1(pred_test_indices1) = arma::ones<arma::vec>(pred_test_indices1.size());
+          //   Jtilde1.col(i) = tempcol_Jtilde1;
+          //
+          //   arma::vec tempcol_Jtilde0=arma::zeros<arma::vec>(num_test_obs);
+          //   tempcol_Jtilde0(pred_test_indices0) = arma::ones<arma::vec>(pred_test_indices0.size());
+          //   Jtilde0.col(i) = tempcol_Jtilde0;
+          //
+          //
+          // }else{
+          //   arma::vec tempcol_J1=arma::zeros<arma::vec>(num_obs);
+          //   tempcol_J1(pred_indices1) = arma::ones<arma::vec>(pred_indices1.size());
+          //   Jmat1.col(i) = tempcol_J1;
+          //
+          //   arma::vec tempcol_J0=arma::zeros<arma::vec>(num_obs);
+          //   tempcol_J0(pred_indices0) = arma::ones<arma::vec>(pred_indices0.size());
+          //   Jmat0.col(i) = tempcol_J0;
+          //
+          // }
 
           //double nodemean=tree_data(terminal_nodes[i]-1,5);
           //IntegerVector predind=as<IntegerVector>(wrap(pred_indices));
@@ -28088,26 +29432,30 @@ List sBART_ITEs_with_ints(double lambda,
       // Rcout << "j = " << j << ".\n";
       // Rcout << "q = " << q << ".\n";
 
-      Wmat=join_rows(Wmat,Jmat);
-      //or
-      //Wmat.insert_cols(Wmat.n_cols,Jmat);
-      //or
-      //int b_j=term_nodes.n_elem;
-      //Wmat.insert_cols(upsilon,Jmat);
-      //upsilon+=b_j;
 
-
-      //Obtain test W_tilde, i.e. W matrix for test data
-      if(is_test_data==1){
-        W_tilde1=join_rows(W_tilde1,Jtilde1);
-        W_tilde0=join_rows(W_tilde0,Jtilde0);
+      if(kernelize==3){
 
       }else{
-        Wmat1=join_rows(Wmat1,Jmat1);
-        Wmat0=join_rows(Wmat0,Jmat0);
+        Wmat=join_rows(Wmat,Jmat);
+        //or
+        //Wmat.insert_cols(Wmat.n_cols,Jmat);
+        //or
+        //int b_j=term_nodes.n_elem;
+        //Wmat.insert_cols(upsilon,Jmat);
+        //upsilon+=b_j;
 
+
+        //Obtain test W_tilde, i.e. W matrix for test data
+        if(is_test_data==1){
+          W_tilde1=join_rows(W_tilde1,Jtilde1);
+          W_tilde0=join_rows(W_tilde0,Jtilde0);
+
+        }else{
+          Wmat1=join_rows(Wmat1,Jmat1);
+          Wmat0=join_rows(Wmat0,Jmat0);
+
+        }
       }
-
 
       // Rcout << "Line 27848 .\n";
       // Rcout << "j = " << j << ".\n";
@@ -28794,7 +30142,6 @@ List sBART_ITEs_with_ints(double lambda,
     // Rcout << "Line 27848 .\n";
     // Rcout << "j = " << j << ".\n";
     //
-    double b=Wmat.n_cols;
 
 
     // CURRENTLY CAN'T OBTAIN COVARIANCE MATRIX WITH FAST APPROXIMATION APPROACH
@@ -28850,6 +30197,114 @@ List sBART_ITEs_with_ints(double lambda,
     //   overall_preds(j)=preds_temp_arma;
     //
     // }else{
+
+
+    if(kernelize==3){
+
+
+      // arma::mat WWt= Wmat*Wmat.t();
+
+      //ideally would just add to diagonal using .diag(),
+      //but don't want changes to propogate to WWt
+      arma::mat sec_term= WWt_trick + a*arma::eye<arma::mat>(num_obs, num_obs);
+      //sec_term.diag() += a;
+
+      //arma::mat sec_term_inv=sec_term.i();
+      arma::mat sec_term_inv=inv_sympd(sec_term);
+
+      arma::mat sec_term_inv_Y = sec_term_inv*y;
+
+      double temp_scal = arma::as_scalar(nu*lambdaBART -
+                                         y.t()*WWt_trick*sec_term_inv_Y +
+                                         yty);
+
+      ////////////////////
+      //double templik0=exp(arma::as_scalar((b*0.5)*log(a)-0.5*real(arma::log_det(sec_term))-expon*log(nu*lambdaBART - mvm +yty)));
+      //////////////
+      double templik0=arma::as_scalar((num_obs*0.5)*log(a)-
+                                      0.5*real(arma::log_det(sec_term))-
+                                      expon*log(temp_scal));
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //overall_treetables[j]= wrap(tree_table1);
+
+
+      double templik = beta_par*templik0;
+
+      if(imp_sampler!=tree_prior){//check if importance sampler is not equal to the prior
+        //templik=templik*(sum_tree_prior_prob/sum_tree_samp_prob);
+        //templik=templik*sum_prior_over_samp_prob;
+        templik=templik+log(sum_prior_over_samp_prob);
+
+      }
+      overall_liks(j)= templik;
+
+
+      if(is_test_data==1){
+        arma::vec preds_temp_arma= Wdiff_tilde_Wt_trick*sec_term_inv_Y;
+
+        //Might be more efficient to save trdiff_Wt*Qinv then use in mean and scale calculations
+
+        overall_preds.col(j)=preds_temp_arma;
+
+        // arma::mat temp_for_scal = ((temp_scal)/(nu+num_obs));
+        // double temp_scal= as_scalar(temp_for_scal) ;
+        // //Rcout << "Line 4156";
+
+        arma::mat covar_t=((temp_scal)/(nu+num_obs))*(1/a)*
+          ( Wdiff_Wdifft_trick_tilde -
+          Wdiff_tilde_Wt_trick*sec_term_inv*Wdiff_tilde_Wt_trick.t() );
+
+        arma::mat catevartemp= averagingvec.t()*covar_t*averagingvec;
+
+        //arma::mat catevartemp=temp_scal*(averagingvec.t()*w_tilde_M_inv*(Treat_diff.t())*averagingvec);
+
+        t_vars_arma.col(j)=covar_t.diag();
+
+        //IF DO NOT REQUIRE CATE, the line below is more efficient
+        // t_vars_arma.col(j)=((temp_scal)/(nu+num_obs))*(1/a)*( tr_diff_tr_diff_t -
+        //   (arma::sum((tr_diff_Wt*sec_term_inv).t() % tr_diff_Wt.t(), 0)).t());
+        //
+
+        cate_means_arma(j)=as_scalar(averagingvec.t()*preds_temp_arma);
+        cate_vars_arma(j)=as_scalar(catevartemp);
+
+      }else{
+        arma::vec preds_temp_arma= Wdiff_Wt_trick*sec_term_inv_Y;
+
+        //Might be more efficient to save trdiff_Wt*Qinv then use in mean and scale calculations
+
+        overall_preds.col(j)=preds_temp_arma;
+
+        // arma::mat temp_for_scal = ((temp_scal)/(nu+num_obs));
+        // double temp_scal= as_scalar(temp_for_scal) ;
+        // //Rcout << "Line 4156";
+
+        arma::mat covar_t=((temp_scal)/(nu+num_obs))*(1/a)*
+          ( Wdiff_Wdifft_trick -
+          Wdiff_Wt_trick*sec_term_inv*Wdiff_Wt_trick.t() );
+
+        arma::mat catevartemp= averagingvec.t()*covar_t*averagingvec;
+
+        //arma::mat catevartemp=temp_scal*(averagingvec.t()*w_tilde_M_inv*(Treat_diff.t())*averagingvec);
+
+        t_vars_arma.col(j)=covar_t.diag();
+
+        //IF DO NOT REQUIRE CATE, the line below is more efficient
+        // t_vars_arma.col(j)=((temp_scal)/(nu+num_obs))*(1/a)*( tr_diff_tr_diff_t -
+        //   (arma::sum((tr_diff_Wt*sec_term_inv).t() % tr_diff_Wt.t(), 0)).t());
+        //
+
+        cate_means_arma(j)=as_scalar(averagingvec.t()*preds_temp_arma);
+        cate_vars_arma(j)=as_scalar(catevartemp);
+
+      }
+
+
+
+    }else{
+
+      double b=Wmat.n_cols;
 
 
     if( (kernelize == 0) | ((kernelize ==2)&(num_obs >4*b))){
@@ -29129,7 +30584,7 @@ List sBART_ITEs_with_ints(double lambda,
 
     } // end of kernelized code else statement
 
-
+    } //end of else statement kernelize not equal to 3
 
 
     //arma::vec pred_vec(testdata_arma.n_rows);
