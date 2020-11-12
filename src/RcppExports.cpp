@@ -695,6 +695,46 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// BARTIS_kernel_cpp
+List BARTIS_kernel_cpp(double lambda, int num_models, int num_trees, int seed, NumericVector ytrain, NumericMatrix original_datamat, double beta_par, NumericMatrix test_datamat, int ncores, int outsamppreds, double nu, double a, double lambdaBART, int valid_trees, int tree_prior, int imp_sampler, double alpha_BART, double beta_BART, int s_t_hyperprior, double p_s_t, double a_s_t, double b_s_t, double lambda_poisson, int fast_approx, double lower_prob, double upper_prob, double root_alg_precision, int sis_sampling, int reweight_splits, int approx_intervals);
+RcppExport SEXP _safeBart_BARTIS_kernel_cpp(SEXP lambdaSEXP, SEXP num_modelsSEXP, SEXP num_treesSEXP, SEXP seedSEXP, SEXP ytrainSEXP, SEXP original_datamatSEXP, SEXP beta_parSEXP, SEXP test_datamatSEXP, SEXP ncoresSEXP, SEXP outsamppredsSEXP, SEXP nuSEXP, SEXP aSEXP, SEXP lambdaBARTSEXP, SEXP valid_treesSEXP, SEXP tree_priorSEXP, SEXP imp_samplerSEXP, SEXP alpha_BARTSEXP, SEXP beta_BARTSEXP, SEXP s_t_hyperpriorSEXP, SEXP p_s_tSEXP, SEXP a_s_tSEXP, SEXP b_s_tSEXP, SEXP lambda_poissonSEXP, SEXP fast_approxSEXP, SEXP lower_probSEXP, SEXP upper_probSEXP, SEXP root_alg_precisionSEXP, SEXP sis_samplingSEXP, SEXP reweight_splitsSEXP, SEXP approx_intervalsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< int >::type num_models(num_modelsSEXP);
+    Rcpp::traits::input_parameter< int >::type num_trees(num_treesSEXP);
+    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type ytrain(ytrainSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type original_datamat(original_datamatSEXP);
+    Rcpp::traits::input_parameter< double >::type beta_par(beta_parSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type test_datamat(test_datamatSEXP);
+    Rcpp::traits::input_parameter< int >::type ncores(ncoresSEXP);
+    Rcpp::traits::input_parameter< int >::type outsamppreds(outsamppredsSEXP);
+    Rcpp::traits::input_parameter< double >::type nu(nuSEXP);
+    Rcpp::traits::input_parameter< double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< double >::type lambdaBART(lambdaBARTSEXP);
+    Rcpp::traits::input_parameter< int >::type valid_trees(valid_treesSEXP);
+    Rcpp::traits::input_parameter< int >::type tree_prior(tree_priorSEXP);
+    Rcpp::traits::input_parameter< int >::type imp_sampler(imp_samplerSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha_BART(alpha_BARTSEXP);
+    Rcpp::traits::input_parameter< double >::type beta_BART(beta_BARTSEXP);
+    Rcpp::traits::input_parameter< int >::type s_t_hyperprior(s_t_hyperpriorSEXP);
+    Rcpp::traits::input_parameter< double >::type p_s_t(p_s_tSEXP);
+    Rcpp::traits::input_parameter< double >::type a_s_t(a_s_tSEXP);
+    Rcpp::traits::input_parameter< double >::type b_s_t(b_s_tSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda_poisson(lambda_poissonSEXP);
+    Rcpp::traits::input_parameter< int >::type fast_approx(fast_approxSEXP);
+    Rcpp::traits::input_parameter< double >::type lower_prob(lower_probSEXP);
+    Rcpp::traits::input_parameter< double >::type upper_prob(upper_probSEXP);
+    Rcpp::traits::input_parameter< double >::type root_alg_precision(root_alg_precisionSEXP);
+    Rcpp::traits::input_parameter< int >::type sis_sampling(sis_samplingSEXP);
+    Rcpp::traits::input_parameter< int >::type reweight_splits(reweight_splitsSEXP);
+    Rcpp::traits::input_parameter< int >::type approx_intervals(approx_intervalsSEXP);
+    rcpp_result_gen = Rcpp::wrap(BARTIS_kernel_cpp(lambda, num_models, num_trees, seed, ytrain, original_datamat, beta_par, test_datamat, ncores, outsamppreds, nu, a, lambdaBART, valid_trees, tree_prior, imp_sampler, alpha_BART, beta_BART, s_t_hyperprior, p_s_t, a_s_t, b_s_t, lambda_poisson, fast_approx, lower_prob, upper_prob, root_alg_precision, sis_sampling, reweight_splits, approx_intervals));
+    return rcpp_result_gen;
+END_RCPP
+}
 // scale_response
 NumericVector scale_response(double a, double b, double c, double d, NumericVector y);
 RcppExport SEXP _safeBart_scale_response(SEXP aSEXP, SEXP bSEXP, SEXP cSEXP, SEXP dSEXP, SEXP ySEXP) {
@@ -947,6 +987,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_safeBart_LBCF_IS", (DL_FUNC) &_safeBart_LBCF_IS, 37},
     {"_safeBart_BART_MOTR_IS_cpp", (DL_FUNC) &_safeBart_BART_MOTR_IS_cpp, 29},
     {"_safeBart_BCF_MOTR_IS_cpp", (DL_FUNC) &_safeBart_BCF_MOTR_IS_cpp, 33},
+    {"_safeBart_BARTIS_kernel_cpp", (DL_FUNC) &_safeBart_BARTIS_kernel_cpp, 30},
     {"_safeBart_scale_response", (DL_FUNC) &_safeBart_scale_response, 5},
     {"_safeBart_get_original", (DL_FUNC) &_safeBart_get_original, 5},
     {"_safeBart_get_original_arma", (DL_FUNC) &_safeBart_get_original_arma, 5},
