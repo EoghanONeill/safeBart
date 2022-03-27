@@ -169,7 +169,10 @@ Tobit_Bart_IS <- function(seed,
 
   names(T_bart_output) <- c("Predictions",
                             "Intervals",
-                            "preds_unadj")
+                            "preds_unadj",
+                            "pred_outcome_cens",
+                            "pred_outcome_uncens",
+                            "exp_val_cens")
 
   T_bart_output
 }

@@ -4136,12 +4136,17 @@ List Tobit_BART_IS(double lambda,
   arma::vec pred_vec_overall=arma::zeros<arma::vec>(arma_test_data.n_rows);
   arma::vec pred_vec_overall_unadj=arma::zeros<arma::vec>(arma_test_data.n_rows);
 
+  arma::vec pred_vec_cens=arma::zeros<arma::vec>(arma_test_data.n_rows);
+  arma::vec exp_vec_cens=arma::zeros<arma::vec>(arma_test_data.n_rows);
+  arma::vec pred_vec_uncens=arma::zeros<arma::vec>(arma_test_data.n_rows);
 
   arma::vec overall_liks(num_models);
+  arma::vec overall_taus(num_models);
 
   arma::mat overall_preds(num_test_obs,num_models);
   arma::mat overall_preds_unadj(num_test_obs,num_models);
   arma::mat overall_map_xbeta(num_test_obs,num_models);
+  arma::mat overall_map_xbeta_yscale(num_test_obs,num_models);
 
   arma::mat t_vars_arma(num_test_obs,num_models);
 
@@ -5320,12 +5325,12 @@ List Tobit_BART_IS(double lambda,
 
     //Obtain likelihood
 
-    //Rcout << "Line 5186 .\n";
-    // arma::vec temp_onevec = arma::ones<arma::vec>(num_obs);
-    // arma::vec temp_onevec_test = arma::ones<arma::vec>(num_test_obs);
-    //
-    // Wmat= join_rows(temp_onevec , Wmat);
-    // W_tilde= join_rows(temp_onevec_test , W_tilde);
+    // Rcout << "Line 5186 .\n";
+    arma::vec temp_onevec = arma::ones<arma::vec>(num_obs);
+    arma::vec temp_onevec_test = arma::ones<arma::vec>(num_test_obs);
+
+    Wmat= join_rows(temp_onevec , Wmat);
+    W_tilde= join_rows(temp_onevec_test , W_tilde);
 
 
     double b=Wmat.n_cols;
@@ -5467,6 +5472,8 @@ List Tobit_BART_IS(double lambda,
 
     Eigen::VectorXd xalpha_alleig = W_all_tilde*allparams.head(allparams.size()-1);
 
+    Eigen::VectorXd xalpha_alleig_yscale = xalpha_alleig/allparams(allparams.size()-1);
+
     //Rcout << " xalpha_alleig = .\n" << xalpha_alleig << " \n" ;
 
     // Rcpp::NumericVector prob_all( y.size() );
@@ -5504,11 +5511,17 @@ List Tobit_BART_IS(double lambda,
                                          xalpha_alleig.size(),
                                          true, false);
 
+    arma::vec xalpha_all_yscale_arma= arma::vec(xalpha_alleig_yscale.data(),
+                                                xalpha_alleig_yscale.size(),
+                                         true, false);
+
     overall_preds.col(j)=pred_prob_all;
 
     overall_preds_unadj.col(j)=pred_prob_unadj;
 
     overall_map_xbeta.col(j)=xalpha_all_arma;
+
+    overall_map_xbeta_yscale.col(j)=xalpha_all_yscale_arma;
 
     t_vars_arma.col(j)=whw_vars;
 
@@ -5526,6 +5539,7 @@ List Tobit_BART_IS(double lambda,
     }
     overall_liks(j)= templik;
 
+    overall_taus(j)= allparams(allparams.size()-1);
 
     //Rcout << "Line 5426. \n";
     //Rcout << "j = "<< j << " . \n";
@@ -5542,7 +5556,7 @@ List Tobit_BART_IS(double lambda,
 /////////////////////////////////////////////////////////////////////////////////
 
 
-//Rcout << "Line 19492. \n";
+// Rcout << "Line 5560. \n";
 //Rcout << "Line 5442. \n";
 
 //arma::vec BICi=-0.5*overall_liks;
@@ -5588,6 +5602,48 @@ for(unsigned int k=0;k<overall_liks.size();k++){
   pred_vec_overall_unadj += result_private;
 }
 
+#pragma omp parallel num_threads(ncores)
+{
+  arma::vec result_private=arma::zeros<arma::vec>(arma_test_data.n_rows);
+#pragma omp for nowait //fill result_private in parallel
+  for(unsigned int i=0; i<overall_preds.n_cols; i++) result_private += overall_map_xbeta_yscale.col(i)*weighted_lik(i);
+#pragma omp critical
+  pred_vec_uncens += result_private;
+}
+
+
+arma::mat censvalsmat = overall_map_xbeta_yscale;
+
+arma::uvec cens_tempinds = arma::find(censvalsmat < below_cens2);
+
+censvalsmat.elem( find(censvalsmat < below_cens2) ) =
+  arma::ones<arma::vec>(cens_tempinds.n_elem)*below_cens2;
+
+
+#pragma omp parallel num_threads(ncores)
+{
+  arma::vec result_private=arma::zeros<arma::vec>(arma_test_data.n_rows);
+#pragma omp for nowait //fill result_private in parallel
+  for(unsigned int i=0; i<overall_preds.n_cols; i++) result_private += censvalsmat.col(i)*weighted_lik(i);
+#pragma omp critical
+  pred_vec_cens += result_private;
+}
+
+
+
+#pragma omp parallel num_threads(ncores)
+{
+  arma::vec result_private=arma::zeros<arma::vec>(arma_test_data.n_rows);
+#pragma omp for nowait //fill result_private in parallel
+  for(unsigned int i=0; i<overall_preds.n_cols; i++) result_private +=
+    ((1- 0.5*arma::erfc( overall_map_xbeta.col(i)/std::sqrt(2))) % overall_map_xbeta_yscale.col(i) +
+    ( 1/overall_taus(i))*(0.3989422804014327 ) *
+    arma::exp(-0.5 * arma::pow(overall_map_xbeta.col(i),2)))*weighted_lik(i);
+#pragma omp critical
+  exp_vec_cens += result_private;
+}
+
+
 
 
 // Rcout << "overall_preds = " << overall_preds << ". \n \n \n \n \n ";
@@ -5622,7 +5678,7 @@ for(unsigned int k=0;k<overall_liks.size();k++){
 // } //end else statement
 
 
-//Rcout << "Line 19557. \n";
+// Rcout << "Line 5682. \n";
 
 //Rcout << "Line 5509. \n";
 
@@ -5832,10 +5888,13 @@ if(weights_vec.size()==1){
 //return(orig_preds);
 
 
-List ret(3);
+List ret(6);
 ret[0]= wrap(pred_vec_overall);
 ret[1]= wrap(output);
 ret[2]= wrap(pred_vec_overall_unadj);
+ret[3]= wrap(pred_vec_cens);
+ret[4]= wrap(pred_vec_uncens);
+ret[5]= wrap(exp_vec_cens);
 
 
 return(ret);

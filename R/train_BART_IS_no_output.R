@@ -145,8 +145,7 @@ train_BART_IS_no_output <- function(seed,
                                        u_quant,
                                        root_alg_precision,
                                        sis_sampling,
-                                       reweight_splits,
-                                       approx_intervals,
+                                       reweight_splits,#approx_intervals,
                                        kernelize)
 
   names(sBARToutput) <- c("model_probs",

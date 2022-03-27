@@ -7,6 +7,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // get_imp_vars
 NumericVector get_imp_vars(NumericVector split_vars, int num_col, NumericVector current_vars);
 RcppExport SEXP _safeBart_get_imp_vars(SEXP split_varsSEXP, SEXP num_colSEXP, SEXP current_varsSEXP) {
